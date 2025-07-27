@@ -8,19 +8,15 @@
 import SwiftUI
 
 func TagComponent(tag: String) -> some View {
-    Button(action: {
-        
-    }) {
-        Text("\(tag)")
-            .font(.suit(.medium, size: 12))
-            .foregroundStyle(Color.contentAdditive)
-            .padding(.horizontal, 6)
-            .padding(.vertical, 2)
-            .background(
-                RoundedRectangle(cornerRadius: 4)
-                    .foregroundStyle(Color.backFillRegular)
+    Text("\(tag)")
+        .font(.suit(.medium, size: 12))
+        .foregroundStyle(Color.contentAdditive)
+        .padding(.horizontal, 6)
+        .padding(.vertical, 2)
+        .background(
+            RoundedRectangle(cornerRadius: 4)
+                .foregroundStyle(Color.backFillRegular)
         )
-    }
 }
 
 func SelectingTagComponent(tag: String, selectedTag: Bool, onTap: @escaping () -> Void) -> some View {

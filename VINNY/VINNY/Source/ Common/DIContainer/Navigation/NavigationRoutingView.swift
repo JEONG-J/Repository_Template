@@ -24,6 +24,17 @@ struct NavigationRoutingView: View {
                 .environmentObject(container)
         case .SearchView:
             SearchView(container: container)
+        case .BrandView:
+            BrandView(container: container)
+                .environmentObject(container)
+        case .CategoryView:
+            CategoryView(container: container)
+                .environmentObject(container)
+        case .ClothTypeView:
+            ClothTypeView(container: container)
+                .environmentObject(container)
+        case .LocationView:
+            LocationView(container: container)
                 .environmentObject(container)
         }
     }

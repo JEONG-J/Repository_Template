@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct HomeView: View {
-    @EnvironmentObject var container: DIContainer
     @State var selectedFilter: Int = 0
     let filters: [String] = ["추천", "랭킹", "인기"]
     let isNewRecommend: Bool = true
@@ -65,6 +64,7 @@ struct HomeView: View {
             // MARK: - TabView, 스크롤뷰
             HomeTabView
         }
+        .navigationBarBackButtonHidden()
         .background(Color.backFillStatic)
     }
     
