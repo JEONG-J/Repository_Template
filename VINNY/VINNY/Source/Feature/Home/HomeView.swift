@@ -8,9 +8,14 @@
 import SwiftUI
 
 struct HomeView: View {
+    @EnvironmentObject var container: DIContainer
+    init(container: DIContainer) {
+            
+        }
     @State var selectedFilter: Int = 0
     let filters: [String] = ["추천", "랭킹", "인기"]
     let isNewRecommend: Bool = true
+
 
     var body: some View {
         VStack(spacing: 0) {
@@ -138,6 +143,3 @@ struct HomeView: View {
     }
 }
 
-#Preview {
-    HomeView()
-}

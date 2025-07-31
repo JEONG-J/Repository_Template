@@ -23,7 +23,8 @@ struct NavigationRoutingView: View {
             LoginView(container: container)
                 .environmentObject(container)
         case .SearchView:
-            SearchView(container: container)
+            SearchView(container: _container)
+                .environmentObject(container)
         case .BrandView:
             BrandView(container: container)
                 .environmentObject(container)
@@ -35,6 +36,13 @@ struct NavigationRoutingView: View {
                 .environmentObject(container)
         case .LocationView:
             LocationView(container: container)
+                .environmentObject(container)
+        case .SearchFocusView:
+            SearchFocusView()
+                .environmentObject(container)
+            
+        case .SearchResultView(let keyword):
+            SearchResultView(keyword: keyword)
                 .environmentObject(container)
         }
     }

@@ -16,6 +16,8 @@ enum NavigationDestination: Hashable {
     case CategoryView
     case ClothTypeView
     case LocationView
+    case SearchFocusView
+    case SearchResultView(keyword: String)
     
     static func == (lhs: NavigationDestination, rhs: NavigationDestination) -> Bool {
         switch (lhs, rhs) {
@@ -32,6 +34,10 @@ enum NavigationDestination: Hashable {
         case(.ClothTypeView, .ClothTypeView):
             return true
         case(.LocationView, .LocationView):
+            return true
+        case(.SearchFocusView, .SearchFocusView):
+            return true
+        case(.SearchResultView, .SearchResultView):
             return true
         default:
             return false
@@ -54,6 +60,10 @@ enum NavigationDestination: Hashable {
             hasher.combine("ClothTypeView")
         case .LocationView:
             hasher.combine("LocationView")
+        case .SearchFocusView:
+            hasher.combine("SearchFocusView")
+        case .SearchResultView:
+            hasher.combine("SearchResultView")
         }
     }
 }

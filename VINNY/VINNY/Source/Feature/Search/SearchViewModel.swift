@@ -8,11 +8,10 @@
 import Foundation
 import Combine
 
-enum SearchViewState {
+enum SearchViewState: Equatable {
     case showingDefault
     case searching(String)
 }
-
 class SearchViewModel: ObservableObject {
     @Published var searchText: String = "" {
         didSet {
@@ -26,19 +25,13 @@ class SearchViewModel: ObservableObject {
     }
 
     @Published var state: SearchViewState = .showingDefault
-    @Published var recentKeywords: [String] = ["최근 검색어1", "최근 검색어2", "최근 검색어3"]
-    @Published var searchResults: [Shop] = []
+    
+    @Published var searchResults: [Shops] = []
 
-    func removeKeyword(_ keyword: String) {
-        recentKeywords.removeAll { $0 == keyword }
-    }
-
-    func clearAllKeywords() {
-        recentKeywords.removeAll()
-    }
+   
 
     func performSearch(for keyword: String) {
-        searchResults = Shop.dummyList.filter {
+        searchResults = Shops.dummyList.filter {
             $0.name.localizedCaseInsensitiveContains(keyword)
         }
     }

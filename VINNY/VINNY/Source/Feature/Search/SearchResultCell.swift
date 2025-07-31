@@ -9,7 +9,7 @@
 import SwiftUI
 
 struct SearchResultCell: View {
-    let shop: Shop
+    let shops: Shops
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -35,11 +35,11 @@ struct SearchResultCell: View {
                 }
 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(shop.name)
+                    Text(shops.name)
                         .font(.system(size: 16, weight: .semibold))
                         .foregroundColor(.white)
 
-                    Text(shop.address)
+                    Text(shops.address)
                         .font(.system(size: 14))
                         .foregroundColor(.gray)
                 }
