@@ -39,6 +39,7 @@ enum NavigationDestination: Hashable {
             return true
         case(.SearchResultView, .SearchResultView):
             return true
+        
         default:
             return false
         }

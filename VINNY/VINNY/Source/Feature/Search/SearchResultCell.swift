@@ -10,63 +10,44 @@ import SwiftUI
 
 struct SearchResultCell: View {
     let shops: Shops
-
+    
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: 12) {
             HStack(alignment: .top, spacing: 12) {
-                // 썸네일 이미지 (없으면 placeholder)
-                /*if let imageURL = shop.imageURL, let url = URL(string: imageURL) {
-                    AsyncImage(url: url) { image in
-                        image
-                            .resizable()
-                            .scaledToFill()
-                    } placeholder: {
-                        Color.gray.opacity(0.2)
-                    }
-                    .frame(width: 40, height: 40)
-                    .clipShape(RoundedRectangle(cornerRadius: 6))*/
-               // } else{
-                    Image(systemName: "photo")
-                        .resizable()
-                        .frame(width: 40, height: 40)
-                        .foregroundColor(.gray)
-                        .background(Color.gray.opacity(0.2))
-                        .clipShape(RoundedRectangle(cornerRadius: 6))
-                }
-
+                Image("example_profile")
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 48, height: 48)
+                    .clipShape(Circle())
+                
                 VStack(alignment: .leading, spacing: 4) {
                     Text(shops.name)
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundColor(.white)
-
+                        .font(.suit(.bold, size: 26))
+                        .foregroundColor(.contentBase)
+                    
                     Text(shops.address)
-                        .font(.system(size: 14))
-                        .foregroundColor(.gray)
+                        .font(.suit(.regular, size: 14))
+                        .foregroundColor(.contentAdditive)
                 }
+                
+                Spacer()
+                
+                Image(systemName: "chevron.right")
+                    
             }
-
-            // 태그들
+            
             HStack(spacing: 6) {
-                Label("지역", systemImage: "mappin.and.ellipse")
+                Image(systemName: "mappin.and.ellipse")
                     .font(.system(size: 13))
-                    .foregroundColor(.gray)
-                    .labelStyle(.titleOnly)
-
-                Text("카테고리1")
-                    .font(.system(size: 13))
-                    .foregroundColor(.gray)
-
-                Text("카테고리2")
-                    .font(.system(size: 13))
-                    .foregroundColor(.gray)
-
-                Text("카테고리3")
-                    .font(.system(size: 13))
-                    .foregroundColor(.gray)
+                    .foregroundColor(.contentAdditive)
+                Text(shops.address)
+                    .font(.suit(.regular, size: 13))
+                    .foregroundColor(.contentAdditive)
             }
         }
-       // .padding()
-       // .background(Color(black))
-       // .cornerRadius(12)
+        .padding(.vertical, 12)
+        .padding(.horizontal, 16)
+        .background(Color.black)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
     }
-
+}

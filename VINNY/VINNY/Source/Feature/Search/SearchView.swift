@@ -89,7 +89,13 @@ struct SearchView: View {
 
             LazyVGrid(columns: columns, spacing: 12) {
                 ForEach(CategoryItem.sampleList) { category in
-                    CategoryItemView(categoryItem: category)
+                    Button {
+                        SearchKeywordManager.shared.add(category.name)
+                        container.navigationRouter.push(to: .SearchResultView(keyword: category.name))
+                    } label: {
+                        CategoryItemView(categoryItem: category)
+                    }
+                    .buttonStyle(.plain)
                 }
             }
             .padding(.top, 16)

@@ -5,178 +5,100 @@
 //  Created by 소민준 on 7/26/25.
 //
 
-
 import SwiftUI
 
-struct AutoFocusTextField: UIViewRepresentable {
-    @Binding var text: String
-    @Binding var isFocused: Bool
-
-    func makeUIView(context: Context) -> UITextField {
-        let textField = UITextField()
-        textField.placeholder = "빈티지샵, 게시글 검색하기"
-        textField.font = UIFont.systemFont(ofSize: 16)
-        textField.textColor = UIColor.white
-        textField.tintColor = UIColor.white
-        textField.keyboardType = .default
-        textField.returnKeyType = .search
-        textField.delegate = context.coordinator
-        textField.setContentHuggingPriority(.defaultLow, for: .horizontal)
-        return textField
-    }
-
-    func updateUIView(_ uiView: UITextField, context: Context) {
-        uiView.text = text
-        if isFocused {
-            DispatchQueue.main.async {
-                if !uiView.isFirstResponder {
-                    uiView.becomeFirstResponder()
-                }
-            }
-        } else {
-            DispatchQueue.main.async {
-                if uiView.isFirstResponder {
-                    uiView.resignFirstResponder()
-                }
-            }
-        }
-    }
-
-    func makeCoordinator() -> Coordinator {
-        Coordinator(text: $text)
-    }
-
-    class Coordinator: NSObject, UITextFieldDelegate {
-        @Binding var text: String
-
-        init(text: Binding<String>) {
-            _text = text
-        }
-
-        func textFieldDidChangeSelection(_ textField: UITextField) {
-            text = textField.text ?? ""
-        }
-    }
-}
+private let recentKeywordsKey = "recentKeywordsKey"
 
 struct SearchFocusView: View {
     @EnvironmentObject var container: DIContainer
     @State private var searchText: String = ""
     @FocusState private var isTextFieldFocused: Bool
+    @State private var recentKeywords: [String] = UserDefaults.standard.stringArray(forKey: recentKeywordsKey) ?? []
 
     var body: some View {
         VStack(spacing: 0) {
             // Header
-            HStack {
-                Button(action: {
-                    container.navigationRouter.pop()
-                }) {
-                    Image("arrowBack")
-                        .foregroundColor(.white)
-                        .frame(width: 44, height: 44, alignment: .center)
+            ZStack {
+                HStack {
+                    Button(action: {
+                        container.navigationRouter.pop()
+                    }) {
+                        Image("arrowBack")
+                            .resizable()
+                            .frame(width: 24, height: 24)
+                            .padding(.leading, 16)
+                    }
+                    Spacer()
                 }
-                Spacer()
                 Text("검색하기")
-                    .font(.suit(.bold, size: 20))
-                    .foregroundColor(.white)
-                    .frame(height: 44)
-                Spacer()
-                Spacer(minLength: 44) // reserves at least 44 pts without forcing an invalid layout
+                    .font(.suit(.regular, size: 18))
+                    .foregroundStyle(Color.contentBase)
             }
-            .padding(.top, 16)
+            .frame(height: 60)
 
             // Search Bar
-            Button(action: {
-                // Optional: implement search action trigger
-            }) {
-                HStack(spacing: 8) {
-                    Image("magnifier")
-                        .resizable()
-                        .frame(width: 24, height: 24)
+            HStack(spacing: 8) {
+                Image("magnifier")
+                    .resizable()
+                    .frame(width: 24, height: 24)
+                    .onTapGesture {
+                        guard !searchText.isEmpty else { return }
+                        addRecentKeyword(searchText)
+                        container.navigationRouter.push(to: .SearchResultView(keyword: searchText))
+                    }
 
-                    Text("빈티지샵, 게시글 검색하기")
-                        .font(.suit(.regular, size: 16))
-                        .foregroundStyle(Color.contentAssistive)
-
-                    Spacer()
-
-                    Image("close")
-                        .resizable()
-                        .frame(width: 24, height: 24)
+                ZStack(alignment: .leading) {
+                    if searchText.isEmpty {
+                        Text("빈티지샵, 게시글 검색하기")
+                            .font(.system(size: 16))
+                            .foregroundColor(.white)
+                            .padding(.leading, 4)
+                    }
+                    TextField("", text: $searchText)
+                        .focused($isTextFieldFocused)
+                        .font(.system(size: 16))
+                        .foregroundColor(.white)
+                        .tint(.white)
+                        .onSubmit {
+                            guard !searchText.isEmpty else { return }
+                            addRecentKeyword(searchText)
+                            container.navigationRouter.push(to: .SearchResultView(keyword: searchText))
+                        }
+                        .frame(height: 20)
                 }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 12)
-                .background(
-                    RoundedRectangle(cornerRadius: 12)
-                        .foregroundStyle(Color.backFillRegular)
-                )
+
+                if !searchText.isEmpty {
+                    Button(action: {
+                        searchText = ""
+                    }) {
+                        Image("close")
+                            .resizable()
+                            .frame(width: 24, height: 24)
+                    }
+                }
             }
             .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(isTextFieldFocused ? Color.white : Color.clear, lineWidth: 2)
+                    .background(RoundedRectangle(cornerRadius: 12).fill(Color.backFillRegular))
+            )
+            .padding(.horizontal, 16)
             .padding(.top, 18)
+            .onAppear {
+                isTextFieldFocused = true
+                updateRecentKeywords()
+            }
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 0) {
-                    // Recommended Keywords
-                    Text("추천 검색어")
-                        .font(.suit(.semibold, size: 16))
-                        .foregroundColor(.white)
-                        .padding(.top, 18)
-                        .padding(.bottom, 8)
-
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 8) {
-                            ForEach(["홍대 데님", "칼하트", "하이엔드 빈티지", "폴로", "슈프림"], id: \.self) { keyword in
-                                Text(keyword)
-                                    .font(.suit(.medium, size: 14))
-                                    .padding(.horizontal, 12)
-                                    .padding(.vertical, 8)
-                                    .background(
-                                        RoundedRectangle(cornerRadius: 16)
-                                            .fill(Color.backFillRegular)
-                                    )
-                                    .foregroundStyle(Color.contentBase)
-                            }
-                        }
-                        .padding(.vertical, 4)
-                    }
-
-                    // Recent Keywords
-                    HStack {
-                        Text("최근 검색어")
-                            .font(.suit(.semibold, size: 16))
-                            .foregroundColor(.white)
-                        Spacer()
-                        Button("모두 삭제") {
-                            // TODO: clear all logic
-                        }
-                        .font(.suit(.regular, size: 14))
-                        .foregroundColor(.gray)
-                    }
-                    .padding(.top, 24)
-                    .padding(.bottom, 8)
-
-                    VStack(spacing: 12) {
-                        ForEach(["밀리언아카이브", "홍대 데님", "조휴일"], id: \.self) { keyword in
-                            HStack {
-                                Image(systemName: "magnifyingglass")
-                                    .foregroundColor(.gray)
-                                Text(keyword)
-                                    .font(.suit(.regular, size: 15))
-                                    .foregroundColor(.white)
-                                Spacer()
-                                Button(action: {
-                                    // TODO: remove item logic
-                                }) {
-                                    Image(systemName: "xmark")
-                                        .foregroundColor(.gray)
-                                }
-                            }
-                        }
-                    }
+                    recommendedKeywordSection
+                    recentKeywordSection
                 }
                 .padding(.horizontal, 16)
             }
-            .padding(.top, 12)
+            .padding(.top, 4)
             .onTapGesture {
                 isTextFieldFocused = false
             }
@@ -185,9 +107,105 @@ struct SearchFocusView: View {
         }
         .background(Color.backRootRegular.ignoresSafeArea())
         .navigationBarBackButtonHidden(true)
-        .onAppear {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                isTextFieldFocused = true
+    }
+
+    private func addRecentKeyword(_ keyword: String) {
+        SearchKeywordManager.shared.add(keyword)
+        updateRecentKeywords()
+    }
+
+    private func updateRecentKeywords() {
+        recentKeywords = SearchKeywordManager.shared.get()
+    }
+
+    private var recommendedKeywordSection: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            Text("추천 검색어")
+                .font(.suit(.semibold, size: 16))
+                .foregroundColor(.white)
+                .padding(.top, 18)
+                .padding(.bottom, 16)
+
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    ForEach(["홍대 데님", "칼하트", "하이엔드 빈티지", "폴로", "슈프림"], id: \.self) { keyword in
+                        Text(keyword)
+                            .font(.suit(.medium, size: 14))
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 8)
+                            .background(
+                                RoundedRectangle(cornerRadius: 16)
+                                    .fill(Color.backFillRegular)
+                            )
+                            .foregroundStyle(Color.contentBase)
+                            .onTapGesture {
+                                searchText = keyword
+                                addRecentKeyword(keyword)
+                                container.navigationRouter.push(to: .SearchResultView(keyword: keyword))
+                            }
+                    }
+                }
+                .padding(.vertical, 4)
+                Spacer().frame(height: 20)
+                Rectangle()
+                    .fill(Color.borderDividerRegular)
+                    .frame(height: 4)
+                    .frame(maxWidth: .infinity)
+                    .edgesIgnoringSafeArea(.horizontal)
+                Spacer().frame(height: 4)
+            }
+        }
+    }
+
+    private var recentKeywordSection: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            HStack {
+                Text("최근 검색어")
+                    .font(.suit(.semibold, size: 16))
+                    .foregroundColor(.white)
+                Spacer()
+                Button(action: {
+                    SearchKeywordManager.shared.clearAll()
+                    updateRecentKeywords()
+                }) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "xmark")
+                            .resizable()
+                            .frame(width: 12, height: 12)
+                            .foregroundColor(.gray)
+                        Text("모두 삭제")
+                            .font(.suit(.regular, size: 14))
+                            .foregroundColor(.gray)
+                    }
+                }
+            }
+            .padding(.top, 16)
+            .padding(.bottom, 16)
+
+            VStack(spacing: 20) {
+                ForEach(recentKeywords, id: \.self) { keyword in
+                    HStack {
+                        Image(systemName: "magnifyingglass")
+                            .foregroundColor(.gray)
+                        Text(keyword)
+                            .font(.suit(.regular, size: 15))
+                            .foregroundColor(.white)
+                        Spacer()
+                        Button(action: {
+                            SearchKeywordManager.shared.remove(keyword)
+                            updateRecentKeywords()
+                        }) {
+                            Image(systemName: "xmark")
+                                .foregroundColor(.gray)
+                        }
+                    }
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        searchText = keyword
+                        addRecentKeyword(keyword)
+                        container.navigationRouter.push(to: .SearchResultView(keyword: keyword))
+                    }
+                }
             }
         }
     }
