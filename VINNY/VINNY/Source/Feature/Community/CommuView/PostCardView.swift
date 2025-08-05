@@ -8,14 +8,29 @@
 import SwiftUI
 
 struct PostCardView: View {
-    private var postImages: [String] = ["community2", "community2", "community2"]
-    private var shopName: String = "주코 빈티지 홍대"
+    @EnvironmentObject var container: DIContainer
+        
+    init(container: DIContainer) {
+            
+    }
+    
+//    private var postImages: [String] = ["community2", "community2", "community2"]
+//    private var shopName: String = "주코 빈티지 홍대"
+//    private var tags: [String] = ["#빈티지", "#스트릿", "#레더"]
+//    
+//    private var postTime: String = "3시간 전 | 2025년 5월 9일"
+//    private var title: String = "오늘의 코디"
+//    private var content: String = "해외에서 입는 빈티지 굿~~"
+//    private var likeCount: Int = 725
+    private var postImages: [String] = ["post2", "post2", "post"]
+    
+    private var shopName: String = "스테이블 그라운드 합정"
     private var tags: [String] = ["#빈티지", "#스트릿", "#레더"]
     
-    private var postTime: String = "3시간 전"
-    private var title: String = "오늘의 코디"
-    private var content: String = "해외에서 입는 빈티지 굿~~"
-    private var likeCount: Int = 725
+    private var postTime: String = "3시간 전 | 2025년 5월 9일"
+    private var title: String = "오늘의 폴로 코디"
+    private var content: String = "봄에 내는 가을 무드 ㅎㅎ"
+    private var likeCount: Int = 259
     
     @State private var currentIndex: Int = 0
     
@@ -26,10 +41,11 @@ struct PostCardView: View {
         VStack(alignment: .leading, spacing: 0) {
             Button(action: {
                 print("게시글 보기 이동")
+                container.navigationRouter.push(to: .PostView)
             }) {
                 VStack(alignment: .leading, spacing: 0) {
                     HStack(spacing: 8) {
-                        Image("community1") // 프로필 이미지
+                        Image("post1") // 프로필 이미지
                             .resizable()
                             .frame(width: 40, height: 40)
                             .aspectRatio(contentMode: .fill)
@@ -150,6 +166,3 @@ struct PostCardView: View {
     }
 }
 
-#Preview {
-    PostCardView()
-}

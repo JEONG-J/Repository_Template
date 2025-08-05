@@ -18,6 +18,14 @@ enum NavigationDestination: Hashable {
     case LocationView
     case SearchFocusView
     case SearchResultView(keyword: String)
+    case PostView
+    case HomeView
+    case CommunityView
+    case PostUploadView
+    case TasteResetView
+    case SettingView
+    case TopsideProfileView
+    case MyProfileView
     
     static func == (lhs: NavigationDestination, rhs: NavigationDestination) -> Bool {
         switch (lhs, rhs) {
@@ -40,6 +48,22 @@ enum NavigationDestination: Hashable {
         case(.SearchResultView, .SearchResultView):
             return true
         
+        case (.PostView, .PostView):
+            return true
+        case (.HomeView, .HomeView):
+            return true
+        case (.CommunityView, .CommunityView):
+            return true
+        case (.PostUploadView, .PostUploadView):
+            return true 
+        case(.TasteResetView, .TasteResetView):
+            return true
+        case(.SettingView, .SettingView):
+            return true
+        case(.TopsideProfileView, .TopsideProfileView):
+            return true
+        case(.MyProfileView, .MyProfileView):
+            return true
         default:
             return false
         }
@@ -65,6 +89,22 @@ enum NavigationDestination: Hashable {
             hasher.combine("SearchFocusView")
         case .SearchResultView:
             hasher.combine("SearchResultView")
+        case .CommunityView:
+            hasher.combine("CommunityView")
+        case .HomeView:
+            hasher.combine("HomeView")
+        case .PostView:
+            hasher.combine("PostView")
+        case .PostUploadView:
+            hasher.combine("PostUploadView")
+        case .TasteResetView:
+            hasher.combine("TasteResetView")
+        case .SettingView:
+            hasher.combine("SettingView")
+        case .TopsideProfileView:
+            hasher.combine("TopsideProfileView")
+        case .MyProfileView:
+            hasher.combine("MyProfileView")
         }
     }
 }

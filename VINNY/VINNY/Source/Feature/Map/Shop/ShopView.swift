@@ -8,14 +8,14 @@
 import SwiftUI
 
 struct ShopView: View {
-    private var shopName: String = "샵 이름"
-    private var shopAddress: String = "샵 주소"
-    private var shopIG: String = "vintageplus_trendy"
-    private var shopTime: String = "12:00 ~ 23:00"
-    private var categories: [String] = ["카테고리1", "카테고리2", "카테고리3"]
+    @ObservedObject var viewModel: MapViewModel
     
-    @State var selectedFilter: Int = 0
-    private var filters: [String] = ["후기 작성", "길 찾기"]
+    // 테스트용. api 연결 시 지우기
+    var shopName: String = "샵 이름"
+    var shopAddress: String = "샵 주소"
+    var shopIG: String = "vintageplus_trendy"
+    var shopTime: String = "12:00 ~ 23:00"
+    var categories: [String] = ["카테고리1", "카테고리2", "카테고리3"]
     
     var body: some View {
         VStack(spacing: 0) {
@@ -147,25 +147,38 @@ struct ShopView: View {
             }
             
             // MARK: - 고정 버튼
-            HStack(spacing: 0) {
-                ForEach(filters.indices, id: \.self) { index in
-                    Button(action: {
-                        withAnimation(.easeInOut) {
-                            selectedFilter = index
-                        }
-                    }) {
-                        HStack {
-                            Text(filters[index])
-                                .font(selectedFilter == index ? .suit(.bold, size: 16) : .suit(.light, size: 16))
-                                .foregroundStyle(selectedFilter == index ? Color.contentInverted : Color.contentBase)
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding(16)
-                        .background(
-                            RoundedRectangle(cornerRadius: 8)
-                                .foregroundStyle(selectedFilter == index ? Color.backFillInverted : Color.backFillRegular)
-                        )
+            HStack(spacing: 8) {
+                Button(action: {
+                    
+                }) {
+                    HStack {
+                        Text("후기 작성")
+                            .font(.suit(.medium, size: 16))
+                            .foregroundStyle(Color.contentBase)
                     }
+                    .frame(maxWidth: .infinity)
+                    .padding(16)
+                    .background(
+                        RoundedRectangle(cornerRadius: 8)
+                            .foregroundStyle(Color.backFillRegular)
+                    )
+                }
+                
+                Button(action: {
+                    // viewModel.KaKaoMap(lat: marker.coordinate.latitude, lng: marker.coordinate.longitude) 이와 같은 형태로 전달
+                    viewModel.KaKaoMap(lat: 37.5551033, lng: 126.9221464) // 테스트용 지워도 됨
+                }) {
+                    HStack {
+                        Text("길찾기")
+                            .font(.suit(.medium, size: 16))
+                            .foregroundStyle(Color.contentInverted)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(16)
+                    .background(
+                        RoundedRectangle(cornerRadius: 8)
+                            .foregroundStyle(Color.backFillInverted)
+                    )
                 }
             }
             .padding(.vertical, 10)
@@ -176,6 +189,6 @@ struct ShopView: View {
     }
 }
 
-#Preview {
-    ShopView()
-}
+//#Preview {
+//    ShopView()
+//}

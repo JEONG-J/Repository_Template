@@ -43,6 +43,28 @@ struct NavigationRoutingView: View {
             
         case .SearchResultView(let keyword):
             SearchResultView(keyword: keyword)
+        case .PostView:
+            PostView(container: container)
+                .environmentObject(container)
+        case .HomeView:
+            HomeView(container: container)
+                .environmentObject(container)
+        case .CommunityView:
+            CommunityView(container: container)
+                .environmentObject(container)
+        case .PostUploadView:
+            PostUploadView(container: container)
+        case .SettingView:
+            SettingView(container: container)
+                .environmentObject(container)
+        case .TopsideProfileView:
+            TopsideProfileView(container: container)
+                .environmentObject(container)
+        case .MyProfileView:
+            MyProfileView(container: container)
+                .environmentObject(container)
+        case .TasteResetView:
+            TasteResetView(container: container)
                 .environmentObject(container)
         }
     }

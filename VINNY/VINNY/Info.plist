@@ -24,5 +24,10 @@
 		<string>SUIT-Thin.ttf</string>
 		<string>SUIT-Variable.ttf</string>
 	</array>
+    <key>LSApplicationQueriesSchemes</key>
+    <array>
+        <string>kakaomap</string>
+        <string>nmap</string>
+    </array>
 </dict>
 </plist>

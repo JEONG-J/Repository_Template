@@ -136,10 +136,15 @@ struct HomeView: View {
                 RankingView()
                     .padding(.horizontal, 16)
             } else {
-                PopularView()
+                PopularView(container: container)
                     .padding(.horizontal, 16)
             }
         }
     }
 }
 
+#Preview {
+    let container = DIContainer()
+    HomeView(container: container)
+        .environmentObject(container)
+}

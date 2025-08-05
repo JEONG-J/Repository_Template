@@ -17,6 +17,8 @@ struct UIKitDarkMapView: UIViewRepresentable {
         mapView.showsUserLocation = true // 지도에 현재 디바이스의 위치(파란 점)를 보여주도록 설정.(위치 권한이 허용 시 표시)
         mapView.delegate = context.coordinator // 맵의 델리게이트를 설정.
         
+        context.coordinator.mapView = mapView
+        
         // 카메라 초기 위치 설정
         if let center = viewModel.currentMapCenter {
             let region = MKCoordinateRegion(center: center, latitudinalMeters: 1000, longitudinalMeters: 1000)
@@ -56,9 +58,31 @@ struct UIKitDarkMapView: UIViewRepresentable {
     // marker 또는 커스텀 annotation 처리
     class Coordinator: NSObject, MKMapViewDelegate {
         var viewModel: MapViewModel
+        weak var mapView: MKMapView?
         
         init(viewModel: MapViewModel) {
             self.viewModel = viewModel
+            super.init()
+            
+            NotificationCenter.default.addObserver(forName: .deselectMarkerAndRefresh, object: nil, queue: .main) { [weak self] notification in
+                if let marker = notification.object as? Marker {
+                    self?.refreshMarker(marker)
+                }
+            }
+        }
+        
+        // 마커 선택 해제 시 다시 그리기 함수
+        func refreshMarker(_ marker: Marker) {
+            guard let mapView = mapView else { return }
+            
+            // 기존 annotation 찾아서 교체
+            if let annotation = mapView.annotations.first(where: {
+                $0.coordinate.latitude == marker.coordinate.latitude &&
+                $0.coordinate.longitude == marker.coordinate.longitude
+            }) {
+                mapView.removeAnnotation(annotation)
+                mapView.addAnnotation(annotation)
+            }
         }
         
         // 사용자가 지도를 움직이기 시작하면 자동 위치 추적 중단
@@ -78,6 +102,9 @@ struct UIKitDarkMapView: UIViewRepresentable {
                 DispatchQueue.main.async {
                     print("✅ Marker selected: \(matched.title)")
                     self.viewModel.selectedMarker = matched
+                    
+                    mapView.removeAnnotation(annotation)
+                    mapView.addAnnotation(annotation)
                 }
             }
         }
@@ -105,7 +132,11 @@ struct UIKitDarkMapView: UIViewRepresentable {
             }
 
             // SwiftUI View 생성
-            let hosting = UIHostingController(rootView: LocationMapAnnotationView(category: matched.category))
+            let isSelected = viewModel.selectedMarker?.id == matched.id
+
+            let hosting = UIHostingController(
+                rootView: LocationMapAnnotationView(category: matched.category, isSelected: isSelected)
+            )
             hosting.view.backgroundColor = .clear
             
             let targetSize = hosting.view.intrinsicContentSize

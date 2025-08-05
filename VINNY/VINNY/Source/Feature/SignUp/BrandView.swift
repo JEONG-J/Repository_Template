@@ -39,6 +39,8 @@ struct BrandView: View {
                             Image("arrowBack")
                                 .resizable()
                                 .frame(width: 24, height: 24)
+                                .padding(.leading, 16)
+
                         }
                         Spacer()
                     }
@@ -46,8 +48,8 @@ struct BrandView: View {
                         .font(.suit(.regular, size: 18))
                         .foregroundStyle(Color.contentBase)
                 }
-                .padding(16)
-                
+                .frame(height: 60)
+
                 
                 // 상단 설명
                 VStack(spacing: 2) {
@@ -55,16 +57,15 @@ struct BrandView: View {
                         .font(.suit(.bold, size: 20))
                         .foregroundStyle(Color("ContentBase"))
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal, 20)
 
                     Text("빈티지샵 추천 등 취향을 위해 맞춤형으로 활용됩니다.")
                         .font(.suit(.medium, size: 16))
                         .foregroundStyle(Color("ContentAdditive"))
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal, 20)
-                        .padding(.bottom, 16)
                 }
-                .padding(.top, 16)
+                .frame(height: 59)
+                .padding(.horizontal, 20)
+                .padding(.vertical, 16)
 
                 // 스크롤 가능한 브랜드 목록
                 ScrollView {
@@ -92,9 +93,11 @@ struct BrandView: View {
                         }
                     }
                     .padding(.horizontal, 20)
-                    .padding(.top, 32)
+                    .padding(.vertical, 16)
                 }
-                Spacer().frame(height: 140)
+                Spacer()
+                    .frame(height: !selectedCategories.isEmpty ? 100 : 130)
+                    .animation(.easeInOut, value: !selectedCategories.isEmpty)
             }
 
             // 하단 버튼 고정
@@ -108,7 +111,6 @@ struct BrandView: View {
             )
         }
         .navigationBarBackButtonHidden()
-        .ignoresSafeArea(edges: .bottom)
     }
 
     private func toggleSelection(for category: String) {

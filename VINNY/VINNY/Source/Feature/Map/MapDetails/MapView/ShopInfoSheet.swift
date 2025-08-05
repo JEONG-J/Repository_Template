@@ -15,9 +15,6 @@ struct ShopInfoSheet: View {
     var categories: [String] = ["카테고리1", "카테고리2", "카테고리3"]
     
     var body: some View {
-        ZStack {
-            Color.backFillStatic
-                .edgesIgnoringSafeArea(.all)
             VStack(spacing: 0) {
                 HStack(spacing: 8) {
                     Image("emptyImage")
@@ -109,8 +106,14 @@ struct ShopInfoSheet: View {
                     .frame(maxWidth: .infinity, maxHeight: 120)
                     .padding(.horizontal, 16)
                     .padding(.vertical, 12)
+                
+                Spacer()
             }
-        }
+            .padding(.top, 4)
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .foregroundStyle(Color.backFillStatic)
+            )
         .ignoresSafeArea()
     }
 }

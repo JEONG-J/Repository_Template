@@ -47,66 +47,34 @@ struct MapTopView: View {
             )
             .padding(.horizontal)
             .padding(.vertical, 8)
-            
-            HStack(spacing: 8) {
-                Image("star")
-                    .resizable()
-                    .frame(width: 20, height: 20)
-                    .padding(12)
-                    .background(
-                        RoundedRectangle(cornerRadius: 8)
-                            .foregroundStyle(Color.backFillRegular)
-                    )
-                
-                Button(action: {
-                    LocationManager.shared.startUpdatingLocation() // 위치 정보 최신화
-                    
-                    // 현재 위치가 있을면 지도에 전달
-                    if let location = LocationManager.shared.currentLocation {
-                        NotificationCenter.default.post(name: .moveMapToCurrentLocation, object: location)
-                        
-                        // 지도 이동 허용 (추적 모드 활성화)
-                        NotificationCenter.default.post(name: .setMapTrackingEnabled, object: true)
-                    }
-                }) {
-                    HStack(spacing: 2) {
-                        Image("reset")
-                            .resizable()
-                            .frame(width: 20, height: 20)
-                        
-                        Text("현 위치에서 검색")
-                            .font(.suit(.medium, size: 14))
-                            .foregroundStyle(Color.contentBase)
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding(12)
-                    .background(
-                        RoundedRectangle(cornerRadius: 8)
-                            .foregroundStyle(Color.backFillRegular)
-                    )
-                }
-                
-                Image("icon")
-                    .resizable()
-                    .frame(width: 20, height: 20)
-                    .padding(12)
-                    .background(
-                        RoundedRectangle(cornerRadius: 8)
-                            .foregroundStyle(Color.backFillRegular)
-                    )
-            }
-            .padding(.horizontal)
-            .padding(.bottom, 14)
+            .padding(.bottom, 8)
         }
-        .padding(.top, 54)
-        .background(Color.backFillStatic)
-        .ignoresSafeArea()
+        .background(
+            Color.backFillStatic
+                .clipShape(RoundedCorner(radius: 12, corners: [.bottomLeft, .bottomRight]))
+        )
     }
+    
+    struct RoundedCorner: Shape {
+        var radius: CGFloat = .infinity
+        var corners: UIRectCorner = .allCorners
+        
+        func path(in rect: CGRect) -> Path {
+            let path = UIBezierPath(
+                roundedRect: rect,
+                byRoundingCorners: corners,
+                cornerRadii: CGSize(width: radius, height: radius)
+            )
+            return Path(path.cgPath)
+        }
+    }
+
 }
 
 extension Notification.Name {
     static let moveMapToCurrentLocation = Notification.Name("moveMapToCurrentLocation")
     static let setMapTrackingEnabled = Notification.Name("setMapTrackingEnabled")
+    static let deselectMarkerAndRefresh = Notification.Name("deselectMarkerAndRefresh")
 }
 
 #Preview {

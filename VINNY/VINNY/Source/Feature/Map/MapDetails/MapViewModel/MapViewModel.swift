@@ -9,6 +9,7 @@
 import SwiftUI
 import MapKit
 import Observation
+import KakaoMapsSDK
 
 final class MapViewModel: ObservableObject {
     
@@ -36,5 +37,25 @@ final class MapViewModel: ObservableObject {
         currentMapCenter = coordinate
         cameraPosition = .region(MKCoordinateRegion(center: coordinate,
                                                     span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)))
+    }
+    
+    func KaKaoMap(lat: Double, lng: Double) {
+        // URL Scheme을 사용하여 kakaomap 앱 열고 경로 생성
+        guard let url = URL(string: "kakaomap://route?ep=\(lat),\(lng)&by=CAR") else { return }
+        
+        // kakaomap 앱의 App store URL 생성
+        guard let appStoreUrl = URL(string: "itms-apps://itunes.apple.com/app/id304608425") else { return }
+        
+        let urlString = "kakaomap://open"
+        
+        //kakaomap 앱이 설치되어 있는지 확인하고 URL 열기
+        if let appUrl = URL(string: urlString) {
+            if UIApplication.shared.canOpenURL(appUrl) {
+                UIApplication.shared.open(url)
+            } else {
+                // kakaomap 앱이 설치되어 있지 않은 경우 App Store URL 열기
+                UIApplication.shared.open(appStoreUrl)
+            }
+        }
     }
 }

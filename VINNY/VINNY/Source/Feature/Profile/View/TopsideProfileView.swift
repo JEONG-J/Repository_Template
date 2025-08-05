@@ -8,6 +8,10 @@
 import SwiftUI
 
 struct TopsideProfileView: View {
+    @EnvironmentObject var container: DIContainer
+    init(container: DIContainer){
+        
+    }
     var body: some View {
         ZStack(alignment: .top) {
             // 배경 이미지
@@ -24,7 +28,7 @@ struct TopsideProfileView: View {
                         .foregroundStyle(Color("ContentBase"))
                     Spacer()
                     Button(action: {
-                                            // 설정 액션 (비워둠)
+                        container.navigationRouter.push(to: .SettingView)
                     }) {
                         Image("settingbutton")
                             .resizable()
@@ -78,6 +82,3 @@ struct TopsideProfileView: View {
     }
 }
 
-#Preview {
-    TopsideProfileView()
-}

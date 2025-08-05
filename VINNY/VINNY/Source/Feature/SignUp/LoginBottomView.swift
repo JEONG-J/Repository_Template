@@ -11,14 +11,14 @@ struct LoginBottomView: View {
     let title: String
     let isEnabled: Bool
     let action: () -> Void
-    let assistiveText: String?
+    let assistiveText: String
 
     var body: some View {
-        VStack(spacing: 8) {
-            if let assistive = assistiveText {
-                Text(assistive)
+        VStack{
+            if !isEnabled {
+                Text(assistiveText)
                     .font(.suit(.regular, size: 12))
-                    .foregroundStyle(isEnabled ? Color("BackRootRegular") : Color("ContentAssistive"))
+                    .foregroundStyle(Color("ContentAssistive"))
             }
 
             Button(action: action) {
@@ -30,10 +30,10 @@ struct LoginBottomView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 12))
             }
             .padding(.vertical, 10)
+            .padding(.horizontal, 16)
             .disabled(!isEnabled)
         }
-        .padding(.horizontal, 20)
-        .padding(.bottom, 40)
+        .padding(.bottom, 20)
         .background(Color("BackFillRegular"))
     }
 }

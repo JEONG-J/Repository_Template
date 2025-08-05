@@ -19,8 +19,8 @@ struct ClothTypeView: View {
     ]
     
     let columns = [
-        GridItem(.flexible(), spacing: 12),
-        GridItem(.flexible(), spacing: 12)
+        GridItem(.flexible(), spacing: 8),
+        GridItem(.flexible(), spacing: 8)
     ]
 
     var body: some View {
@@ -36,6 +36,8 @@ struct ClothTypeView: View {
                             Image("arrowBack")
                                 .resizable()
                                 .frame(width: 24, height: 24)
+                                .padding(.leading, 16)
+
                         }
                         Spacer()
                     }
@@ -43,27 +45,24 @@ struct ClothTypeView: View {
                         .font(.suit(.regular, size: 18))
                         .foregroundStyle(Color.contentBase)
                 }
-                .padding(16)
-                
-                Divider()
+                .frame(height: 60)
                 
                 VStack(spacing: 2) {
                     Text("어떤 옷을 주로 찾으시나요?")
                         .font(.suit(.bold, size: 20))
                         .foregroundStyle(Color("ContentBase"))
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal, 20)
 
                     Text("최대 3개까지 선택할 수 있어요.")
                         .font(.suit(.medium, size: 16))
                         .foregroundStyle(Color("ContentAdditive"))
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal, 20)
-                        .padding(.bottom, 16)
                 }
-                .padding(.bottom, 154.5)
-
-                LazyVGrid(columns: columns, spacing: 12) {
+                .frame(height: 59)
+                .padding(.horizontal, 20)
+                .padding(.vertical, 16)
+                
+                LazyVGrid(columns: columns, spacing: 8) {
                     ForEach(categories, id: \.self) { category in
                         let isSelected = selectedCategories.contains(category)
                         Text(category)
@@ -84,21 +83,22 @@ struct ClothTypeView: View {
                     }
                 }
                 .padding(.horizontal, 20)
-                .padding(.bottom, 164.5)
-                Spacer().frame(height: 120) // 버튼 영역 확보!
+                .padding(.vertical, 154.5)
+                
+                LoginBottomView(
+                    title: "다음으로",
+                    isEnabled: !selectedCategories.isEmpty,
+                    action: {
+                        container.navigationRouter.push(to: .LocationView)
+                    },
+                    assistiveText: "최소 한 개를 선택해야 다음으로 넘어갈 수 있어요"
+                )
+                .frame(height: 104)
+
             }
 
-            LoginBottomView(
-                title: "다음으로",
-                isEnabled: !selectedCategories.isEmpty,
-                action: {
-                    container.navigationRouter.push(to: .LocationView)
-                },
-                assistiveText: "최소 한 개를 선택해야 다음으로 넘어갈 수 있어요"
-            )
         }
         .navigationBarBackButtonHidden()
-        .ignoresSafeArea(edges: .bottom)
     }
 
     private func toggleSelection(for category: String) {

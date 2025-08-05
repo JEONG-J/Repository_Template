@@ -42,10 +42,11 @@ enum Category: String {
 
 struct LocationMapAnnotationView: View {
     var category: Category
+    var isSelected: Bool = false
     
     var body: some View {
         ZStack {
-            Image("marker")
+            Image(isSelected ? "selectedMarker" : "marker")
                 .resizable()
                 .aspectRatio(contentMode: .fit)
             

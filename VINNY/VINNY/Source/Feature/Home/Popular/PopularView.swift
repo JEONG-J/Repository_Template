@@ -8,6 +8,12 @@
 import SwiftUI
 
 struct PopularView: View {
+    @EnvironmentObject var container: DIContainer
+        
+    init(container: DIContainer) {
+        
+    }
+    
     var body: some View {
         ScrollView {
             VStack(spacing: 0) {
@@ -21,7 +27,7 @@ struct PopularView: View {
             .padding(.top, 4)
             
             ForEach(1..<10, id: \.self) { post in
-                PostCardView()
+                PostCardView(container: container)
                     .padding(.vertical, 10)
             }
         }
@@ -29,5 +35,7 @@ struct PopularView: View {
 }
 
 #Preview {
-    PopularView()
+    let container = DIContainer()
+    PopularView(container: container)
+        .environmentObject(container)
 }

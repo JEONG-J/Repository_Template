@@ -8,13 +8,17 @@
 import SwiftUI
 
 struct MyProfileView: View {
+    @EnvironmentObject var container: DIContainer
+    init(container: DIContainer){
+        
+    }
     @State private var selectedTab: Int = 0
     private let filters = ["게시물", "찜한 샵", "저장함"]
 
     var body: some View {
         VStack(spacing: 0) {
             // 상단 프로필 헤더
-            TopsideProfileView()
+            TopsideProfileView(container: container)
 
             // 탭 필터
             ProfileSelectedFilter(
@@ -40,6 +44,3 @@ struct MyProfileView: View {
     }
 }
 
-#Preview {
-    MyProfileView()
-}

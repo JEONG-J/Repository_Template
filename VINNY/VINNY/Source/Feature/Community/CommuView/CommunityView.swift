@@ -8,6 +8,12 @@
 import SwiftUI
 
 struct CommunityView: View {
+    @EnvironmentObject var container: DIContainer
+        
+    init(container: DIContainer) {
+            
+    }
+    
     var body: some View {
 
         VStack(spacing: 0) {
@@ -20,9 +26,13 @@ struct CommunityView: View {
                     
                     Spacer()
                     
-                    Image("plus")
-                        .resizable()
-                        .frame(width: 24, height: 24)
+                    Button(action: {
+                        container.navigationRouter.push(to: .PostUploadView)
+                    }) {
+                        Image("plus")
+                            .resizable()
+                            .frame(width: 24, height: 24)
+                    }
                 }
                 .padding(.horizontal, 16)
                 .padding(.vertical, 16)
@@ -56,7 +66,7 @@ struct CommunityView: View {
             ScrollView {
                 LazyVStack(spacing: 0) {
                     ForEach(0..<5, id: \.self) { post in
-                        PostCardView()
+                        PostCardView(container: container)
                             .padding(.horizontal, 16)
                             .padding(.vertical, 10)
 
@@ -75,5 +85,7 @@ struct CommunityView: View {
 }
 
 #Preview {
-    CommunityView()
+    let container = DIContainer()
+    CommunityView(container: container)
+        .environmentObject(container)
 }

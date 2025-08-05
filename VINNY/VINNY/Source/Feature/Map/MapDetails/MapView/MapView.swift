@@ -16,18 +16,113 @@ struct MapView: View {
     @Bindable private var locationManager = LocationManager.shared
     @ObservedObject private var viewModel: MapViewModel
     
+    @State private var dragOffset: CGFloat = 0
+
     init(viewModel: MapViewModel) {
         self.viewModel = viewModel
     }
     
     var body: some View {
         ZStack(alignment: .top) {
-            if locationManager.currentLocation != nil {
-                UIKitDarkMapView(viewModel: viewModel)
-            } else {
-                ProgressView("위치 정보를 불러오는 중...")
+            VStack(spacing: 0) {
+                ZStack(alignment: .bottom) {
+                    if locationManager.currentLocation != nil {
+                        UIKitDarkMapView(viewModel: viewModel)
+                    } else {
+                        ProgressView("위치 정보를 불러오는 중...")
+                    }
+                    
+                    HStack(spacing: 8) {
+                        Button(action: {
+                            
+                        }) {
+                            Image("star")
+                                .resizable()
+                                .frame(width: 20, height: 20)
+                                .padding(12)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .foregroundStyle(Color.backFillRegular)
+                                )
+                        }
+                        
+                        Spacer()
+                        
+                        Button(action: {
+                            LocationManager.shared.startUpdatingLocation() // 위치 정보 최신화
+                            
+                            // 현재 위치가 있을면 지도에 전달
+                            if let location = LocationManager.shared.currentLocation {
+                                NotificationCenter.default.post(name: .moveMapToCurrentLocation, object: location)
+                                
+                                // 지도 이동 허용 (추적 모드 활성화)
+                                NotificationCenter.default.post(name: .setMapTrackingEnabled, object: true)
+                            }
+                        }) {
+                            Image("icon")
+                                .resizable()
+                                .frame(width: 20, height: 20)
+                                .padding(12)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .foregroundStyle(Color.backFillInteractive)
+                                )
+                        }
+                    }
+                    .padding(.horizontal)
+                    .padding(.bottom, viewModel.selectedMarker != nil ? 380 : 85)
+                    
+                    // 마커 눌렀을 떄 효과 (커스텀)
+                    if let marker = viewModel.selectedMarker {
+                        // 터치 감지는 따로 TapGesture만 담당
+                        Color.clear
+                            .ignoresSafeArea()
+                            .contentShape(Rectangle())
+                            .simultaneousGesture(
+                                TapGesture()
+                                    .onEnded {
+                                        if let marker = viewModel.selectedMarker {
+                                            NotificationCenter.default.post(name: .deselectMarkerAndRefresh, object: marker)
+                                        }
+                                        withAnimation {
+                                            viewModel.selectedMarker = nil
+                                        }
+                                    }
+                            )
+                        
+                        ShopInfoSheet(shopName: marker.title)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 380)
+                            .offset(y: dragOffset)
+                            .transition(.move(edge: .bottom))
+                            .animation(.easeInOut(duration: 0.3), value: viewModel.selectedMarker)
+                            .gesture(
+                                DragGesture()
+                                    .onChanged { value in
+                                        if value.translation.height > 0 {
+                                            dragOffset = value.translation.height
+                                        }
+                                    }
+                                    .onEnded { value in
+                                        if value.translation.height > 120 {
+                                            if let marker = viewModel.selectedMarker {
+                                                NotificationCenter.default.post(name: .deselectMarkerAndRefresh, object: marker)
+                                            }
+                                            withAnimation {
+                                                viewModel.selectedMarker = nil
+                                                dragOffset = 0
+                                            }
+                                        } else {
+                                            withAnimation {
+                                                dragOffset = 0
+                                            }
+                                        }
+                                    }
+                            )
+                    }
+                }
             }
-        
+            
             MapTopView()
         }
         // 최초 진입 시 1회만 지도 카메라 이동
@@ -51,14 +146,7 @@ struct MapView: View {
         .onReceive(NotificationCenter.default.publisher(for: .setMapTrackingEnabled)) { notification in
             viewModel.shouldTrackUserLocation = true
         }
-        // 마커 눌렀을 시 바텀 시트
-        .sheet(item: $viewModel.selectedMarker) { marker in
-            ShopInfoSheet(shopName: marker.title)
-                .presentationDetents([.height(300)])
-        }
         .navigationBarBackButtonHidden()
-        .ignoresSafeArea()
-        .background(Color.backFillStatic)
     }
 }
 

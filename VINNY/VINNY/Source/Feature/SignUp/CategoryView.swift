@@ -19,8 +19,8 @@ struct CategoryView: View {
     ]
 
     let columns = [
-        GridItem(.flexible(), spacing: 12),
-        GridItem(.flexible(), spacing: 12)
+        GridItem(.flexible(), spacing: 8),
+        GridItem(.flexible(), spacing: 8)
     ]
 
     var body: some View {
@@ -36,6 +36,7 @@ struct CategoryView: View {
                             Image("arrowBack")
                                 .resizable()
                                 .frame(width: 24, height: 24)
+                                .padding(.leading, 16)
                         }
                         Spacer()
                     }
@@ -43,25 +44,24 @@ struct CategoryView: View {
                         .font(.suit(.regular, size: 18))
                         .foregroundStyle(Color.contentBase)
                 }
-                .padding(16)
+                .frame(height: 60)
                                 
                 VStack(spacing: 2) {
                     Text("좋아하는 빈티지 취향을 3개까지 골라주세요!")
                         .font(.suit(.bold, size: 20))
                         .foregroundStyle(Color("ContentBase"))
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal, 20)
 
                     Text("빈티지샵, 피드 추천 등 다양하게 맞춤형으로 활용됩니다.")
                         .font(.suit(.medium, size: 16))
                         .foregroundStyle(Color("ContentAdditive"))
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal, 20)
-                        .padding(.bottom, 16)
                 }
-                .padding(.bottom, 102.5)
+                .frame(height: 59)
+                .padding(.horizontal, 20)
+                .padding(.vertical, 16)
 
-                LazyVGrid(columns: columns, spacing: 12) {
+                LazyVGrid(columns: columns, spacing: 8) {
                     ForEach(categories, id: \.self) { category in
                         let isSelected = selectedCategories.contains(category)
                         Text(category)
@@ -82,21 +82,21 @@ struct CategoryView: View {
                     }
                 }
                 .padding(.horizontal, 20)
-                .padding(.bottom, 112.5)
-                Spacer().frame(height: 120) // 버튼 영역 확보!
-            }
+                .padding(.vertical, 102.5)
 
-            LoginBottomView(
-                title: "다음으로",
-                isEnabled: !selectedCategories.isEmpty,
-                action: {
-                    container.navigationRouter.push(to: .BrandView)
-                },
-                assistiveText: "최소 한 개를 선택해야 다음으로 넘어갈 수 있어요"
-            )
+                LoginBottomView(
+                    title: "다음으로",
+                    isEnabled: !selectedCategories.isEmpty,
+                    action: {
+                        container.navigationRouter.push(to: .BrandView)
+                    },
+                    assistiveText: "최소 한 개를 선택해야 다음으로 넘어갈 수 있어요"
+                )
+                .frame(height: 104)
+            }
+            
         }
         .navigationBarBackButtonHidden()
-        .ignoresSafeArea(edges: .bottom)
     }
 
     private func toggleSelection(for category: String) {
