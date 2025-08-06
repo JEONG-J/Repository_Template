@@ -24,6 +24,7 @@ struct ContentView: View {
                     .border(.black)
                 
                 Button(action: {
+                    container.navigationRouter.push(to: .SearchView)
                 }, label: {
                     Text("이동")
                 })

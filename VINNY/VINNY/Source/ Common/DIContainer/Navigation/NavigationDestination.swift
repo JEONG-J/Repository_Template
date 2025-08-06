@@ -11,10 +11,13 @@ enum NavigationDestination: Hashable {
     
     case VinnyTabView
     case LoginView
+    case SearchView
     case BrandView
     case CategoryView
     case ClothTypeView
     case LocationView
+    case SearchFocusView
+    case SearchResultView(keyword: String)
     case PostView
     case HomeView
     case CommunityView
@@ -30,6 +33,8 @@ enum NavigationDestination: Hashable {
               return true
         case (.LoginView, .LoginView):
               return true
+        case (.SearchView, .SearchView):
+                return true
         case(.BrandView, .BrandView):
             return true
         case(.CategoryView, .CategoryView):
@@ -38,6 +43,11 @@ enum NavigationDestination: Hashable {
             return true
         case(.LocationView, .LocationView):
             return true
+        case(.SearchFocusView, .SearchFocusView):
+            return true
+        case(.SearchResultView, .SearchResultView):
+            return true
+        
         case (.PostView, .PostView):
             return true
         case (.HomeView, .HomeView):
@@ -65,6 +75,8 @@ enum NavigationDestination: Hashable {
             hasher.combine("VinnyTabView")
         case .LoginView:
             hasher.combine("LoginView")
+        case .SearchView:
+            hasher.combine("SearchView")
         case .BrandView:
             hasher.combine("BrandView")
         case .CategoryView:
@@ -73,6 +85,10 @@ enum NavigationDestination: Hashable {
             hasher.combine("ClothTypeView")
         case .LocationView:
             hasher.combine("LocationView")
+        case .SearchFocusView:
+            hasher.combine("SearchFocusView")
+        case .SearchResultView:
+            hasher.combine("SearchResultView")
         case .CommunityView:
             hasher.combine("CommunityView")
         case .HomeView:
