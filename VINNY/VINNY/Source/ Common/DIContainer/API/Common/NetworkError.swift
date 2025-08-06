@@ -1,5 +1,6 @@
 //  네트워크 통신 중 발생할 수 있는 에러들을 통합적으로 처리하기 위한 열거형.
 //  SwiftUI에서도 ViewModel에서 error.localizedDescription으로 사용자에게 에러 메시지를 쉽게 보여줄 수 있도록 설계함.
+// 얘는 추가적인 코드 추가가 거의 필요없음
 
 import Foundation
 // MARK: - 네트워크 오류 타입 정의
