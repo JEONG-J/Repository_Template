@@ -157,7 +157,7 @@ struct SearchResultView: View {
             .padding(.top, 16)
             // .padding(.bottom, x) 는 불필요 — 각 텍스트에 padding(.bottom, …)로 공간 확보
 
-            // ✅ 탭 전체 하단 구분선: 선택 밑줄과 같은 baseline에 위치
+            // 탭 전체 하단 구분선: 선택 밑줄과 같은 baseline에 위치
             Rectangle()
                 .fill(Color.borderDividerRegular)
                 .frame(height: 1)
