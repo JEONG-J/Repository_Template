@@ -1,13 +1,6 @@
-//
-//  CourseDetailResponse.swift
-//  VINNY
-//
-//  Created by 홍지우 on 6/25/25.
-//
-
 import Foundation
 
-struct CourseDetailResponse: Codable {
+struct PostDetailResponse: Codable {
     
     // 공통 부분 빼고 다 적으면 됨
     let courseId: Int

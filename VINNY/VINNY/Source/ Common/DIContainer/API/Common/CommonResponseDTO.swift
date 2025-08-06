@@ -1,5 +1,6 @@
 //  서버 응답 형식에 맞춘 공통 DTO(Data Transfer Object) 정의 파일.
 //  모든 API 응답은 이 구조체를 통해 디코딩되며, 통일된 방식으로 결과를 처리할 수 있음.
+// 얘는 추가적인 코드 추가가 거의 필요없음
 
 import Foundation
 
