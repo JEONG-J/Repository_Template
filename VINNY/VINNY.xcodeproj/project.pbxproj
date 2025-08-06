@@ -7,9 +7,22 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4802B6B62E4258AC009F4134 /* KakaoMapsSDK-SPM in Frameworks */ = {isa = PBXBuildFile; productRef = 4802B6B52E4258AC009F4134 /* KakaoMapsSDK-SPM */; };
 		F188256B2E0BD69200551E31 /* Moya in Frameworks */ = {isa = PBXBuildFile; productRef = F188256A2E0BD69200551E31 /* Moya */; };
-		F1932D582E37B19A001B0473 /* KakaoMapsSDK-SPM in Frameworks */ = {isa = PBXBuildFile; productRef = F1932D572E37B19A001B0473 /* KakaoMapsSDK-SPM */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		4802B6BA2E425A77009F4134 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		1EDCDECB2E0BC6D200D3EC43 /* VINNY.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VINNY.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -42,7 +55,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F188256B2E0BD69200551E31 /* Moya in Frameworks */,
-				F1932D582E37B19A001B0473 /* KakaoMapsSDK-SPM in Frameworks */,
+				4802B6B62E4258AC009F4134 /* KakaoMapsSDK-SPM in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -75,6 +88,7 @@
 				1EDCDEC72E0BC6D200D3EC43 /* Sources */,
 				1EDCDEC82E0BC6D200D3EC43 /* Frameworks */,
 				1EDCDEC92E0BC6D200D3EC43 /* Resources */,
+				4802B6BA2E425A77009F4134 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -86,7 +100,7 @@
 			name = VINNY;
 			packageProductDependencies = (
 				F188256A2E0BD69200551E31 /* Moya */,
-				F1932D572E37B19A001B0473 /* KakaoMapsSDK-SPM */,
+				4802B6B52E4258AC009F4134 /* KakaoMapsSDK-SPM */,
 			);
 			productName = VINNY;
 			productReference = 1EDCDECB2E0BC6D200D3EC43 /* VINNY.app */;
@@ -118,7 +132,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				F18825692E0BD69200551E31 /* XCRemoteSwiftPackageReference "Moya" */,
-				F1932D562E37B19A001B0473 /* XCRemoteSwiftPackageReference "KakaoMapsSDK-SPM" */,
+				4802B6B42E4258AC009F4134 /* XCRemoteSwiftPackageReference "KakaoMapsSDK-SPM" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 1EDCDECC2E0BC6D200D3EC43 /* Products */;
@@ -358,6 +372,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		4802B6B42E4258AC009F4134 /* XCRemoteSwiftPackageReference "KakaoMapsSDK-SPM" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/kakao-mapsSDK/KakaoMapsSDK-SPM";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.12.9;
+			};
+		};
 		F18825692E0BD69200551E31 /* XCRemoteSwiftPackageReference "Moya" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/Moya/Moya.git";
@@ -366,26 +388,18 @@
 				minimumVersion = 15.0.3;
 			};
 		};
-		F1932D562E37B19A001B0473 /* XCRemoteSwiftPackageReference "KakaoMapsSDK-SPM" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/kakao-mapsSDK/KakaoMapsSDK-SPM.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 2.12.9;
-			};
-		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		4802B6B52E4258AC009F4134 /* KakaoMapsSDK-SPM */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4802B6B42E4258AC009F4134 /* XCRemoteSwiftPackageReference "KakaoMapsSDK-SPM" */;
+			productName = "KakaoMapsSDK-SPM";
+		};
 		F188256A2E0BD69200551E31 /* Moya */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = F18825692E0BD69200551E31 /* XCRemoteSwiftPackageReference "Moya" */;
 			productName = Moya;
-		};
-		F1932D572E37B19A001B0473 /* KakaoMapsSDK-SPM */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = F1932D562E37B19A001B0473 /* XCRemoteSwiftPackageReference "KakaoMapsSDK-SPM" */;
-			productName = "KakaoMapsSDK-SPM";
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
