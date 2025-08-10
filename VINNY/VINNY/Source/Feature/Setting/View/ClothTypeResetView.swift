@@ -90,8 +90,3 @@ struct ClothTypeResetView: View {
     }
 }
 
-#Preview {
-    let container = DIContainer()
-    ClothTypeView(container: container)
-        .environmentObject(container)
-}

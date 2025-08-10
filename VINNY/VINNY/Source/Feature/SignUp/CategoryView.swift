@@ -8,15 +8,12 @@
 import SwiftUI
 
 struct CategoryView: View {
-    @EnvironmentObject var container: DIContainer
-    init(container: DIContainer){
-        
+    let container: DIContainer
+    init(container: DIContainer) {
+        self.container = container
     }
-    @State private var selectedCategories: Set<String> = []
-    let maxSelectionCount = 3
-    let categories = [
-        "🪖 밀리터리", "🇺🇸 아메카지", "🛹 스트릿", "🏔️ 아웃도어", "👕 캐주얼", "👖 데님", "💼 하이엔드", "🛠️ 워크웨어", "👞 레더", "🏃‍♂️ 스포티", "🐴 웨스턴", "👚 Y2K"
-    ]
+    private let options = OnboardingCatalog.styles   // [OnboardOption]
+    private let maxSelectionCount = OnboardingSelection.Limit.styleMax
 
     let columns = [
         GridItem(.flexible(), spacing: 8),
@@ -62,9 +59,9 @@ struct CategoryView: View {
                 .padding(.vertical, 16)
 
                 LazyVGrid(columns: columns, spacing: 8) {
-                    ForEach(categories, id: \.self) { category in
-                        let isSelected = selectedCategories.contains(category)
-                        Text(category)
+                    ForEach(options) { opt in
+                        let isSelected = container.onboardingSelection.vintageStyleIds.contains(opt.id)
+                        Text(opt.title)
                             .font(.suit(.regular, size: 16))
                             .foregroundStyle(isSelected ? Color("ContentAdditive") : Color("ContentDisabled"))
                             .frame(maxWidth: .infinity, minHeight: 44)
@@ -76,9 +73,7 @@ struct CategoryView: View {
                                 RoundedRectangle(cornerRadius: 8)
                                     .fill(Color("BackFillRegular"))
                             )
-                            .onTapGesture {
-                                toggleSelection(for: category)
-                            }
+                            .onTapGesture { toggle(opt.id) }
                     }
                 }
                 .padding(.horizontal, 20)
@@ -86,8 +81,10 @@ struct CategoryView: View {
 
                 LoginBottomView(
                     title: "다음으로",
-                    isEnabled: !selectedCategories.isEmpty,
+                    isEnabled: !container.onboardingSelection.vintageStyleIds.isEmpty,
                     action: {
+                        let count = container.onboardingSelection.vintageStyleIds.count
+                        guard count >= OnboardingSelection.Limit.styleMin else { return }
                         container.navigationRouter.push(to: .BrandView)
                     },
                     assistiveText: "최소 한 개를 선택해야 다음으로 넘어갈 수 있어요"
@@ -99,18 +96,19 @@ struct CategoryView: View {
         .navigationBarBackButtonHidden()
     }
 
-    private func toggleSelection(for category: String) {
-        if selectedCategories.contains(category) {
-            selectedCategories.remove(category)
-        } else if selectedCategories.count < maxSelectionCount {
-            selectedCategories.insert(category)
+    private func toggle(_ id: Int) {
+        var set = container.onboardingSelection.vintageStyleIds
+        if set.contains(id) {
+            set.remove(id)
+        } else if set.count < maxSelectionCount {
+            set.insert(id)
         }
+        container.onboardingSelection.vintageStyleIds = set
     }
 }
 
 #Preview {
     let container = DIContainer()
     CategoryView(container: container)
-        .environmentObject(container)
 }
 
