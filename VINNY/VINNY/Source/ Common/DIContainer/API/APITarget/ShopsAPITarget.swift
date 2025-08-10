@@ -1,100 +1,66 @@
-////
-////  CoursesAPITarger.swift
-////  VINNY
-////
-////  Created by 홍지우 on 6/25/25.
-////
 //
-//import Foundation
-//import Moya
+//  CoursesAPITarger.swift
+//  VINNY
 //
-//enum ShopsAPITarget {
-//    
-//    //코스 상세정보 API
-//    case getCourseDetail(Request: CourseDetailRequest)
-//    
-//}
+//  Created by 홍지우 on 6/25/25.
 //
-//extension ShopsAPITarget: TargetType {
-//    
-//    
-//    var headers: [String : String]? {
-//        return ["Content-Type": "application/json"]
-//    }
-//    
-//    var baseURL: URL{
-//        return URL(string: API.shopURL)!
-//    }
-//    
-//    var path: String {
-//        switch self {
-//        case .getCourseDetail:
-//            return "/detail"
-//        }
-//    }
-//    
-//    var method: Moya.Method {
-//        switch self {
-//        case .getCourseDetail:
-//            return .get
-//        }
-//    }
-//    
-//    var task: Task {
-//        switch self {
-//        case .getCourseDetail(let request):
-//            let parameters: [String: Any] = [
-//                "courseId" : request.courseId
-//            ]
-//            // GET인 경우(parameter)
-//            return .requestParameters(parameters: parameters, encoding: URLEncoding.default)
-//            
-//            // POST인 경우(response body)
-//            // return .requestJSONEncodable(request)
-//        }
-//    }
-//    
-//    var sampleData: Data {
-//        switch self {
-//        case .getCourseDetail:
-//            let json = """
-//                        {
-//                            "isSuccess": true,
-//                            "code": "123",
-//                            "message": "hi",
-//                            "result": {
-//                                "courseId": 1,
-//                                "courseImage": "https://example.com/image.jpg",
-//                                "courseName": "서울 야경 투어",
-//                                "courseDescription": "서울의 야경을 즐길 수 있는 코스입니다.",
-//                                "courseType": "night",
-//                                "rating": 5,
-//                                "reviewCount": 128,
-//                                "recommendTime": "2시간",
-//                                "participantsNumber": 58,
-//                                "isBookMarked": true,
-//                                "placeInfos": [
-//                                    {
-//                                        "placeId": 101,
-//                                        "placeName": "남산타워",
-//                                        "placeLatitude": 37.5512,
-//                                        "placeLongitude": 126.9882,
-//                                        "isVisited": true
-//                                    },
-//                                    {
-//                                        "placeId": 102,
-//                                        "placeName": "한강공원",
-//                                        "placeLatitude": 37.5172,
-//                                        "placeLongitude": 126.9368,
-//                                        "isVisited": false
-//                                    }
-//                                ]
-//                            }
-//                        }
-//                        """
-//                        return Data(json.utf8)
-//        }
-//    }
-//}
-//
-//
+
+import Foundation
+import Moya
+
+enum ShopsAPITarget {
+    
+    //코스 상세정보 API
+    case getShopReview(shopId: Int)//가게 후기 목록 조회
+    case deleteShopReview(shopId: Int, reviewId: Int)//가게 후기 삭제
+    case getshopDetail(shopId: Int)//가게 상세 조회
+    
+}
+
+extension ShopsAPITarget: TargetType {
+    
+    
+    var headers: [String : String]? {
+        return ["Content-Type": "application/json"]
+    }
+    
+    var baseURL: URL{
+        return URL(string: API.shopURL)!
+    }
+    
+    var path: String {
+        switch self {
+        case .getShopReview(let shopId):
+            return "\(shopId)/reviews"
+        case .deleteShopReview(let shopId, let reviewId):
+            return "\(shopId)/reviews/\(reviewId)"
+        case .getshopDetail(let shopId):
+            return "\(shopId)"
+        }
+    }
+    
+    var method: Moya.Method {
+        switch self {
+        case .getShopReview, .getshopDetail:
+            return .get
+        case .deleteShopReview:
+            return .delete
+
+        }
+    }
+    
+    var task: Task {
+        switch self {
+            case .getShopReview:
+             return .requestPlain
+        case .deleteShopReview:
+            return .requestPlain
+        case .getshopDetail:
+            return .requestPlain
+
+        }
+    }
+    
+}
+
+

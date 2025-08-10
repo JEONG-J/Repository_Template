@@ -14,12 +14,13 @@ import Foundation
 //   "result": { ... }
 // }
 
-// 제네릭으로 감싸서 어떤 타입이 오더라도 result를 추출 가능.⭐️⭐️⭐️
+// 제네릭으로 감싸서 어떤 타입이 오더라도 result를 추출 가능.
 public struct ApiResponse<T: Decodable>: Decodable {
-    public let isSuccess: Bool    // 요청 성공 여부
+    public let success: Bool    // 요청 성공 여부
     public let code: String       // 서버에서 정의한 상태 코드 (예: "SUCCESS", "USER_NOT_FOUND")
     public let message: String    // 상태 메시지
     public let result: T?         // 실제 응답 데이터 (없을 수도 있음)
+    public let timestamp: String?  // 응답 시간 (ISO8601 문자열)
 }
 
 // MARK: - 에러 응답 파싱용 구조체

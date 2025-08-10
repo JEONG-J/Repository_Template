@@ -3,19 +3,21 @@ import Moya
 
 protocol UseCaseProtocol {
     
-   // var userUseCase: DefaultNetworkManager<UsersAPITarget> { get set }
+    var userUseCase: DefaultNetworkManager<UsersAPITarget> { get set }
     
-    //var shopUseCase: DefaultNetworkManager<ShopsAPITarget> { get set }
+    var shopUseCase: DefaultNetworkManager<ShopsAPITarget> { get set }
     
-   // var searchUseCase: DefaultNetworkManager<SearchAPITarget> { get set }
+    var searchUseCase: DefaultNetworkManager<SearchAPITarget> { get set }
     
-  //  var profileUseCase: DefaultNetworkManager<ProfileAPITarget> { get set }
+    var profileUseCase: DefaultNetworkManager<ProfileAPITarget> { get set }
     
-//    var postUseCase: DefaultNetworkManager<PostsAPITarget> { get set }
     var onboardUseCase: MoyaProvider<OnboardAPITarget> { get set }
     
     var authUseCase: MoyaProvider<AuthAPITarget> { get set }
     
+    var postUseCase: DefaultNetworkManager<PostsAPITarget> { get set }
+
+    var mapUseCase: DefaultNetworkManager<MapAPITarget> { get set }
 }
 
 class UseCaseProvider: UseCaseProtocol{
@@ -43,6 +45,8 @@ class UseCaseProvider: UseCaseProtocol{
     
     // postUseCase = DefaultNetworkManager<PostsAPITarget>()
     
+    var mapUseCase: DefaultNetworkManager<MapAPITarget>
+
     init() {
         // 공통 endpoint: 권한 필요하면 Bearer 토큰을 헤더에 주입 (타겟별 클로저)
         let authEndpointClosure: MoyaProvider<AuthAPITarget>.EndpointClosure = { target in

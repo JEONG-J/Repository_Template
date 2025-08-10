@@ -7,26 +7,28 @@ public struct API {
     
     /// 전체 서버의 공통 Base URL
     /// 각 Feature API의 path는 이 baseURL에 붙여서 구성
-    public static let baseURL = "https://vinny.com/api/"
+    public static let baseURL = "https://app.vinnydesign.net/api"
 
     // MARK: - 주요 기능별 Endpoint 경로
 
 //    예시
 //    static let courseURL = "\(baseURL)/courses"
     // 유저 정보 관련 API
-    static let userURL = "\(baseURL)/users"
+    static let userURL = "\(baseURL)/users/"
     //검색 관련 API
-    static let searchURL = "\(baseURL)/search"
+    static let searchURL = "\(baseURL)/search/"
     //게시물 관련 API
-    static let postURL = "\(baseURL)/posts"
+    static let postURL = "\(baseURL)/posts/"
     //가게 정보 관련 API
-    static let shopURL = "\(baseURL)/shops"
+    static let shopURL = "\(baseURL)/shops/"
     //프로필 관련 API
     static let profileURL = "\(baseURL)/profile"
     
     static let authURL = "\(baseURL)auth"
-    
-    
+
+    //map 관련 API
+    static let mapURL = "\(baseURL)/map/"
+
 
     
 }

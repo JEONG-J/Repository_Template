@@ -7,9 +7,4 @@
 
 import Foundation
 
-struct PostDetailRequest: Codable {
-    
-    //코스 ID
-    let courseId: Int
-    
-}
+

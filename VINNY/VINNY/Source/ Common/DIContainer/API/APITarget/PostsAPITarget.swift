@@ -5,14 +5,16 @@
 //  Created by 홍지우 on 6/25/25.
 //
 
-/*import Foundation
+import Foundation
 import Moya
 
 enum PostsAPITarget {
     
-    //코스 상세정보 API
-//    case getCourseDetail(Request: CourseDetailRequest)
-    
+    case getAllPost //전체 피드 조회
+    case getDetailPost(postId: Int)// 게시글 상세 조회
+    case deletePostLike(postId: Int)//좋아요 삭제
+    case deletePostBookmark(postId: Int)//북마크 삭제
+    case deletePost(postId: Int)//게시글 삭제
 }
 
 extension PostsAPITarget: TargetType {
@@ -28,74 +30,48 @@ extension PostsAPITarget: TargetType {
     
     var path: String {
         switch self {
-        case .getCourseDetail:
-            return "/detail"
+        case .getAllPost:
+            return ""
+        case .getDetailPost(let postId):
+            return "\(postId)"
+        case .deletePostLike(let postId):
+            return "\(postId)/likes"
+        case .deletePostBookmark(let postId):
+            return "\(postId)/bookmarks"
+        case .deletePost(let postId):
+            return "\(postId)"
         }
     }
     
     var method: Moya.Method {
         switch self {
-        case .getCourseDetail:
+        case .getAllPost:
             return .get
+        case .getDetailPost:
+            return .get
+        case .deletePostLike:
+            return .delete
+        case .deletePostBookmark:
+            return .delete
+        case .deletePost:
+            return .delete
         }
     }
     
     var task: Task {
         switch self {
-        case .getCourseDetail(let request):
-            let parameters: [String: Any] = [
-                "courseId" : request.courseId
-            ]
-            // GET인 경우(parameter)
-            return .requestParameters(parameters: parameters, encoding: URLEncoding.default)
-            
-            // POST인 경우(response body)
-            // return .requestJSONEncodable(request)
-        }
-    }
-    
-    var sampleData: Data {
-        switch self {
-        case .getCourseDetail:
-            let json = """
-                        {
-                            "isSuccess": true,
-                            "code": "123",
-                            "message": "hi",
-                            "result": {
-                                "courseId": 1,
-                                "courseImage": "https://example.com/image.jpg",
-                                "courseName": "서울 야경 투어",
-                                "courseDescription": "서울의 야경을 즐길 수 있는 코스입니다.",
-                                "courseType": "night",
-                                "rating": 5,
-                                "reviewCount": 128,
-                                "recommendTime": "2시간",
-                                "participantsNumber": 58,
-                                "isBookMarked": true,
-                                "placeInfos": [
-                                    {
-                                        "placeId": 101,
-                                        "placeName": "남산타워",
-                                        "placeLatitude": 37.5512,
-                                        "placeLongitude": 126.9882,
-                                        "isVisited": true
-                                    },
-                                    {
-                                        "placeId": 102,
-                                        "placeName": "한강공원",
-                                        "placeLatitude": 37.5172,
-                                        "placeLongitude": 126.9368,
-                                        "isVisited": false
-                                    }
-                                ]
-                            }
-                        }
-                        """
-                        return Data(json.utf8)
+        case .getAllPost:
+            return .requestPlain
+        case .getDetailPost:
+            return .requestPlain
+        case .deletePostLike:
+            return .requestPlain
+        case .deletePostBookmark:
+            return .requestPlain
+        case .deletePost:
+            return .requestPlain
         }
     }
 }
 
 
-*/
