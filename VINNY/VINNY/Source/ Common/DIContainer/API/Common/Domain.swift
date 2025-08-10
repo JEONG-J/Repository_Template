@@ -7,7 +7,7 @@ public struct API {
     
     /// 전체 서버의 공통 Base URL
     /// 각 Feature API의 path는 이 baseURL에 붙여서 구성
-    public static let baseURL = "https://vinny.com"
+    public static let baseURL = "https://vinny.com/api/"
 
     // MARK: - 주요 기능별 Endpoint 경로
 
@@ -23,6 +23,10 @@ public struct API {
     static let shopURL = "\(baseURL)/shops"
     //프로필 관련 API
     static let profileURL = "\(baseURL)/profile"
+    
+    static let authURL = "\(baseURL)auth"
+    
+    
 
     
 }

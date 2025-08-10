@@ -9,14 +9,12 @@ import SwiftUI
 
 struct ClothTypeView: View {
     @EnvironmentObject var container: DIContainer
-    init(container: DIContainer){
-        
+
+    private let options = OnboardingCatalog.items   // [OnboardOption]
+    private let maxSelectionCount = OnboardingSelection.Limit.itemMax
+    init(container: DIContainer) {
+        // 라우팅 시그니처 맞추기용 (실제 사용은 @EnvironmentObject)
     }
-    @State private var selectedCategories: Set<String> = []
-    let maxSelectionCount = 3
-    let categories = [
-        "아우터", "상의", "하의", "신발", "모자", "악세서리", "잡화", "기타"
-    ]
     
     let columns = [
         GridItem(.flexible(), spacing: 8),
@@ -63,9 +61,9 @@ struct ClothTypeView: View {
                 .padding(.vertical, 16)
                 
                 LazyVGrid(columns: columns, spacing: 8) {
-                    ForEach(categories, id: \.self) { category in
-                        let isSelected = selectedCategories.contains(category)
-                        Text(category)
+                    ForEach(options) { opt in
+                        let isSelected = container.onboardingSelection.vintageItemIds.contains(opt.id)
+                        Text(opt.title)
                             .font(.suit(.regular, size: 16))
                             .foregroundStyle(isSelected ? Color("ContentAdditive") : Color("ContentDisabled"))
                             .frame(maxWidth: .infinity, minHeight: 44)
@@ -77,9 +75,7 @@ struct ClothTypeView: View {
                                 RoundedRectangle(cornerRadius: 8)
                                     .fill(Color("BackFillRegular"))
                             )
-                            .onTapGesture {
-                                toggleSelection(for: category)
-                            }
+                            .onTapGesture { toggle(opt.id) }
                     }
                 }
                 .padding(.horizontal, 20)
@@ -87,8 +83,10 @@ struct ClothTypeView: View {
                 
                 LoginBottomView(
                     title: "다음으로",
-                    isEnabled: !selectedCategories.isEmpty,
+                    isEnabled: !container.onboardingSelection.vintageItemIds.isEmpty,
                     action: {
+                        let count = container.onboardingSelection.vintageItemIds.count
+                        guard count >= OnboardingSelection.Limit.itemMin else { return }
                         container.navigationRouter.push(to: .LocationView)
                     },
                     assistiveText: "최소 한 개를 선택해야 다음으로 넘어갈 수 있어요"
@@ -101,17 +99,14 @@ struct ClothTypeView: View {
         .navigationBarBackButtonHidden()
     }
 
-    private func toggleSelection(for category: String) {
-        if selectedCategories.contains(category) {
-            selectedCategories.remove(category)
-        } else if selectedCategories.count < maxSelectionCount {
-            selectedCategories.insert(category)
+    private func toggle(_ id: Int) {
+        var set = container.onboardingSelection.vintageItemIds
+        if set.contains(id) {
+            set.remove(id)
+        } else if set.count < maxSelectionCount {
+            set.insert(id)
         }
+        container.onboardingSelection.vintageItemIds = set
     }
 }
 
-#Preview {
-    let container = DIContainer()
-    ClothTypeView(container: container)
-        .environmentObject(container)
-}

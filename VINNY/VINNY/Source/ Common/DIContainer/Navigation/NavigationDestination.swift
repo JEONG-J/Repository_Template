@@ -8,7 +8,7 @@
 import Foundation
 
 enum NavigationDestination: Hashable {
-    
+    case SplashView
     case VinnyTabView
     case LoginView
     case SearchView
@@ -29,6 +29,8 @@ enum NavigationDestination: Hashable {
     
     static func == (lhs: NavigationDestination, rhs: NavigationDestination) -> Bool {
         switch (lhs, rhs) {
+        case (.SplashView, .SplashView):
+            return true
         case (.VinnyTabView, .VinnyTabView):
               return true
         case (.LoginView, .LoginView):
@@ -71,6 +73,8 @@ enum NavigationDestination: Hashable {
     
     func hash(into hasher: inout Hasher) {
         switch self {
+        case .SplashView:
+            hasher.combine("SplashView")
         case .VinnyTabView:
             hasher.combine("VinnyTabView")
         case .LoginView:

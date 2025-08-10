@@ -6,11 +6,13 @@
 //
 
 import SwiftUI
+import Combine
 
 class DIContainer: ObservableObject {
     var navigationRouter: NavigationRoutable
     
     var useCaseProvider: UseCaseProvider
+    @Published var onboardingSelection = OnboardingSelection()
     
     init() {
         self.navigationRouter = NavigationRouter()

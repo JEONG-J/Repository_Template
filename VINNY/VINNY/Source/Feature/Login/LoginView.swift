@@ -2,9 +2,10 @@ import SwiftUI
 
 struct LoginView: View {
     @EnvironmentObject var container: DIContainer
+    @StateObject private var viewModel: LoginViewModel
 
     init(container: DIContainer) {
-        
+        _viewModel = StateObject(wrappedValue: LoginViewModel(container: container))
     }
 
     var body: some View {
@@ -46,7 +47,9 @@ struct LoginView: View {
 
     private var loginButton: some View {
         Button(action: {
-            container.navigationRouter.push(to: .CategoryView)
+            Task {
+                await viewModel.loginWithKakao()
+            }
         }) {
             Text("카카오로 시작하기")
                 .font(.suit(.medium, size: 16))

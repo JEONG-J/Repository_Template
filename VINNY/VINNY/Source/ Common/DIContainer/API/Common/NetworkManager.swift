@@ -136,12 +136,27 @@ final class DefaultNetworkManager<API: TargetType>: NetworkManager {
                 let error = try? JSONDecoder().decode(ErrorResponse.self, from: response.data)
                 return .failure(.serverError(statusCode: response.statusCode, message: error?.message ?? "서버 오류"))
             }
+
+            // ✅ LoginResponseDTO는 별도로 처리
+            if T.self == LoginResponseDTO.self {
+                let loginResponse = try JSONDecoder().decode(LoginResponseDTO.self, from: response.data)
+                return .success(loginResponse as! T)
+            }
+
+            // ✅ 그 외는 기존처럼 ApiResponse<T>로 디코딩
             let apiResponse = try JSONDecoder().decode(ApiResponse<T>.self, from: response.data)
             guard let result = apiResponse.result else {
                 return .failure(.serverError(statusCode: response.statusCode, message: "결과 없음"))
             }
+
             return .success(result)
+
         } catch {
+            print("❌ 디코딩 실패: \(error)")
+            if let raw = String(data: response.data, encoding: .utf8) {
+                print("🔍 서버 응답 원문:\n\(raw)")
+            }
+
             return .failure(.decodingError(underlyingError: error as! DecodingError))
         }
     }

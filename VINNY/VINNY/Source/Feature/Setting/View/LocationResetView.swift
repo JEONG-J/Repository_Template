@@ -92,8 +92,3 @@ struct LocationResetView: View {
 
 
 
-#Preview {
-    let container = DIContainer()
-    LocationView(container: container)
-        .environmentObject(container)
-}

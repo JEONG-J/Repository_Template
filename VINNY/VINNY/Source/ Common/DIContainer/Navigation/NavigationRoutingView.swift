@@ -16,6 +16,9 @@ struct NavigationRoutingView: View {
     
     var body: some View {
         switch destination {
+        case .SplashView:
+            SplashView(container: container)
+                .environmentObject(container)
         case .VinnyTabView:
             VinnyTabView(container: container)
                 .environmentObject(container)
