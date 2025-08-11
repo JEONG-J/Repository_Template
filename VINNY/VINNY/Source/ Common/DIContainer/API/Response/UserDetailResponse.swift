@@ -1,10 +1,10 @@
-
 import Foundation
 
-struct UserDetailResponse: Codable {
-    
-    // 공통 부분 빼고 다 적으면 됨
-
-    
+struct mySavedShop: Codable {
+    let shopId: Int
+    let name: String
+    let address: String
+    let region: String
+    let styles: [String]
+    let imageUrls: [String]
 }
-
