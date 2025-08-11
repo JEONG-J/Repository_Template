@@ -15,50 +15,67 @@ struct LoginView: View {
                     .ignoresSafeArea()
                 VStack(alignment: .center) {
                     loginInfo
-                    loginButton
+                    loginButtons
                 }
                 .navigationDestination(for: NavigationDestination.self) { destination in
                                 NavigationRoutingView(destination: destination)
                                     .environmentObject(container)
                             }
             }
+            .navigationBarBackButtonHidden()
+
         }
     }
             
 
     private var loginInfo: some View {
         VStack(alignment: .center) {
-            Spacer().frame(height: 240)
             Image("vinnylogo")
                 .resizable()
                 .frame(width: 180, height: 100)
                 .foregroundStyle(Color("ContentBase"))
-            Spacer().frame(height: 240)
+                .padding(.vertical, 216.5)
             Text("내 손 안의 빈티지, VINNY")
                 .font(.suit(.bold, size: 20))
                 .foregroundStyle(Color("ContentBase"))
-            Spacer().frame(height: 2)
+                .padding(.top, 16)
+                .padding(.bottom, 4)
             Text("빈티지샵, 취향 공유까지 한 번에!")
                 .font(.suit(.medium, size: 16))
                 .foregroundStyle(Color("ContentAdditive"))
-            Spacer().frame(height: 26)
+                .padding(.bottom, 16)
         }
     }
 
-    private var loginButton: some View {
-        Button(action: {
-            Task {
-                await viewModel.loginWithKakao()
+    private var loginButtons: some View {
+        VStack(spacing: 8) {
+            // Apple 로그인 버튼
+            Button(action: {
+                container.navigationRouter.push(to: .CategoryView)
+            }) {
+                Image("applelogin")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(height: 56)
+                    .cornerRadius(12)
+                    .padding(.horizontal, 16)
             }
-        }) {
-            Text("카카오로 시작하기")
-                .font(.suit(.medium, size: 16))
-                .foregroundStyle(Color("ContentInverted"))
-                .frame(maxWidth: .infinity)
-                .frame(height: 56)
-                .background(Color("BackFillInverted"))
-                .cornerRadius(12)
-                .padding(.horizontal, 16)
+            .padding(.top, 10)
+            // 카카오 로그인 버튼
+            Button(action: {
+                        Task {
+                            await viewModel.loginWithKakao()
+                        }
+                    }) {
+                        Image("kakaologin")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(height: 56)
+                            .cornerRadius(12)
+                            .padding(.horizontal, 16)
+
+            }
+            .padding(.bottom, 10)
         }
     }
 }

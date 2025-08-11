@@ -7,10 +7,9 @@
 
 import Foundation
 
-struct SearchDetailRequest: Codable {
+struct MapDetailRequest: Codable {
     
-    let styleType : String
-    let keyword: String
-    let region: String
+    //코스 ID
+    let courseId: Int
     
 }
