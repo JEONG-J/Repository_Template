@@ -6,3 +6,12 @@
 //
 
 import Foundation
+
+struct ShopSearchRequestDTO: Codable{
+    let keyword: String
+    
+}
+
+struct PostSearchRequestDTO: Codable{
+    let keyword: String
+}
