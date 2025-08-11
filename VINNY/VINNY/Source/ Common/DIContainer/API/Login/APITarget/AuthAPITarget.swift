@@ -59,8 +59,12 @@ extension AuthAPITarget: TargetType {
     }
 
     var headers: [String : String]? {
-        return ["Content-Type": "application/json"]
-    }
+            return [
+                "Content-Type": "application/json",
+                "Accept": "*/*",
+                "Accept-Language": "ko-KR,ko;q=0.9"
+            ]
+        }
 
     var sampleData: Data {
         return Data()

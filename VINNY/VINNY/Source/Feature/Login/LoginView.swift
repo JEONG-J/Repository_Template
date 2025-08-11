@@ -22,6 +22,8 @@ struct LoginView: View {
                                     .environmentObject(container)
                             }
             }
+            .navigationBarBackButtonHidden()
+
         }
     }
             
@@ -61,14 +63,17 @@ struct LoginView: View {
             .padding(.top, 10)
             // 카카오 로그인 버튼
             Button(action: {
-                container.navigationRouter.push(to: .CategoryView)
-            }) {
-                Image("kakaologin")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(height: 56)
-                    .cornerRadius(12)
-                    .padding(.horizontal, 16)
+                        Task {
+                            await viewModel.loginWithKakao()
+                        }
+                    }) {
+                        Image("kakaologin")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(height: 56)
+                            .cornerRadius(12)
+                            .padding(.horizontal, 16)
+
             }
             .padding(.bottom, 10)
         }

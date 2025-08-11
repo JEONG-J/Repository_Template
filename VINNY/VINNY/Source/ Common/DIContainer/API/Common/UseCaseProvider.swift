@@ -21,33 +21,35 @@ protocol UseCaseProtocol {
 }
 
 class UseCaseProvider: UseCaseProtocol{
-    //var userUseCase: DefaultNetworkManager<UsersAPITarget>
+    var userUseCase: DefaultNetworkManager<UsersAPITarget>
     
-    // var shopUseCase: DefaultNetworkManager<ShopsAPITarget>
+    var shopUseCase: DefaultNetworkManager<ShopsAPITarget>
     
-    //var searchUseCase: DefaultNetworkManager<SearchAPITarget>
+    var searchUseCase: DefaultNetworkManager<SearchAPITarget>
     
-    //var profileUseCase: DefaultNetworkManager<ProfileAPITarget>
+    var profileUseCase: DefaultNetworkManager<ProfileAPITarget>
     
     var onboardUseCase: MoyaProvider<OnboardAPITarget>
     
     var authUseCase: MoyaProvider<AuthAPITarget>
     
-    
-    //        courseUseCase = DefaultNetworkManager<CoursesAPITarget>(stub: true) //stub: true 적으면 더미 데이터로 가져옴
-    //   userUseCase = DefaultNetworkManager<UsersAPITarget>()
-    
-    // shopUseCase = DefaultNetworkManager<ShopsAPITarget>()
-    
-    // searchUseCase = DefaultNetworkManager<SearchAPITarget>()
-    
-    //profileUseCase = DefaultNetworkManager<ProfileAPITarget>()
-    
-    // postUseCase = DefaultNetworkManager<PostsAPITarget>()
+    var postUseCase: DefaultNetworkManager<PostsAPITarget>
     
     var mapUseCase: DefaultNetworkManager<MapAPITarget>
 
+
     init() {
+        userUseCase = DefaultNetworkManager<UsersAPITarget>()
+        
+        shopUseCase = DefaultNetworkManager<ShopsAPITarget>()
+        
+        searchUseCase = DefaultNetworkManager<SearchAPITarget>()
+        
+        profileUseCase = DefaultNetworkManager<ProfileAPITarget>()
+        
+        postUseCase = DefaultNetworkManager<PostsAPITarget>()
+        
+        mapUseCase = DefaultNetworkManager<MapAPITarget>()
         // 공통 endpoint: 권한 필요하면 Bearer 토큰을 헤더에 주입 (타겟별 클로저)
         let authEndpointClosure: MoyaProvider<AuthAPITarget>.EndpointClosure = { target in
             let defaultEP = MoyaProvider.defaultEndpointMapping(for: target)
