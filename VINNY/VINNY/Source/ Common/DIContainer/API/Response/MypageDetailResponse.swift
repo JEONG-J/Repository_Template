@@ -1,5 +1,6 @@
 import Foundation
 
+//마이 페이지 프로필 정보 조회
 struct GetProfileDTO: Decodable, Equatable {
     let userId: Int
     let nickname: String
@@ -9,17 +10,23 @@ struct GetProfileDTO: Decodable, Equatable {
     let likedShopCount: Int
     let savedCount: Int
 }
-
+//작성한 게시글 썸네일 목록 조회
 struct GetProfilePostDTO: Decodable {
     let postId: Int
     let imageUrl: String
 }
 
-// 3. 찜한 샵
+// 찜한 샵 목록 조회
 struct GetProfileSavedShopDTO: Decodable {
     let shopId: Int
     let name: String
+    let regionName: String
     let address: String
     let thumbnailUrl: String
     let vintageStyles: [String]
+}
+
+//저장한 게시글 이미지 리스트 조회
+struct GetProfileSavedPostImageDTO : Decodable {
+    let imageUrl: String
 }

@@ -9,7 +9,7 @@ protocol UseCaseProtocol {
     
     var searchUseCase: DefaultNetworkManager<SearchAPITarget> { get set }
     
-    var profileUseCase: DefaultNetworkManager<ProfileAPITarget> { get set }
+    var mypageUseCase: DefaultNetworkManager<MypageAPITarget> { get set }
     
     var onboardUseCase: MoyaProvider<OnboardAPITarget> { get set }
     
@@ -27,7 +27,7 @@ class UseCaseProvider: UseCaseProtocol{
     
     var searchUseCase: DefaultNetworkManager<SearchAPITarget>
     
-    var profileUseCase: DefaultNetworkManager<ProfileAPITarget>
+    var mypageUseCase: DefaultNetworkManager<MypageAPITarget>
     
     var onboardUseCase: MoyaProvider<OnboardAPITarget>
     
@@ -45,7 +45,7 @@ class UseCaseProvider: UseCaseProtocol{
         
         searchUseCase = DefaultNetworkManager<SearchAPITarget>()
         
-        profileUseCase = DefaultNetworkManager<ProfileAPITarget>()
+        mypageUseCase = DefaultNetworkManager<MypageAPITarget>()
         
         postUseCase = DefaultNetworkManager<PostsAPITarget>()
         

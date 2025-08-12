@@ -7,9 +7,8 @@
 
 import Foundation
 
-struct ProfileDetailRequest: Codable {
+struct MypageDetailRequest: Codable {
     
-    //코스 ID
-    let courseId: Int
+    
     
 }
