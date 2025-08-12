@@ -16,6 +16,7 @@ struct OnboardOption: Identifiable, Hashable {
 enum OnboardingCatalog {
     // MARK: - 스타일 (빈티지 취향) — 스펙 확정판
     
+    
     static let styles: [OnboardOption] = [
         .init(id: 1,  title: "🪖 밀리터리"),
         .init(id: 2,  title: "🇺🇸 아메카지"),

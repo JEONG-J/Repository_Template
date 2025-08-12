@@ -20,21 +20,24 @@ extension SearchAPITarget: TargetType {
     
     
     var headers: [String : String]? {
-        return ["Content-Type": "application/json"]
+        return [
+            "Content-Type": "application/json",
+            "Accept": "*/*",
+            "Accept-Language": "ko-KR,ko;q=0.9"
+        ]
     }
     
-    var baseURL: URL{
-        return URL(string: API.searchURL)!
+    var baseURL: URL {
+        return URL(string:"https://app.vinnydesign.net/")! // 명세서 URL
     }
     
     var path: String {
         switch self {
+            
         case .getSearchShop:
-            return "/shops/style"
-            
+            return "api/search/shop/search"
         case .getSearchPost:
-            return "/posts/style"
-            
+            return "api/search/posts/search"
         }
     }
     
@@ -50,21 +53,14 @@ extension SearchAPITarget: TargetType {
     
     var task: Task {
         switch self {
-//        case .getCourseDetail(let request):
-//            let parameters: [String: Any] = [
-//                "courseId" : request.courseId
-//            ]
-//            // GET인 경우(parameter)
-//            return .requestParameters(parameters: parameters, encoding: URLEncoding.default)
             
-            // POST인 경우(response body)
-            // return .requestJSONEncodable(request)
+            
         case .getSearchShop:
             return .requestPlain
-
+            
         case .getSearchPost:
             return .requestPlain
-
+            
         }
     }
 }
