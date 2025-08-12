@@ -75,9 +75,8 @@ extension SearchAPITarget {
     }
 
     static func searchPosts(keyword: String) async throws -> [PostSearchResultDTO] {
-        _ = await TokenManager.shared.validateAndRefreshTokenIfNeeded()
-        let res = try await searchProvider.asyncRequest(.getSearchPost(keyword: keyword))
-        let decoded = try JSONDecoder().decode(PostSearchResponseDTO.self, from: res.data)
-        return [decoded.result]                // 단일 → 배열로 감싸서 반환
+            let res = try await searchProvider.asyncRequest(.getSearchPost(keyword: keyword))
+            let decoded = try JSONDecoder().decode(PostSearchResponseDTO.self, from: res.data)
+            return decoded.result              // ← 이제 배열 그대로 반환
+        }
     }
-}

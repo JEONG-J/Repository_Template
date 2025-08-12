@@ -32,11 +32,11 @@ struct PostSearchResponseDTO: Decodable {
     let isSuccess: Bool
     let code : String
     let message: String
-    let result: PostSearchResultDTO
+    let result: [PostSearchResultDTO]
     let timestamp: String
 }
 
 struct PostSearchResultDTO: Decodable {
     let id: Int
-    let imageUrl: [String]?
+    let imageUrls: [String]?
 }

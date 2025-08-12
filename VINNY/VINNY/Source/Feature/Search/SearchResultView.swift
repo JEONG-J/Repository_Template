@@ -52,7 +52,14 @@ struct SearchResultView: View {
                             }
                         }
                     } else {
-                        CommunityResultCell()
+                        if vm.posts.isEmpty {
+                            Text("게시글 검색 결과가 없습니다.")
+                                .font(.suit(.regular, size: 14))
+                                .foregroundColor(.contentAssistive)
+                                .padding(.top, 24)
+                        } else {
+                            CommunityResultCell(posts: vm.posts)
+                        }
                     }
                 }
             }
