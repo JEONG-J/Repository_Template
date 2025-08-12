@@ -90,8 +90,9 @@ struct SearchView: View {
             LazyVGrid(columns: columns, spacing: 12) {
                 ForEach(CategoryItem.sampleList) { category in
                     Button {
-                        SearchKeywordManager.shared.add(category.name)
-                        container.navigationRouter.push(to: .SearchResultView(keyword: category.name))
+                        let kw = category.name
+                        SearchKeywordManager.shared.add(kw)
+                        container.navigationRouter.push(to: .SearchResultView(keyword: kw)) // 그대로
                     } label: {
                         CategoryItemView(categoryItem: category)
                     }
