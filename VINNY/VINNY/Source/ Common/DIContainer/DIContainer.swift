@@ -14,8 +14,11 @@ class DIContainer: ObservableObject {
     var useCaseProvider: UseCaseProvider
     @Published var onboardingSelection = OnboardingSelection()
     
+    
     init() {
         self.navigationRouter = NavigationRouter()
         self.useCaseProvider = UseCaseProvider()
+        
     }
+    
 }

@@ -28,6 +28,7 @@ enum NavigationDestination: Hashable {
     case MyProfileView
     case LastSignUpView
     
+    
     static func == (lhs: NavigationDestination, rhs: NavigationDestination) -> Bool {
         switch (lhs, rhs) {
         case (.SplashView, .SplashView):
