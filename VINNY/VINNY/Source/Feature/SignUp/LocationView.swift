@@ -11,9 +11,9 @@ import Moya
 struct LocationView: View {
     @EnvironmentObject var container: DIContainer
     @State private var isSubmitting = false
-    private let options = OnboardingCatalog.regions   // [OnboardOption]
+    private let options = OnboardingCatalog.regions
     private let maxSelectionCount = OnboardingSelection.Limit.areaMax
-    
+
     init(container: DIContainer) {
         // 비워둠: 라우팅 시그니처 맞추기용
     }
@@ -84,10 +84,11 @@ struct LocationView: View {
                 .padding(.horizontal, 20)
                 .padding(.vertical, 154.5)
                 
+                // LocationView.swift (하단 버튼 부분만 교체)
                 LoginBottomView(
-                    title: "완료하기",
-                    isEnabled: !container.onboardingSelection.regionIds.isEmpty && !isSubmitting,
-                    action: { submit() },
+                    title: "다음으로",
+                    isEnabled: !container.onboardingSelection.regionIds.isEmpty,
+                    action: { container.navigationRouter.push(to: .LastSignUpView) },
                     assistiveText: "최소 한 개를 선택해야 다음으로 넘어갈 수 있어요"
                 )
                 .frame(height: 104)
@@ -107,47 +108,4 @@ struct LocationView: View {
         container.onboardingSelection.regionIds = set
     }
     
-    private func submit() {
-        // 1) 개수 검증
-        guard (OnboardingSelection.Limit.areaMin...OnboardingSelection.Limit.areaMax).contains(container.onboardingSelection.regionIds.count) else { print("❗️region count invalid"); return }
-        guard (OnboardingSelection.Limit.styleMin...OnboardingSelection.Limit.styleMax).contains(container.onboardingSelection.vintageStyleIds.count) else { print("❗️style count invalid"); return }
-        guard (OnboardingSelection.Limit.brandMin...OnboardingSelection.Limit.brandMax).contains(container.onboardingSelection.brandIds.count) else { print("❗️brand count invalid"); return }
-        guard (OnboardingSelection.Limit.itemMin...OnboardingSelection.Limit.itemMax).contains(container.onboardingSelection.vintageItemIds.count) else { print("❗️item count invalid"); return }
-        
-        isSubmitting = true
-        
-        let s = container.onboardingSelection
-        let body = OnboardRequestDTO(
-            vintageStyleIds: Array(s.vintageStyleIds),
-            brandIds: Array(s.brandIds),
-            vintageItemIds: Array(s.vintageItemIds),
-            regionIds: Array(s.regionIds)
-        )
-        
-        // 2) 디버깅 로그(필수)
-        print("⛳️ counts  style:\(s.vintageStyleIds.count)  brand:\(s.brandIds.count)  item:\(s.vintageItemIds.count)  region:\(s.regionIds.count)")
-        print("📦 payload  styles:\(body.vintageStyleIds)  brands:\(body.brandIds)  items:\(body.vintageItemIds)  regions:\(body.regionIds)")
-        
-        
-        // ⛔️ 이 줄은 제거하세요 (로컬 프로바이더라 토큰 안 붙음)
-        // let provider = MoyaProvider<OnboardAPITarget>()
-        
-        // 3) 공용 프로바이더(토큰 플러그인 포함)로 요청
-        container.useCaseProvider.onboardUseCase.request(.submit(dto: body)) { result in
-            DispatchQueue.main.async {
-                isSubmitting = false
-                switch result {
-                case .success(let res) where (200..<300).contains(res.statusCode):
-                    print("✅ Onboarding success:", res.statusCode)
-                    container.navigationRouter.push(to: .VinnyTabView)
-                    container.onboardingSelection.reset()
-                case .success(let res):
-                    print("⛔️ Onboarding failed: status=\(res.statusCode)")
-                    print("↩️ body:", String(data: res.data, encoding: .utf8) ?? "no body")
-                case .failure(let err):
-                    print("❌ Onboarding error:", err)
-                }
-            }
-        }
-    }
 }

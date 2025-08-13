@@ -14,6 +14,22 @@ struct OnboardingSelection {
     var brandIds: Set<Int> = []          // BrandView     (min 1, max 5)
     var vintageItemIds: Set<Int> = []    // ClothTypeView (min 1, max 3)
     var regionIds: Set<Int> = []         // LocationView  (min 1, max 3)
+    var nickname: String = ""
+    var comment: String = ""
+    
+    init(vintageStyleIds: Set<Int> = [],
+             brandIds: Set<Int> = [],
+             vintageItemIds: Set<Int> = [],
+             regionIds: Set<Int> = [],
+             nickname: String = "",
+         comment: String = "") {
+        self.vintageStyleIds = vintageStyleIds
+        self.brandIds = brandIds
+        self.vintageItemIds = vintageItemIds
+        self.regionIds = regionIds
+        self.nickname = nickname
+        self.comment = comment
+    }
 
     // MARK: - Constraints
     enum Limit {
@@ -35,6 +51,9 @@ struct OnboardingSelection {
         brandIds.removeAll()
         vintageItemIds.removeAll()
         regionIds.removeAll()
+        
+        nickname = ""
+        comment = ""
     }
 }
 

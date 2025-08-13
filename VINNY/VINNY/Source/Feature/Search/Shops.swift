@@ -16,3 +16,14 @@ struct Shops: Identifiable {
         Shops(name: "홍대빈티지", address: "서울 마포구 와우산로 21길 16", tags : ["캐쥬얼", "빈티지", "아메카지"]),
     ]
 }
+
+
+extension Shops {
+    init(from dto: ShopSearchResultDTO) {
+        self.init(
+            name: dto.name,
+            address: dto.address ,
+            tags: dto.styles
+        )
+    }
+}

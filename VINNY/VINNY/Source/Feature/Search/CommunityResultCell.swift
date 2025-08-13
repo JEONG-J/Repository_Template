@@ -1,44 +1,47 @@
-//
-//  CommunityResultCell.swift
-//  VINNY
-//
-//  Created by 소민준 on 8/5/25.
-//
 import SwiftUI
 import Foundation
 
-    // 커뮤니티 결과 셀: 유저 정보를 표시하는 셀
-    struct CommunityResultCell: View {
-        let user: UserResult
+// 커뮤니티 결과 셀: 게시글 이미지 그리드
+struct CommunityResultCell: View {
+    let posts: [PostSearchResultDTO]             // ← API 결과 주입
+    private let columns: [GridItem] = Array(repeating: GridItem(.flexible(), spacing: 1), count: 3)
 
-        var body: some View {
-            HStack(spacing: 12) {
-                // 프로필 이미지 (placeholder 사용 또는 user.imageURL 적용)
-                Image("example_profile") // 실제 사용 시에는 user.profileImageName 또는 AsyncImage 등으로 교체
-                    .resizable()
-                    .frame(width: 40, height: 40)
-                    .clipShape(Circle())
-
-                // 이름 및 포지션
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(user.name)
-                        .font(.suit(.semibold, size: 16))
-                        .foregroundColor(.white)
-
-                    Text(user.position)
-                        .font(.suit(.regular, size: 14))
-                        .foregroundColor(.gray)
+    var body: some View {
+        // 부모(SearchResultView)에 ScrollView가 있으므로 여기선 LazyVGrid만
+        LazyVGrid(columns: columns, spacing: 1) {
+            ForEach(posts, id: \.id) { post in
+                ForEach(post.imageUrls ?? [], id: \.self) { url in
+                    PostImageTile(urlString: url)
                 }
-
-                Spacer()
-
-                // 오른쪽 화살표
-                Image(systemName: "chevron.right")
-                    .foregroundColor(.contentAssistive)
             }
-            .padding(.vertical, 12)
-            .padding(.horizontal, 16)
-            .background(Color.backRootRegular)
+        }
+        .padding(.top, 1)
+    }
+}
+
+// 작은 타일로 분리해서 타입체크 부담↓
+private struct PostImageTile: View {
+    let urlString: String
+
+    var body: some View {
+        if let url = URL(string: urlString) {
+            AsyncImage(url: url) { phase in
+                if let image = phase.image {
+                    image.resizable().scaledToFill()
+                } else if phase.error != nil {
+                    Rectangle().fill(Color.gray.opacity(0.2))
+                        .overlay(Image(systemName: "photo").foregroundColor(.gray))
+                } else {
+                    Rectangle().fill(Color.gray.opacity(0.15))
+                }
+            }
+            .aspectRatio(1, contentMode: .fit)
+            .clipped()
+        } else {
+            Rectangle().fill(Color.gray.opacity(0.2))
+                .overlay(Image(systemName: "exclamationmark.triangle").foregroundColor(.gray))
+                .aspectRatio(1, contentMode: .fit)
         }
     }
-    
+}
+//굳

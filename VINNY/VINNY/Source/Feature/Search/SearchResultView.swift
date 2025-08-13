@@ -13,16 +13,12 @@ struct SearchResultView: View {
     @State private var searchText: String
     @State private var selectedTab: Int = 0
     @FocusState private var isSearchFieldFocused: Bool
+    @StateObject private var vm = SearchResultViewModel()
     
     let tabs = ["샵", "커뮤니티"]
     
     // 더미 샵 데이터
-    let shops: [Shops] = [
-        .init(name: "루트홍대", address: "서울특별시 마포구 양화로 140 B1F", tags: ["캐주얼", "스트릿", "데님"]),
-        .init(name: "빈티지산타", address: "서울특별시 마포구 홍익로 19 지하1층", tags: ["아메카지", "캐주얼", "데님"]),
-        .init(name: "카마데바", address: "서울특별시 마포구 어울마당로5길 42 B1F", tags: ["하이엔드", "데님", "캐주얼"]),
-        .init(name: "옴니피플헤비", address: "서울특별시 마포구 와우산로29나길 18", tags: ["데님", "밀리터리", "스트릿"])
-    ]
+    
     // 더미 유저 데이터
     let users: [UserResult] = [
         .init(name: "홍길동", position: "디자이너"),
@@ -39,14 +35,14 @@ struct SearchResultView: View {
         VStack(spacing: 0) {
             header
             searchBar
-            
+
             tabBar
                 .padding(.top, 24)
-            
+
             ScrollView {
                 VStack(spacing: 0) {
                     if selectedTab == 0 {
-                        ForEach(shops, id: \.name) { shop in
+                        ForEach(vm.shops) { shop in
                             VStack(spacing: 0) {
                                 SearchResultCell(shops: shop)
                                     .padding(.horizontal, 16)
@@ -56,21 +52,27 @@ struct SearchResultView: View {
                             }
                         }
                     } else {
-                        ForEach(users, id: \.name) { user in
-                            VStack(spacing: 0) {
-                                CommunityResultCell(user: user)
-                                Divider()
-                                    .frame(height: 4)
-                                    .background(Color.borderDividerRegular)
-                            }
+                        if vm.posts.isEmpty {
+                            Text("게시글 검색 결과가 없습니다.")
+                                .font(.suit(.regular, size: 14))
+                                .foregroundColor(.contentAssistive)
+                                .padding(.top, 24)
+                        } else {
+                            CommunityResultCell(posts: vm.posts)
                         }
                     }
                 }
-                .padding(.top, 12)
             }
+            .padding(.top, 12)
         }
         .background(Color.backRootRegular)
         .navigationBarBackButtonHidden()
+        .onAppear {
+            Task { await vm.bootstrap(keyword: searchText, tab: selectedTab) }
+        }
+        .onChange(of: selectedTab) { new in
+            Task { await vm.search(keyword: searchText, tab: new) }
+        }
     }
     
     
@@ -100,6 +102,10 @@ struct SearchResultView: View {
                 .font(.suit(.regular, size: 16))
                 .foregroundColor(.white)
                 .focused($isSearchFieldFocused)
+                .onSubmit {
+                    Task{ await vm.search(keyword: searchText, tab: selectedTab)
+                    }
+                }
             
             Spacer()
             
@@ -156,7 +162,7 @@ struct SearchResultView: View {
             .padding(.leading, 24)
             .padding(.top, 16)
             // .padding(.bottom, x) 는 불필요 — 각 텍스트에 padding(.bottom, …)로 공간 확보
-
+            
             // 탭 전체 하단 구분선: 선택 밑줄과 같은 baseline에 위치
             Rectangle()
                 .fill(Color.borderDividerRegular)
