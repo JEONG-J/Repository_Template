@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct TopsideProfileView: View {
+    @State private var isProfileEditPresented = false
     @EnvironmentObject var container: DIContainer
     init(container: DIContainer){
         
@@ -61,10 +62,11 @@ struct TopsideProfileView: View {
                     Spacer()
 
                     Button {
-                        // 편집 액션
+                        isProfileEditPresented = true
                     } label: {
                         HStack(spacing: 2) {
                             Image("pencil")
+                            
                             Text("편집")
                         }
                         .font(.suit(.medium, size: 14))
@@ -78,6 +80,13 @@ struct TopsideProfileView: View {
                 }
                 .padding(.bottom, 10)
             }
+        }
+        .sheet(isPresented: $isProfileEditPresented) {
+            ProfileEditCard()
+                .presentationDetents([.height(520)])
+                .clipShape(RoundedRectangle(cornerRadius: 16))
+                .presentationBackground(Color.backRootRegular)
+
         }
     }
 }
