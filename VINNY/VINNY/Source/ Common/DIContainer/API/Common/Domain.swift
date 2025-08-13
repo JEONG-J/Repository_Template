@@ -22,9 +22,9 @@ public struct API {
     //가게 정보 관련 API
     static let shopURL = "\(baseURL)/shops/"
     //프로필 관련 API
-    static let profileURL = "\(baseURL)/profile"
+    static let mypageURL = "\(baseURL)/mypage/"
     
-    static let authURL = "\(baseURL)auth"
+    static let authURL = "\(baseURL)auth/"
 
     //map 관련 API
     static let mapURL = "\(baseURL)/map/"
