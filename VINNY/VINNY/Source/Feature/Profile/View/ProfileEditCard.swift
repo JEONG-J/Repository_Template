@@ -11,6 +11,7 @@ struct ProfileEditCard: View {
     @State private var nickname: String = ""
     @State private var intro: String = ""
     var body: some View {
+            
             VStack(spacing: 0) {
                 Capsule()
                     .fill(Color("BorderDividerRegular"))
@@ -36,13 +37,13 @@ struct ProfileEditCard: View {
                 }
                 .padding(.all, 16)
                 
-                HStack(alignment: .center, spacing: 12) {
+                HStack {
                     Image("example_profile")
                         .resizable()
                         .frame(width: 64, height: 64)
                         .clipShape(Circle())
                         .padding(.trailing, 8)
-                    
+                
                     VStack(alignment: .leading, spacing: 2) {
                         Text("다른 사람들에게 아래와 같이 표시됩니다")
                             .font(.suit(.medium, size: 12))
@@ -56,7 +57,7 @@ struct ProfileEditCard: View {
                     }
                 }
                 .padding(.vertical, 10)
-                .padding(.horizontal, 16)
+                .padding(.leading, -100)
                 
                 Button(action: {
                     Task {
@@ -96,19 +97,19 @@ struct ProfileEditCard: View {
                 }) {
                     Text("저장하기")
                         .font(.suit(.medium, size: 16))
-                        .foregroundStyle( Color("ContentInverted"))
+                        .foregroundStyle(Color("ContentInverted"))
                         .frame(maxWidth: .infinity, minHeight: 56)
-                        .background( Color("BackFillInverted"))
+                        .background(Color("BackFillInverted"))
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
                 .padding(.vertical, 10)
                 .padding(.horizontal, 16)
             }
-            .foregroundStyle(Color("BackFillRegular"))
+            .background(Color.backRootRegular) 
             .clipShape(RoundedRectangle(cornerRadius: 16))
         }
     
-    }
+}
 
 private func inputField(
     title: String,

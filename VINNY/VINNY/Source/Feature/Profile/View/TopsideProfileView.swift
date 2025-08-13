@@ -83,6 +83,10 @@ struct TopsideProfileView: View {
         }
         .sheet(isPresented: $isProfileEditPresented) {
             ProfileEditCard()
+                .presentationDetents([.height(520)])
+                .clipShape(RoundedRectangle(cornerRadius: 16))
+                .presentationBackground(Color.backRootRegular)
+
         }
     }
 }
