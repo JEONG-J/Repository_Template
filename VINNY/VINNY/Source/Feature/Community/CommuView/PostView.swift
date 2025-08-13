@@ -38,7 +38,7 @@ struct PostView: View {
                 ZStack {
                     HStack {
                         Button (action: {
-                            print("뒤로 가기")
+                            container.navigationRouter.pop()
                         }) {
                             Image("arrowBack")
                                 .resizable()

@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct ShopInfoSheet: View {
+    @EnvironmentObject var container: DIContainer
     let shopName: String
     var shopAddress: String = "샵 주소"
     var shopIG: String = "vintageplus_trendy"
@@ -30,7 +31,7 @@ struct ShopInfoSheet: View {
                     }
                     Spacer()
                     Button(action: {
-                        
+                        container.navigationRouter.push(to: .ShopView)
                     }) {
                         Image("chevron.right")
                             .resizable()
