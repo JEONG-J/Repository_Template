@@ -16,6 +16,7 @@ struct ShopInfoResponseDTO: Decodable {
     let result: [ShopResultDTO]
     let timestamp: String
 }
+// 굳
 struct ShopResultDTO:Decodable {
     let reviewId: Int
     let title: String
