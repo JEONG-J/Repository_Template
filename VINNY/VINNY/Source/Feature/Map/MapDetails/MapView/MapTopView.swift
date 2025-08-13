@@ -18,7 +18,7 @@ struct MapTopView: View {
                 Spacer()
                 
                 Button(action: {
-                   
+                    //container.navigationRouter.push(to: .NotificationView)
                 }) {
                     Image("notifications")
                         .resizable()

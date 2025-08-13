@@ -81,6 +81,9 @@ struct NavigationRoutingView: View {
         case .RecommendView:
             RecommendView(container: container)
                 .environmentObject(container)
+        case .NotificationView:
+            NotificationView(container: container)
+                .environmentObject(container)
         }
     }
     
