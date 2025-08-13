@@ -8,8 +8,9 @@
 import SwiftUI
 
 struct ShopView: View {
-    @ObservedObject var viewModel: MapViewModel
-    
+    @EnvironmentObject var container: DIContainer
+    @StateObject private var viewModel = MapViewModel()
+
     // 테스트용. api 연결 시 지우기
     var shopName: String = "샵 이름"
     var shopAddress: String = "샵 주소"
@@ -23,7 +24,7 @@ struct ShopView: View {
             ZStack {
                 HStack {
                     Button (action: {
-                        print("뒤로 가기")
+                        container.navigationRouter.pop()
                     }) {
                         Image("arrowBack")
                             .resizable()
@@ -149,7 +150,7 @@ struct ShopView: View {
             // MARK: - 고정 버튼
             HStack(spacing: 8) {
                 Button(action: {
-                    
+                    container.navigationRouter.push(to: .UploadReviewView)
                 }) {
                     HStack {
                         Text("후기 작성")

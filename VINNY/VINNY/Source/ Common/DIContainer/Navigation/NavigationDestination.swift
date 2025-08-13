@@ -27,8 +27,10 @@ enum NavigationDestination: Hashable {
     case TopsideProfileView
     case MyProfileView
     case LastSignUpView
-    
-    
+    case UploadReviewView
+    case ShopView
+    case RecommendView
+
     static func == (lhs: NavigationDestination, rhs: NavigationDestination) -> Bool {
         switch (lhs, rhs) {
         case (.SplashView, .SplashView):
@@ -68,6 +70,12 @@ enum NavigationDestination: Hashable {
         case(.MyProfileView, .MyProfileView):
             return true
         case(.LastSignUpView, .LastSignUpView):
+            return true
+        case(.UploadReviewView, .UploadReviewView):
+            return true
+        case(.ShopView, .ShopView):
+            return true
+        case(.RecommendView, .RecommendView):
             return true
         default:
             return false
@@ -114,6 +122,12 @@ enum NavigationDestination: Hashable {
             hasher.combine("MyProfileView")
         case .LastSignUpView:
             hasher.combine("LastSignUpView")
+        case .UploadReviewView:
+            hasher.combine("UploadReviewView")
+        case .ShopView:
+            hasher.combine("ShopView")
+        case .RecommendView:
+            hasher.combine("RecommendView")
         }
     }
 }

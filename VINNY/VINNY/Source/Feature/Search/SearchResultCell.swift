@@ -11,6 +11,7 @@ import SwiftUI
 // 이 셀은 Shops 모델 데이터를 기반으로 하여 샵 정보를 표시하기 때문에,
 // "커뮤니티"와 같은 다른 데이터 타입에는 재사용되지 않을 가능성이 높습니다.
 struct SearchResultCell: View {
+    @EnvironmentObject var container: DIContainer
     let shops: Shops // 외부에서 주입받는 샵 데이터
     
     var body: some View {
@@ -40,8 +41,13 @@ struct SearchResultCell: View {
                     Spacer() // 오른쪽 끝 정렬 유도
                     
                     // 오른쪽 화살표 아이콘 (탭 이동 느낌)
-                    Image(systemName: "chevron.right")
-                        .foregroundColor(.contentAssistive)
+                    Button (action: {
+                        container.navigationRouter.push(to: .ShopView)
+                    }) {
+                        Image("chevron.right")
+                            .foregroundColor(.contentAssistive)
+                            .frame(width: 24, height: 24)
+                    }
                 }
                 
                 // 하단 태그 리스트 (가변적)

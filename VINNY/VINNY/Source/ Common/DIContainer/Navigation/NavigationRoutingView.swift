@@ -72,6 +72,15 @@ struct NavigationRoutingView: View {
         case .LastSignUpView:
             LastSignUpView(container: container)
                 .environmentObject(container)
+        case .UploadReviewView:
+            UploadReviewView(container: container)
+                .environmentObject(container)
+        case .ShopView:
+            ShopView()
+                .environmentObject(container)
+        case .RecommendView:
+            RecommendView(container: container)
+                .environmentObject(container)
         }
     }
     

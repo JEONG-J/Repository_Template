@@ -29,9 +29,12 @@ struct HomeView: View {
                     
                     Spacer()
                     
-                    Image("notifications")
-                        .resizable()
-                        .frame(width: 24, height: 24)
+                    Button(action: {
+                    }) {
+                        Image("notifications")
+                            .resizable()
+                            .frame(width: 24, height: 24)
+                    }
                 }
                 .padding(.horizontal, 16)
                 .padding(.vertical, 16)
@@ -130,10 +133,10 @@ struct HomeView: View {
 
 
             if selectedFilter == 0 {
-                RecommendView()
+                RecommendView(container: container)
                     .padding(.horizontal, 16)
             } else if selectedFilter == 1{
-                RankingView()
+                RankingView(container: container)
                     .padding(.horizontal, 16)
             } else {
                 PopularView(container: container)
