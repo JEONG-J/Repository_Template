@@ -42,7 +42,7 @@ struct SearchResultCell: View {
                     
                     // 오른쪽 화살표 아이콘 (탭 이동 느낌)
                     Button (action: {
-                        container.navigationRouter.push(to: .ShopView)
+                        container.navigationRouter.push(to: .ShopView(id: shops.shopId))
                     }) {
                         Image("chevron.right")
                             .foregroundColor(.contentAssistive)

@@ -31,7 +31,7 @@ struct ShopInfoSheet: View {
                     }
                     Spacer()
                     Button(action: {
-                        container.navigationRouter.push(to: .ShopView)
+                        container.navigationRouter.push(to: .ShopView(id: 0)) // TODO: 실제 shopId로 교체
                     }) {
                         Image("chevron.right")
                             .resizable()
