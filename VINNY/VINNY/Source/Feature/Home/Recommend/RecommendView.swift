@@ -8,14 +8,16 @@
 import SwiftUI
 
 struct RecommendView: View {
+    @EnvironmentObject var container: DIContainer
+    init(container: DIContainer) {
+        
+    }
 //    let shopName: String
     var shopAddress: String = "샵 주소"
     var shopIG: String = "vintageplus_trendy"
     var shopTime: String = "12:00 ~ 23:00"
     var categories: [String] = ["🛠️ 워크웨어", "👕 캐주얼", "💼 하이엔드"]
-    
-    @State private var isLiked: Bool = false
-    
+        
     var body: some View {
         ScrollView {
             LazyVStack(spacing: 0) {
@@ -61,11 +63,11 @@ struct RecommendView: View {
                 .padding(.horizontal, 4)
                 Spacer()
                 Button(action: {
-                    isLiked.toggle()
+                    container.navigationRouter.push(to: .ShopView)
                 }) {
-                    Image(isLiked ? "likeFill": "like")
+                    Image("chevron.right")
                         .resizable()
-                        .frame(width: 24, height: 24)
+                        .frame(width: 16, height: 16)
                 }
             }
             .frame(maxWidth: .infinity)
@@ -133,6 +135,3 @@ struct RecommendView: View {
     }
 }
 
-#Preview {
-    RecommendView()
-}

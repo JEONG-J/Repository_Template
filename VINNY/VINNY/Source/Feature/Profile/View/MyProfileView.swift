@@ -44,3 +44,9 @@ struct MyProfileView: View {
     }
 }
 
+
+#Preview {
+    let container = DIContainer()
+    MyProfileView(container: container)
+}
+

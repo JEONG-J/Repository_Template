@@ -17,10 +17,13 @@ struct MapTopView: View {
                 
                 Spacer()
                 
-                Image("notifications")
-                    .resizable()
-                    .frame(width: 24, height: 24)
-            }
+                Button(action: {
+                    //container.navigationRouter.push(to: .NotificationView)
+                }) {
+                    Image("notifications")
+                        .resizable()
+                        .frame(width: 24, height: 24)
+                }            }
             .padding(.horizontal)
             .padding(.vertical, 16)
             

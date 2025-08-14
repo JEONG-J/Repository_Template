@@ -8,6 +8,11 @@
 import SwiftUI
 
 struct RankingView: View {
+    @EnvironmentObject var container: DIContainer
+    
+    init(container: DIContainer) {
+        
+    }
     private var categories: [String] = ["#빈티지", "#스트릿", "#레더"]
     private var styles: [String] = [
         "모든 종류", "🪖 밀리터리", "🇺🇸 아메카지", "🛹 스트릿", "🏔️ 아웃도어", "👕 캐주얼", "👖 데님", "💼 하이엔드", "🛠️ 워크웨어", "👞 레더", "‍🏃‍♂️ 스포티", "🐴 웨스턴", "👚 Y2K"
@@ -97,6 +102,7 @@ struct RankingView: View {
     }
     
     private func rankingCard(rank: Int) -> some View {
+        
         VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 8) {
                 Text("\(rank)")
@@ -115,8 +121,9 @@ struct RankingView: View {
                         .foregroundStyle(Color.contentAdditive)
                 }
                 Spacer()
+                
                 Button(action: {
-                    print("샵 보기")
+                    container.navigationRouter.push(to: .ShopView)
                 }) {
                     Image("chevron.right")
                         .resizable()
@@ -161,5 +168,7 @@ struct RankingView: View {
 }
 
 #Preview {
-    RankingView()
+    let container = DIContainer()
+    RankingView(container: container)
+        .environmentObject(container)
 }
