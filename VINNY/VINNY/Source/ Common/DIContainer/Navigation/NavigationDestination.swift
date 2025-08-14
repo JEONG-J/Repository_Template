@@ -18,7 +18,7 @@ enum NavigationDestination: Hashable {
     case LocationView
     case SearchFocusView
     case SearchResultView(keyword: String)
-    case PostView
+    case PostView(id: Int)
     case HomeView
     case CommunityView
     case PostUploadView
@@ -54,8 +54,8 @@ enum NavigationDestination: Hashable {
             return true
         case(.SearchResultView, .SearchResultView):
             return true
-        case (.PostView, .PostView):
-            return true
+        case (.PostView(let a ), .PostView(let b)):
+            return a == b
         case (.HomeView, .HomeView):
             return true
         case (.CommunityView, .CommunityView):
@@ -111,8 +111,9 @@ enum NavigationDestination: Hashable {
             hasher.combine("CommunityView")
         case .HomeView:
             hasher.combine("HomeView")
-        case .PostView:
+        case .PostView(let id):
             hasher.combine("PostView")
+            hasher.combine(id)
         case .PostUploadView:
             hasher.combine("PostUploadView")
         case .TasteResetView:

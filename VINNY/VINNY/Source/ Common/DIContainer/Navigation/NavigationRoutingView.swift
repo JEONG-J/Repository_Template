@@ -46,8 +46,8 @@ struct NavigationRoutingView: View {
             
         case .SearchResultView(let keyword):
             SearchResultView(keyword: keyword)
-        case .PostView:
-            PostView(container: container)
+        case .PostView(let id):
+            PostView(postId: id)
                 .environmentObject(container)
         case .HomeView:
             HomeView(container: container)
