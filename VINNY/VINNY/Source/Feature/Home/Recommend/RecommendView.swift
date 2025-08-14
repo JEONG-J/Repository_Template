@@ -17,6 +17,8 @@ struct RecommendView: View {
     var shopIG: String = "vintageplus_trendy"
     var shopTime: String = "12:00 ~ 23:00"
     var categories: [String] = ["🛠️ 워크웨어", "👕 캐주얼", "💼 하이엔드"]
+    
+    @State private var forYouItems: [ForYouShopDTO] = []
         
     var body: some View {
         ScrollView {
@@ -36,15 +38,18 @@ struct RecommendView: View {
                 .padding(.bottom, 6)
                 .padding(.horizontal, 6)
                 
-                ForEach(0..<3, id: \.self) { recommend in
-                    recommendShopCard()
+                ForEach(forYouItems, id: \.self) { item in
+                    recommendShopCard(item: item)
                         .padding(.vertical, 16)
                 }
             }
         }
+        .task {
+            await fetchForYou()
+        }
     }
     
-    private func recommendShopCard() -> some View {
+    private func recommendShopCard(item: ForYouShopDTO) -> some View {
         VStack(spacing: 0) {
             HStack(spacing: 8) {
                 Image("shop1") // 프로필 이미지
@@ -53,17 +58,17 @@ struct RecommendView: View {
                     .aspectRatio(contentMode: .fill)
                     .clipShape(Circle())
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("빈티지 플러스")
+                    Text(item.name)
                         .font(.suit(.medium, size: 16))
                         .foregroundStyle(Color.contentBase)
-                    Text("서울 마포구 서교동 364-18 지하1층")
+                    Text(item.address ?? "-")
                         .font(.suit(.light, size: 12))
                         .foregroundStyle(Color.contentAdditive)
                 }
                 .padding(.horizontal, 4)
                 Spacer()
                 Button(action: {
-                    container.navigationRouter.push(to: .ShopView(id: 0)) // TODO: 실제 shopId로 교체
+                    container.navigationRouter.push(to: .ShopView(id: item.id))
                 }) {
                     Image("chevron.right")
                         .resizable()
@@ -83,7 +88,7 @@ struct RecommendView: View {
                     .foregroundStyle(Color.contentAssistive)
                     .padding(.horizontal, 4)
                     .frame(maxWidth: 82, alignment: .leading)
-                Text("\(shopIG)")
+                Text(item.instagram ?? "-")
                     .font(.system(size: 14))
                     .foregroundStyle(Color.contentAdditive)
                     .padding(.horizontal, 4)
@@ -101,7 +106,7 @@ struct RecommendView: View {
                     .foregroundStyle(Color.contentAssistive)
                     .padding(.horizontal, 4)
                     .frame(maxWidth: 82, alignment: .leading)
-                Text("\(shopTime)")
+                Text("\(item.openTime ?? "-") ~ \(item.closeTime ?? "-")")
                     .font(.system(size: 14))
                     .foregroundStyle(Color.contentAdditive)
                     .padding(.horizontal, 4)
@@ -111,21 +116,31 @@ struct RecommendView: View {
             .padding(.vertical, 4)
             
             HStack(spacing: 6) {
-                ForEach(categories, id: \.self) { category in
-                    TagComponent(tag: category)
+                ForEach((item.shopVintageStyleList ?? []).map { $0.vintageStyleName }, id: \.self) { tag in
+                    TagComponent(tag: tag)
                 }
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 8)
             .frame(maxWidth: .infinity, alignment: .leading)
-            
-            Image("shop2")
-                .resizable()
-                .clipShape(RoundedRectangle(cornerRadius: 12))
-                .aspectRatio(contentMode: .fill)
-                .frame(maxWidth: .infinity, maxHeight: 184)
-                .padding(.horizontal, 16)
-                .padding(.vertical, 8)
+            if let u = item.images?.url, !u.isEmpty {
+                // TODO: Replace with RemoteImageView(url: u)
+                Image("shop2")
+                    .resizable()
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .aspectRatio(contentMode: .fill)
+                    .frame(maxWidth: .infinity, maxHeight: 184)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 8)
+            } else {
+                Image("shop2")
+                    .resizable()
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .aspectRatio(contentMode: .fill)
+                    .frame(maxWidth: .infinity, maxHeight: 184)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 8)
+            }
         }
         .padding(.vertical, 6)
         .background(
@@ -133,5 +148,15 @@ struct RecommendView: View {
                 .foregroundStyle(Color.backFillRegular)
         )
     }
+    
+    @MainActor
+    private func fetchForYou() async {
+        do {
+            let items = try await HomeAPITarget.getForYouShops(limit: 3)
+            self.forYouItems = items
+        } catch {
+            print("⚠️ For-You 불러오기 실패:", error.localizedDescription)
+            self.forYouItems = []
+        }
+    }
 }
-
