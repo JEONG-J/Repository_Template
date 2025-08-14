@@ -83,3 +83,21 @@ struct VintageStyleDTO: Decodable {
     let id: Int
     let vintageStyleName: String
 }
+
+
+// MARK: - Shop Ranking (GET /api/shops/ranking)
+struct ShopRankingResponseDTO: Decodable {
+    let isSuccess: Bool
+    let code: String
+    let message: String
+    let result: [ShopRankingItemDTO]
+    let timestamp: String
+}
+struct ShopRankingItemDTO: Decodable, Hashable {
+    let shopId: Int
+    let name: String
+    let address: String
+    let region: String
+    let tags: [String]
+    let thumbnailUrl: String?
+}

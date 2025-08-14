@@ -22,6 +22,7 @@ struct RankingView: View {
     ]
     @State private var selectedStyles: Set<String> = ["모든 종류"]
     @State private var selectedRegions: Set<String> = ["모든 지역"]
+    @State private var rankingResults: [ShopRankingItemDTO] = []
     
     var body: some View {
         ScrollView {
@@ -95,13 +96,16 @@ struct RankingView: View {
                 .padding(.horizontal, 6)
             }
             
-            ForEach(1..<11, id: \.self) { rank in
-                rankingCard(rank: rank)
+            ForEach(Array(rankingResults.enumerated()), id: \.offset) { (idx, item) in
+                rankingCard(rank: idx + 1, item: item)
             }
         }
+        .task { await fetchRanking() }
+        .onChange(of: selectedStyles) { _ in Task { await fetchRanking() } }
+        .onChange(of: selectedRegions) { _ in Task { await fetchRanking() } }
     }
     
-    private func rankingCard(rank: Int) -> some View {
+    private func rankingCard(rank: Int, item: ShopRankingItemDTO) -> some View {
         
         VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 8) {
@@ -113,17 +117,17 @@ struct RankingView: View {
                     .resizable()
                     .frame(width: 40, height: 40)
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("샵 이름")
+                    Text(item.name)
                         .font(.suit(.medium, size: 18))
                         .foregroundStyle(Color.contentBase)
-                    Text("샵 주소")
+                    Text(item.address)
                         .font(.suit(.light, size: 12))
                         .foregroundStyle(Color.contentAdditive)
                 }
                 Spacer()
                 
                 Button(action: {
-                    container.navigationRouter.push(to: .ShopView(id: 0)) // TODO: 실제 shopId로 교체
+                    container.navigationRouter.push(to: .ShopView(id: item.shopId))
                 }) {
                     Image("chevron.right")
                         .resizable()
@@ -138,7 +142,7 @@ struct RankingView: View {
                     Image("mapPin")
                         .resizable()
                         .frame(width: 16, height: 16)
-                    Text("지역") 
+                    Text("지역")
                         .font(.suit(.medium, size: 12))
                         .foregroundStyle(Color.contentAdditive)
                 }
@@ -149,20 +153,47 @@ struct RankingView: View {
                         .foregroundStyle(Color.backFillRegular)
                 )
                 
-                ForEach(categories, id: \.self) { category in
-                    TagComponent(tag: category)
+                ForEach(item.tags, id: \.self) { tag in
+                    TagComponent(tag: tag)
                 }
             }
             .padding(.vertical, 8)
             
-            Image("emptyBigImage")
-                .resizable()
-                .aspectRatio(contentMode: .fill)
-                .frame(height: 104)
-                .clipShape(RoundedRectangle(cornerRadius: 12))
-                .padding(.vertical, 8)
+            if let url = item.thumbnailUrl, !url.isEmpty {
+                // TODO: Replace with your RemoteImageView(url) when available
+                Image("emptyBigImage")
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(height: 104)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .padding(.vertical, 8)
+            } else {
+                Image("emptyBigImage")
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(height: 104)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .padding(.vertical, 8)
+            }
             
             Divider().padding(.vertical, 10)
+        }
+        .contentShape(Rectangle())
+        .onTapGesture {
+            container.navigationRouter.push(to: .ShopView(id: item.shopId))
+        }
+    }
+    
+    @MainActor
+    private func fetchRanking() async {
+        let style = selectedStyles.first { $0 != "모든 종류" }
+        let region = selectedRegions.first { $0 != "모든 지역" }
+        do {
+            let items = try await ShopAPITarget.getShopRanking(region: region, style: style, page: 0, size: 20)
+            self.rankingResults = items
+        } catch {
+            print("⚠️ 랭킹 불러오기 실패:", error.localizedDescription)
+            self.rankingResults = []
         }
     }
 }
