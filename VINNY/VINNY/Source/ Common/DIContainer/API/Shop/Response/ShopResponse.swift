@@ -10,19 +10,19 @@ import Foundation
 //가게 상세조회 api
 
 struct ShopInfoResponseDTO: Decodable {
-    let isSuccess : Bool
-    let code : String
+    let isSuccess: Bool
+    let code: String
     let message: String
-    let result: [ShopResultDTO]
+    let result: ShopResultDTO      // ← 배열 ❌, 단일 객체 ✅
     let timestamp: String
 }
-// 굳
-struct ShopResultDTO:Decodable {
+
+struct ShopResultDTO: Decodable {
     let reviewId: Int
     let title: String
-    let content:String
-    let userName:String
-    let elapsedTime: String
+    let content: String
+    let userName: String
+    let elapsedTime: String        // ← 철자 'elapsed'로 통일
     let imageUrls: [String]
 }
 
@@ -52,4 +52,34 @@ struct ShopInfoResultDTO: Decodable{
     let elaspedTime: String
     let imageUrls :[String]
     
+}
+// MARK: - Shop Detail (GET /api/shop/{shopId})
+struct ShopDetailResponseDTO: Decodable {
+    let isSuccess: Bool
+    let code: String
+    let message: String
+    let result: ShopDetailDTO
+    let timestamp: String
+}
+
+struct ShopDetailDTO: Decodable {
+    let id: Int
+    let name: String
+    let intro: String?
+    let description: String?
+    let status: String?
+    let openTime: String?
+    let closeTime: String?
+    let instagram: String?
+    let address: String?
+    let latitude: Double?
+    let longitude: Double?
+    let region: String?
+    let images: [String]?
+    let shopVintageStyleList: [VintageStyleDTO]?
+}
+
+struct VintageStyleDTO: Decodable {
+    let id: Int
+    let vintageStyleName: String
 }

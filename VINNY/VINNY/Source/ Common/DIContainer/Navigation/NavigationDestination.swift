@@ -28,7 +28,7 @@ enum NavigationDestination: Hashable {
     case MyProfileView
     case LastSignUpView
     case UploadReviewView
-    case ShopView
+    case ShopView(id:Int)
     case RecommendView
     case NotificationView
 
@@ -127,8 +127,9 @@ enum NavigationDestination: Hashable {
             hasher.combine("LastSignUpView")
         case .UploadReviewView:
             hasher.combine("UploadReviewView")
-        case .ShopView:
+        case .ShopView(let id):
             hasher.combine("ShopView")
+            hasher.combine(id) // 해시에는 id 값만 포함
         case .RecommendView:
             hasher.combine("RecommendView")
         case .NotificationView:
