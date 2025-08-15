@@ -5,33 +5,36 @@
 //  Created by 홍지우 on 7/10/25.
 //
 
-/// Map을 띄우고, ViewModel의 바인딩 상태를 보여주는 역할
-/// ViewModel의 데이터를 바인딩 해 뷰를 자동 업데이트 함.
+/// 지도 화면 컨테이너: 상단바/지도/오버레이(버튼, 시트) 구성
 import SwiftUI
 import MapKit
 import UIKit
 
 struct MapView: View {
-    
+    // MARK: - Dependencies
     @Bindable private var locationManager = LocationManager.shared
     @ObservedObject private var viewModel: MapViewModel
     
+    // MARK: - UI State
     @State private var dragOffset: CGFloat = 0
 
     init(viewModel: MapViewModel) {
         self.viewModel = viewModel
     }
     
+    // MARK: - Body
     var body: some View {
         ZStack(alignment: .top) {
             VStack(spacing: 0) {
                 ZStack(alignment: .bottom) {
+                    // 지도/프로그레스
                     if locationManager.currentLocation != nil {
                         UIKitDarkMapView(viewModel: viewModel)
                     } else {
                         ProgressView("위치 정보를 불러오는 중...")
                     }
                     
+                    // 하단 유틸 버튼
                     HStack(spacing: 8) {
                         Button(action: {
                             
@@ -72,15 +75,15 @@ struct MapView: View {
                     .padding(.horizontal)
                     .padding(.bottom, viewModel.selectedMarker != nil ? 380 : 85)
                     
-                    // 마커 눌렀을 떄 효과 (커스텀)
-                    if let marker = viewModel.selectedMarker {
+                    // 바텀시트
+                    if viewModel.selectedMarker != nil {
                         let d = viewModel.selectedShopDetail
                         
                         // 대표 이미지 url 계산
                         let mainURLString = d?.images.first(where: {$0.isMainImage})?.url ?? d?.images.first?.url
                         let mainURL = mainURLString.flatMap(URL.init(string:))
                         
-                        // 터치 감지는 따로 TapGesture만 담당
+                        // 배경 탭으로 닫기
                         Color.clear
                             .ignoresSafeArea()
                             .contentShape(Rectangle())
@@ -92,6 +95,7 @@ struct MapView: View {
                                         }
                                         withAnimation {
                                             viewModel.selectedMarker = nil
+                                            // TODO: 닫힐 때 상세 캐시 정책 결정(유지/초기화)
                                         }
                                     }
                             )
@@ -139,8 +143,9 @@ struct MapView: View {
             
             MapTopView()
         }
-        // 최초 진입 시 1회만 지도 카메라 이동
-        .onAppear {
+        // MARK: Lifecycle
+        .task {
+            // 최초 1회 카메라 이동
             if !viewModel.hasSetInitialRegion,
                let location = locationManager.currentLocation {
                 viewModel.shouldTrackUserLocation = true

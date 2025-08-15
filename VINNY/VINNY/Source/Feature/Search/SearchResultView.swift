@@ -67,7 +67,7 @@ struct SearchResultView: View {
         }
         .background(Color.backRootRegular)
         .navigationBarBackButtonHidden()
-        .onAppear {
+        .task {
             Task { await vm.bootstrap(keyword: searchText, tab: selectedTab) }
         }
         .onChange(of: selectedTab) { oldValue, newValue in

@@ -8,8 +8,12 @@
 import SwiftUI
 import Kingfisher
 
+/// 지도 하단 바텀시트: 썸네일/기본 정보/태그/대표 이미지 표시
 struct ShopInfoSheet: View {
+    // MARK: - Dependencies
     @EnvironmentObject var container: DIContainer
+    
+    // MARK: - Display Model
     var shopName: String
     var shopAddress: String
     var shopIG: String
@@ -19,7 +23,9 @@ struct ShopInfoSheet: View {
     
     var body: some View {
             VStack(spacing: 0) {
+                // MARK: Header (썸네일 + 이름/주소 + 링크)
                 HStack(spacing: 8) {
+                    // NOTE: 이미지 로딩/실패/없음 모두 동일 프레임 유지
                     ZStack {
                         if let url = imageURL {
                             KFImage(url)
@@ -64,6 +70,7 @@ struct ShopInfoSheet: View {
                 .padding(.horizontal, 16)
                 .padding(.vertical, 10)
                 
+                // MARK: Info Rows (IG, 시간)
                 HStack(spacing: 2) {
                     Image("instargram")
                         .resizable()
@@ -82,6 +89,7 @@ struct ShopInfoSheet: View {
                 .padding(.horizontal, 16)
                 .padding(.vertical, 10)
                 
+                // MARK: Tags
                 HStack(spacing: 2) {
                     Image("time")
                         .resizable()
@@ -124,6 +132,7 @@ struct ShopInfoSheet: View {
                 .padding(.vertical, 8)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 
+                // MARK: Main Image
                 if let url = imageURL {
                     KFImage(url)
                         .placeholder { Image("checkerImage").resizable() } // 로딩 중엔 체크 이미지

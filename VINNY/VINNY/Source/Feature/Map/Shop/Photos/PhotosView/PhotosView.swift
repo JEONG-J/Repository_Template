@@ -37,7 +37,7 @@ struct PhotosView: View {
                                 .clipShape(RoundedRectangle(cornerRadius: 8))
                         }
                     }
-                    .onAppear {
+                    .task {
                         if post.id == viewModel.posts.last?.id {
                             viewModel.fetchPosts()
                         }
