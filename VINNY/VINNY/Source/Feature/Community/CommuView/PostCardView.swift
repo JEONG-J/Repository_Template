@@ -14,14 +14,6 @@ struct PostCardView: View {
             
     }
     
-//    private var postImages: [String] = ["community2", "community2", "community2"]
-//    private var shopName: String = "주코 빈티지 홍대"
-//    private var tags: [String] = ["#빈티지", "#스트릿", "#레더"]
-//    
-//    private var postTime: String = "3시간 전 | 2025년 5월 9일"
-//    private var title: String = "오늘의 코디"
-//    private var content: String = "해외에서 입는 빈티지 굿~~"
-//    private var likeCount: Int = 725
     private var postImages: [String] = ["post2", "post2", "post"]
     
     private var shopName: String = "스테이블 그라운드 합정"
@@ -133,6 +125,7 @@ struct PostCardView: View {
                     
                 }
             }
+            
             HStack(spacing: 6) {
                 Button(action: {
                     isLiked.toggle()

@@ -133,6 +133,7 @@ struct MapView: View {
                 viewModel.updateFromLocation(location)
                 viewModel.hasSetInitialRegion = true
             }
+            viewModel.fetchShops()
         }
         // 위치 바뀔 때 최초 1회 자동 이동 (중복 방지)
         .onChange(of: locationManager.currentLocation) {
