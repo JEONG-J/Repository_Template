@@ -10,6 +10,7 @@ import MapKit
 
 struct Marker: Identifiable, Equatable {
     let id = UUID()
+    let shopId: Int
     let coordinate: CLLocationCoordinate2D
     let title: String
     let category: Category
