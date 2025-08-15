@@ -31,11 +31,11 @@ struct SearchResultCell: View {
                     VStack(alignment: .leading, spacing: 4) {
                         Text(shops.name) // 상호명
                             .font(.suit(.bold, size: 18)) // 볼드 16pt
-                            .foregroundColor(.contentBase) // 기본 텍스트 컬러
+                            .foregroundStyle(.contentBase) // 기본 텍스트 컬러
                         
                         Text(shops.address) // 주소
                             .font(.suit(.regular, size: 12)) // 일반체 13pt
-                            .foregroundColor(.contentAdditive) // 보조 텍스트 컬러
+                            .foregroundStyle(.contentAdditive) // 보조 텍스트 컬러
                     }
                     
                     Spacer() // 오른쪽 끝 정렬 유도
@@ -45,7 +45,7 @@ struct SearchResultCell: View {
                         container.navigationRouter.push(to: .ShopView(id: shops.shopId))
                     }) {
                         Image("chevron.right")
-                            .foregroundColor(.contentAssistive)
+                            .foregroundStyle(.contentAssistive)
                             .frame(width: 24, height: 24)
                     }
                 }
@@ -56,7 +56,7 @@ struct SearchResultCell: View {
                     ForEach(shops.tags.isEmpty ? ["지역", "개쥬얼", "스트릿"] : shops.tags, id: \.self) { tag in
                         Text(tag)
                             .font(.suit(.medium, size: 12)) // 태그 폰트: 중간체 12pt
-                            .foregroundColor(.contentAdditive)
+                            .foregroundStyle(.contentAdditive)
                             .padding(.horizontal, 8) // 좌우 패딩
                             .padding(.vertical, 4)   // 상하 패딩
                             .background(Color.backFillStrong) // 배경 색상

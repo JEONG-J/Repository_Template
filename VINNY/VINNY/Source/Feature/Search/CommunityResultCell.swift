@@ -30,7 +30,7 @@ private struct PostImageTile: View {
                     image.resizable().scaledToFill()
                 } else if phase.error != nil {
                     Rectangle().fill(Color.gray.opacity(0.2))
-                        .overlay(Image(systemName: "photo").foregroundColor(.gray))
+                        .overlay(Image(systemName: "photo").foregroundStyle(.gray))
                 } else {
                     Rectangle().fill(Color.gray.opacity(0.15))
                 }
@@ -39,7 +39,7 @@ private struct PostImageTile: View {
             .clipped()
         } else {
             Rectangle().fill(Color.gray.opacity(0.2))
-                .overlay(Image(systemName: "exclamationmark.triangle").foregroundColor(.gray))
+                .overlay(Image(systemName: "exclamationmark.triangle").foregroundStyle(.gray))
                 .aspectRatio(1, contentMode: .fit)
         }
     }

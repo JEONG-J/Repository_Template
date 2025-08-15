@@ -51,13 +51,13 @@ struct SearchFocusView: View {
                     if searchText.isEmpty {
                         Text("빈티지샵, 게시글 검색하기")
                             .font(.system(size: 16))
-                            .foregroundColor(.white)
+                            .foregroundStyle(.white)
                             .padding(.leading, 4)
                     }
                     TextField("", text: $searchText)
                         .focused($isTextFieldFocused)
                         .font(.system(size: 16))
-                        .foregroundColor(.white)
+                        .foregroundStyle(.white)
                         .tint(.white)
                         .onSubmit {
                             guard !searchText.isEmpty else { return }
@@ -122,7 +122,7 @@ struct SearchFocusView: View {
         VStack(alignment: .leading, spacing: 0) {
             Text("추천 검색어")
                 .font(.suit(.semibold, size: 16))
-                .foregroundColor(.white)
+                .foregroundStyle(.white)
                 .padding(.top, 18)
                 .padding(.bottom, 16)
 
@@ -162,7 +162,7 @@ struct SearchFocusView: View {
             HStack {
                 Text("최근 검색어")
                     .font(.suit(.semibold, size: 16))
-                    .foregroundColor(.white)
+                    .foregroundStyle(.white)
                 Spacer()
                 Button(action: {
                     SearchKeywordManager.shared.clearAll()
@@ -172,10 +172,10 @@ struct SearchFocusView: View {
                         Image(systemName: "xmark")
                             .resizable()
                             .frame(width: 12, height: 12)
-                            .foregroundColor(.gray)
+                            .foregroundStyle(.gray)
                         Text("모두 삭제")
                             .font(.suit(.regular, size: 14))
-                            .foregroundColor(.gray)
+                            .foregroundStyle(.gray)
                     }
                 }
             }
@@ -186,17 +186,17 @@ struct SearchFocusView: View {
                 ForEach(recentKeywords, id: \.self) { keyword in
                     HStack {
                         Image(systemName: "magnifyingglass")
-                            .foregroundColor(.gray)
+                            .foregroundStyle(.gray)
                         Text(keyword)
                             .font(.suit(.regular, size: 15))
-                            .foregroundColor(.white)
+                            .foregroundStyle(.white)
                         Spacer()
                         Button(action: {
                             SearchKeywordManager.shared.remove(keyword)
                             updateRecentKeywords()
                         }) {
                             Image(systemName: "xmark")
-                                .foregroundColor(.gray)
+                                .foregroundStyle(.gray)
                         }
                     }
                     .contentShape(Rectangle())
