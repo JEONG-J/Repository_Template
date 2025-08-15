@@ -13,14 +13,26 @@ enum MapAPITarget {
     //코스 상세정보 API
     case getAllShop
     case getSavedShopOnMap
-    case getShopOnMap(shopId: Int)
+//    case getShopOnMap(shopId: Int)
 }
 
 extension MapAPITarget: TargetType {
     
     
     var headers: [String : String]? {
-        return ["Content-Type": "application/json"]
+        var h: [String: String] = [
+            "Accept": "application/json"
+        ]
+        // getAllShop엔 토큰 금지
+        switch self {
+        case .getAllShop:
+            break
+        default:
+            if let token = KeychainHelper.shared.get(forKey: "accessToken"), !token.isEmpty {
+                h["Authorization"] = "Bearer \(token)"
+            }
+        }
+        return h
     }
     
     var baseURL: URL{
@@ -30,11 +42,11 @@ extension MapAPITarget: TargetType {
     var path: String {
         switch self {
         case .getAllShop:
-            return "/all"
+            return "shops/all"
         case .getSavedShopOnMap:
-            return "/favorite"
-        case .getShopOnMap(let shopId):
-            return "/shops/\(shopId)"
+            return "shops/favorite"
+//        case .getShopOnMap(let shopId):
+//            return "/shops/\(shopId)"
         }
     }
     
@@ -44,8 +56,8 @@ extension MapAPITarget: TargetType {
             return .get
         case .getSavedShopOnMap:
             return .get
-        case .getShopOnMap:
-            return .get
+//        case .getShopOnMap:
+//            return .get
         }
     }
     
@@ -55,8 +67,8 @@ extension MapAPITarget: TargetType {
             return .requestPlain
         case .getSavedShopOnMap:
             return .requestPlain
-        case .getShopOnMap:
-            return .requestPlain
+//        case .getShopOnMap:
+//            return .requestPlain
         
         }
     }

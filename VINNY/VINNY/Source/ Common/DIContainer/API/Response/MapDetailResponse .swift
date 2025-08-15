@@ -1,15 +1,25 @@
 import Foundation
 
-struct GetAllShopDTO: Codable {
+struct MapAllResponse: Decodable {
+    let isSuccess: Bool
+    let code: String
+    let message: String
+    let result: [MapShopItem]
+}
+struct MapShopItem: Decodable {
     let id: Int
-    let laditude: Double
+    let latitude: Double
     let longitude: Double
-    let style: [String]
+    let vintageStyleList: [VintageStyleDTO]
+}
+struct VintageStyleDTO: Decodable {
+    let id: Int
+    let vintageStyleName: String
 }
 
 struct GetSavedShopDTO: Codable {
     let id: Int
-    let laditude: Double
+    let latitude: Double
     let longitude: Double
     let style: [String]
 }
