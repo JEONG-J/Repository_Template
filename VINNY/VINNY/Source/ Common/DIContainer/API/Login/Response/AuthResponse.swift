@@ -44,3 +44,12 @@ struct SessionResultResponseDTO: Codable {
     let status: String
     let needRefresh: Bool
 }
+
+// LogoutResponseDTO.swift
+struct LogoutResponseDTO: Decodable {
+    let isSuccess: Bool
+    let code: String
+    let message: String
+    let result: String
+    let timestamp: String
+}

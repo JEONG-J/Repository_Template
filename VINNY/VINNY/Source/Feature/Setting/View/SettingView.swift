@@ -6,6 +6,8 @@ struct SettingView: View {
         
     }
     @State private var isLikedNotificationOn: Bool = false
+    @State private var showLogoutAlert = false
+    @State private var isProcessingLogout: Bool = false
 
     var body: some View {
         ZStack {
@@ -119,7 +121,7 @@ struct SettingView: View {
                 
                 Group {
                     SettingNavigationRow(title: "로그아웃", icon: "logout"){
-                        
+                        showLogoutAlert = true
                     }
                     
                     Divider()
@@ -136,7 +138,38 @@ struct SettingView: View {
                 Spacer()
             }
         }
-        .navigationBarBackButtonHidden()
+        .navigationBarBackButtonHidden(true)
+        .onAppear {
+            // Defensive reset to prevent accidental auto-navigation
+            showLogoutAlert = false
+            isProcessingLogout = false
+            print("[SettingView] onAppear — reset alert & processing flags")
+        }
+        .alert("로그아웃하시겠습니까?", isPresented: $showLogoutAlert) {
+            Button("취소", role: .cancel) {}
+            Button("확인", role: .destructive) {
+                if isProcessingLogout { return }
+                isProcessingLogout = true
+                Task { @MainActor in
+                    // 1) 서버 로그아웃
+                    do {
+                        _ = try await container.useCaseProvider.authUseCase.request(.logout)
+                    } catch {
+                        print("[Logout] API failed: \(error)")
+                    }
+                    // 2) 로컬 토큰 삭제
+                    KeychainHelper.shared.delete(forKey: "accessToken")
+                    KeychainHelper.shared.delete(forKey: "refreshToken")
+                    // 3) 알럿 닫고 네비게이션 갱신
+                    showLogoutAlert = false
+                    // 루트로 돌아간 뒤 LoginView로 이동
+                    container.navigationRouter.popToRoot()
+                    container.navigationRouter.push(to: .LoginView)
+                    print("[Logout] navigated to LoginView via popToRoot + push")
+                    isProcessingLogout = false
+                }
+            }
+        }
     }
 }
 

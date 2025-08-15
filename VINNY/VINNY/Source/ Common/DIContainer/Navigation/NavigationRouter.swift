@@ -9,12 +9,11 @@ import Foundation
 
 protocol NavigationRoutable {
     var destinations: [NavigationDestination] { get set }
-    
+
     func push(to: NavigationDestination)
-    
     func pop()
-    
     func popToRoot()
+    func hardReset(to: NavigationDestination) // hard reset + single destination
 }
 
 @Observable
@@ -26,10 +25,16 @@ class NavigationRouter: NavigationRoutable {
     }
     
     func pop() {
-        destinations.removeLast()
+        if !destinations.isEmpty { destinations.removeLast() }
     }
     
     func popToRoot() {
+        destinations = [.VinnyTabView]
+    }
+    
+    /// Backward-compatible API: respects allowGlobalReset gate
+    func hardReset(to destination: NavigationDestination) {
         destinations.removeAll()
+        destinations = [destination]
     }
 }

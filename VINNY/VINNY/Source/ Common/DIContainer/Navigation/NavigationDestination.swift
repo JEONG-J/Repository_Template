@@ -18,7 +18,7 @@ enum NavigationDestination: Hashable {
     case LocationView
     case SearchFocusView
     case SearchResultView(keyword: String)
-    case PostView
+    case PostView(id: Int)
     case HomeView
     case CommunityView
     case PostUploadView
@@ -31,6 +31,8 @@ enum NavigationDestination: Hashable {
     case ShopView(id:Int)
     case RecommendView
     case NotificationView
+    case PostEditView(postId: Int)
+    case PostDeleteView(postId: Int)
 
     static func == (lhs: NavigationDestination, rhs: NavigationDestination) -> Bool {
         switch (lhs, rhs) {
@@ -54,8 +56,8 @@ enum NavigationDestination: Hashable {
             return true
         case(.SearchResultView, .SearchResultView):
             return true
-        case (.PostView, .PostView):
-            return true
+        case (.PostView(let a ), .PostView(let b)):
+            return a == b
         case (.HomeView, .HomeView):
             return true
         case (.CommunityView, .CommunityView):
@@ -80,6 +82,10 @@ enum NavigationDestination: Hashable {
             return true
         case(.NotificationView, .NotificationView):
             return true
+        case let (.PostEditView(a), .PostEditView(b)):
+            return a == b
+        case let (.PostDeleteView(a), .PostDeleteView(b)):
+            return a == b
         default:
             return false
         }
@@ -111,8 +117,9 @@ enum NavigationDestination: Hashable {
             hasher.combine("CommunityView")
         case .HomeView:
             hasher.combine("HomeView")
-        case .PostView:
+        case .PostView(let id):
             hasher.combine("PostView")
+            hasher.combine(id)
         case .PostUploadView:
             hasher.combine("PostUploadView")
         case .TasteResetView:
@@ -134,6 +141,12 @@ enum NavigationDestination: Hashable {
             hasher.combine("RecommendView")
         case .NotificationView:
             hasher.combine("NotificationView")
+        case let .PostEditView(postId):
+            hasher.combine("PostEditView")
+            hasher.combine(postId)
+        case let .PostDeleteView(postId):
+            hasher.combine("PostDeleteView")
+            hasher.combine(postId)
         }
     }
 }
