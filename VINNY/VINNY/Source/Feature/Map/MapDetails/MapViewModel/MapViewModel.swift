@@ -61,6 +61,7 @@ final class MapViewModel: ObservableObject {
         }
     }
     
+    // 전체 가게 목록 조회
     func fetchShops() {
         mapProvider.request(.getAllShop) { (result: Result<Response, MoyaError>) in
             switch result {
@@ -72,6 +73,7 @@ final class MapViewModel: ObservableObject {
                     let markers = decoded.result.map { item in
                         let styleName = item.vintageStyleList.first?.vintageStyleName
                         return Marker(
+                            shopId: item.id,
                             coordinate: .init(latitude: item.latitude, longitude: item.longitude),
                             title: "Shop #\(item.id)",
                             category: Category.fromAPI(styleName)
@@ -90,4 +92,32 @@ final class MapViewModel: ObservableObject {
             }
         }
     }
+    
+    // 지도 가게 썸네일 조회
+//    func fetchShopDetail(shopId: Int, completion: ((GetShopOnMapDTO) -> Void)? = nil) {
+//        mapProvider.request(.getShopOnMap(shopId: shopId)) { (result: Result<Response, MoyaError>) in
+//            switch result {
+//            case .success(let response):
+//                guard (200...299).contains(response.statusCode) else {
+//                    print("❌ HTTP \(response.statusCode)")
+//                    print("↳ body:", String(data: response.data, encoding: .utf8) ?? "no body")
+//                    return
+//                }
+//                do {
+//                    let dto = try JSONDecoder().decode(
+//                        MapEnvelope<GetShopOnMapDTO>.self,
+//                        from: response.data
+//                    ).result
+//                    DispatchQueue.main.async {
+//                        completion?(dto)
+//                    }
+//                } catch {
+//                    print("❌ Decode detail error:", error)
+//                    print("↳ raw:", String(data: response.data, encoding: .utf8) ?? "binary")
+//                }
+//            case .failure(let err):
+//                print("❌ API error:", err)
+//            }
+//        }
+//    }
 }
