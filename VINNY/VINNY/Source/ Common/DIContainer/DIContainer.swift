@@ -13,6 +13,7 @@ class DIContainer: ObservableObject {
     
     var useCaseProvider: UseCaseProvider
     @Published var onboardingSelection = OnboardingSelection()
+    @Published var editingPostId: Int? = nil
     
     
     init() {

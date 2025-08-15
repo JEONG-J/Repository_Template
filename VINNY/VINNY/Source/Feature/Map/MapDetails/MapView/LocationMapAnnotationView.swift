@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+// MARK: - Domain
 enum Category: String {
     case military
     case amekaji
@@ -40,8 +41,9 @@ enum Category: String {
 }
 
 extension Category {
+    /// 서버에서 내려오는 한글/영문 값을 앱 도메인 카테고리로 매핑
     static func fromAPI(_ raw: String?) -> Category {
-        switch raw?.lowercased() {
+        switch raw?.lowercased() {         // FIXME: "Y2k" → "y2k" 등 케이스 불일치 정규화 (서버 계약 확인)
         case "밀리터리": return .military
         case "아메카지":  return .amekaji
         case "스트릿":   return .street
@@ -59,8 +61,9 @@ extension Category {
     }
 }
 
-
+/// 마커 내부의 이모지/선택 상태를 표현하는 SwiftUI 뷰
 struct LocationMapAnnotationView: View {
+    // MARK: - Input
     var category: Category
     var isSelected: Bool = false
     

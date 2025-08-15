@@ -9,24 +9,16 @@ import SwiftUI
 
 struct PostView: View {
     @EnvironmentObject var container: DIContainer
-        
-    init(container: DIContainer) {
-        
-    }
-    
+    let postId: Int
+
+    @State private var isLoading = false
+    @State private var errorMessage: String?
+    @State private var detail: PostDetailDTO?
+
     @State private var currentIndex: Int = 0
-    private var postImages: [String] = ["post2", "post2", "post2"]
-    
-    private var shopName: String = "스테이블 그라운드 합정"
-    private var tags: [String] = ["#빈티지", "#스트릿", "#레더"]
-    
-    private var postTime: String = "3시간 전 | 2025년 5월 9일"
-    private var title: String = "오늘의 폴로 코디"
-    private var content: String = "봄에 내는 가을 무드 ㅎㅎ"
-    private var likeCount: Int = 259
-    
     @State private var isLiked: Bool = false
     @State private var isBookmarked: Bool = false
+    @State private var likeCount: Int = 0
     
     @State private var isShowingDialog = false
     @State var isShowingDeleteDialog: Bool = false
@@ -55,137 +47,165 @@ struct PostView: View {
                 // MARK: - 스크롤뷰
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: 0) {
-                        HStack(spacing: 8) {
-                            Image("post1") // 프로필 이미지
-                                .resizable()
-                                .frame(width: 40, height: 40)
-                                .aspectRatio(contentMode: .fill)
-                                .clipShape(Circle())
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text("김지훈") // 닉네임
-                                    .font(.suit(.medium, size: 16))
-                                    .foregroundStyle(Color.contentBase)
-                                Text("소개글") // 소개글
-                                    .font(.suit(.light, size: 12))
-                                    .foregroundStyle(Color.contentAdditive)
+                        if isLoading {
+                            ProgressView()
+                                .padding(.top, 24)
+                        } else if let d = detail {
+                            HStack(spacing: 8) {
+                                URLImageView(d.author.profileImageUrl ?? "")
+                                    .frame(width: 40, height: 40)
+                                    .clipShape(Circle())
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(d.author.nickname)
+                                        .font(.suit(.medium, size: 16))
+                                        .foregroundStyle(Color.contentBase)
+                                    Text(d.createdAtRelative)
+                                        .font(.suit(.light, size: 12))
+                                        .foregroundStyle(Color.contentAdditive)
+                                }
+                                .padding(.horizontal, 4)
+                                Spacer()
+                                Button(action: {
+                                    isShowingDialog = true
+                                }) {
+                                    Image("more")
+                                        .resizable()
+                                        .frame(width: 16, height: 16)
+                                }
                             }
-                            .padding(.horizontal, 4)
-                            Spacer()
-                            Button(action: {
-                                isShowingDialog = true
-                            }) {
-                                Image("more")
-                                    .resizable()
-                                    .frame(width: 16, height: 16)
-                            }
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 10)
-                        
-                        /// post 페이지네이션
-                        VStack(spacing: 12) {
-                            TabView(selection: $currentIndex) {
-                                ForEach(0..<postImages.count, id: \.self) { index in
-                                    Image(postImages[index])
+                            .frame(maxWidth: .infinity)
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 10)
+
+                            /// post 페이지네이션 (이미지)
+                            VStack(spacing: 12) {
+                                if d.images.isEmpty {
+                                    Image("emptyBigImage")
                                         .resizable()
                                         .aspectRatio(contentMode: .fill)
                                         .frame(maxWidth: .infinity)
                                         .frame(height: 440)
                                         .clipped()
+                                } else {
+                                    TabView(selection: $currentIndex) {
+                                        ForEach(Array(d.images.enumerated()), id: \.offset) { pair in
+                                            URLImageView(pair.element)
+                                                .frame(maxWidth: .infinity)
+                                                .frame(height: 440)
+                                                .clipped()
+                                                .tag(pair.offset)
+                                        }
+                                    }
+                                    .frame(height: 440)
+                                    .padding(.vertical, 4)
+                                    .tabViewStyle(.page(indexDisplayMode: .never))
+
+                                    /// 커스텀 인디케이터
+                                    HStack(spacing: 4) {
+                                        ForEach(0..<(max(d.images.count, 1)), id: \.self) { index in
+                                            Circle()
+                                                .fill(index == currentIndex ? Color.gray : Color.gray.opacity(0.3))
+                                                .frame(width: 4, height: 4)
+                                        }
+                                    }
+                                    .animation(.easeInOut, value: currentIndex)
+                                    .padding(.top, 8)
                                 }
                             }
-                            .frame(height: 440)
-                            .padding(.vertical, 4)
-                            .tabViewStyle(.page(indexDisplayMode: .never))
-                            
-                            /// 커스텀 인디케이터( 커스텀 안 쓰니 이미지 안으로 들어가서 커스텀 쓰기로 함)
-                            HStack(spacing: 4) {
-                                ForEach(0..<postImages.count, id: \.self) { index in
-                                    Circle()
-                                        .fill(index == currentIndex ? Color.gray : Color.gray.opacity(0.3))
-                                        .frame(width: 4, height: 4)
+
+                            /// tags
+                            HStack(spacing: 6) {
+                                if let shop = d.shop {
+                                    HStack(spacing: 4) {
+                                        Image("mapPinFill")
+                                            .resizable()
+                                            .frame(width: 16, height: 16)
+                                        Text(shop.shopName)
+                                            .font(.suit(.medium, size: 12))
+                                            .foregroundStyle(Color.contentAdditive)
+                                    }
+                                    .padding(.horizontal, 6)
+                                    .padding(.vertical, 2)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 4)
+                                            .foregroundStyle(Color.backFillRegular)
+                                    )
+                                }
+
+                                ForEach(d.styles, id: \.self) { st in
+                                    TagComponent(tag: "#\(st.styleName)")
+                                }
+
+                                if let brand = d.brand {
+                                    TagComponent(tag: "#\(brand.brandName)")
                                 }
                             }
-                            .animation(.easeInOut, value: currentIndex)
-                            .padding(.top, 8)
-                        }
-                        
-                        /// tags
-                        HStack(spacing: 6) {
-                            HStack(spacing: 4) {
-                                Image("mapPinFill")
-                                    .resizable()
-                                    .frame(width: 16, height: 16)
-                                Text("\(shopName)") // 샵 이름 태그
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 10)
+
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(d.createdAtRelative)
                                     .font(.suit(.medium, size: 12))
+                                    .foregroundStyle(Color.contentAssistive)
+                                Text(d.title)
+                                    .font(.suit(.bold, size: 18))
+                                    .foregroundStyle(Color.contentBase)
+                                if !d.content.isEmpty {
+                                    Text(d.content)
+                                        .font(.suit(.light, size: 14))
+                                        .foregroundStyle(Color.contentAdditive)
+                                }
+                            }
+                            .padding(.horizontal, 20)
+                            .padding(.vertical, 10)
+
+                            HStack(spacing: 6) {
+                                Button(action: {
+                                    isLiked.toggle()
+                                    likeCount += isLiked ? 1 : -1
+                                }) {
+                                    Image(isLiked ? "likeFill" : "like")
+                                        .resizable()
+                                        .frame(width: 24, height: 24)
+                                }
+
+                                Text("\(likeCount)개")
+                                    .font(.suit(.medium, size: 14))
                                     .foregroundStyle(Color.contentAdditive)
+                                Spacer()
+
+                                Button(action: {
+                                    isBookmarked.toggle()
+                                }) {
+                                    Image(isBookmarked ? "bookmarkFill" : "bookmark")
+                                        .resizable()
+                                        .frame(width: 24, height: 24)
+                                }
                             }
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 2)
-                            .background(
-                                RoundedRectangle(cornerRadius: 4)
-                                    .foregroundStyle(Color.backFillRegular)
-                            )
-                            
-                            ForEach(tags, id: \.self) { category in
-                                TagComponent(tag: category)
-                            }
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 8)
+
+                        } else if let err = errorMessage {
+                            Text(err)
+                                .foregroundStyle(.red)
+                                .padding(.top, 24)
                         }
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 10)
-                        
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text("\(postTime)")
-                                .font(.suit(.medium, size: 12))
-                                .foregroundStyle(Color.contentAssistive)
-                            Text("\(title)")
-                                .font(.suit(.bold, size: 18))
-                                .foregroundStyle(Color.contentBase)
-                            Text("\(content)")
-                                .font(.suit(.light, size: 14))
-                                .foregroundStyle(Color.contentAdditive)
-                        }
-                        .padding(.horizontal, 20)
-                        .padding(.vertical, 10)
-                        
-                        HStack(spacing: 6) {
-                            Button(action: {
-                                isLiked.toggle()
-                            }) {
-                                Image(isLiked ? "likeFill" : "like")
-                                    .resizable()
-                                    .frame(width: 24, height: 24)
-                            }
-                            
-                            Text("\(likeCount)개")
-                                .font(.suit(.medium, size: 14))
-                                .foregroundStyle(Color.contentAdditive)
-                            Spacer()
-                            
-                            Button(action: {
-                                isBookmarked.toggle()
-                            }) {
-                                Image(isBookmarked ? "bookmarkFill" : "bookmark")
-                                    .resizable()
-                                    .frame(width: 24, height: 24)
-                            }
-                        }
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 8)
                     }
                 }
             }
             .background(Color.backFillStatic)
             .confirmationDialog(
-                title,
+                "게시글",
                 isPresented: $isShowingDialog
             ) {
                 Button("수정") {
-                    
+                    isShowingDialog = false
+                    container.editingPostId = postId
+                    container.navigationRouter.push(to: .PostEditView(postId: postId))
                 }
                 Button("삭제", role: .destructive) {
                     isShowingDialog = false
+                    container.editingPostId = postId
                     isShowingDeleteDialog = true
                 }
                 Button("취소", role: .cancel) {
@@ -197,6 +217,62 @@ struct PostView: View {
                 PostDeleteView(isShowing: $isShowingDeleteDialog)
             }
         }
-        .navigationBarBackButtonHidden()
+        .onAppear {
+            container.editingPostId = postId
+        }
+        .task(id: postId) { await fetch() }
+        .navigationBarBackButtonHidden(true)
+    }
+    
+    @MainActor
+    private func fetch() async {
+        isLoading = true
+        errorMessage = nil
+        defer { isLoading = false }
+        do {
+            let d = try await PostAPITarget.fetchPostDetail(postId: postId)
+            self.detail = d
+            // 동기화: 좋아요/북마크/카운트
+            self.isLiked = d.likedByMe
+            self.isBookmarked = d.bookmarkedByMe
+            self.likeCount = d.likesCount
+            self.currentIndex = 0
+        } catch {
+            self.errorMessage = error.localizedDescription
+        }
+    }
+}
+
+private struct URLImageView: View {
+    private let urlString: String
+    init(_ urlString: String) { self.urlString = urlString }
+
+    var body: some View {
+        Group {
+            if let url = URL(string: urlString), !urlString.isEmpty {
+                AsyncImage(url: url) { phase in
+                    switch phase {
+                    case .empty:
+                        ZStack { Color.clear; ProgressView() }
+                    case .success(let image):
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                    case .failure:
+                        Image("emptyImage")
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                    @unknown default:
+                        Image("emptyImage")
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                    }
+                }
+            } else {
+                Image("emptyImage")
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+            }
+        }
     }
 }

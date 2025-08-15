@@ -20,9 +20,7 @@ struct VINNYApp: App {
     
     var body: some Scene {
         WindowGroup {
-            // 라우터의 path를 쓰는 NavigationStack
             NavigationStack(path: $container.navigationRouter.destinations) {
-                //  앱 첫 화면: SplashView에서 /api/auth/session 호출 → 분기
                 SplashView(container: container)
                     .environmentObject(container)
                     .navigationDestination(for: NavigationDestination.self) { destination in

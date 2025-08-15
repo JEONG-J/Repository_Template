@@ -80,7 +80,7 @@ struct LastSignUpView: View {
             Button("확인") { errorText = nil }
         } message: { Text(errorText ?? "") }
         .navigationBarBackButtonHidden()
-        .onAppear {
+        .task {
             // 기존 선택값 있으면 프리필
             nickname = container.onboardingSelection.nickname
             intro    = container.onboardingSelection.comment

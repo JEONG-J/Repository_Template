@@ -12,11 +12,13 @@ import CoreLocation
 import MapKit
 import Observation
 
+/// CLLocationManager를 래핑해 위치/방위/지오펜스 이벤트를 제공
 @Observable
 class LocationManager: NSObject{
+    // MARK: - Singleton
     static let shared = LocationManager()
     
-    // MARK: - CLLocationManager
+    // MARK: - Core
     private let locationManager = CLLocationManager()
     
     // MARK: - Published Properties
@@ -39,10 +41,9 @@ class LocationManager: NSObject{
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
         locationManager.headingFilter = kCLHeadingFilterNone
         
+        // FIXME: 권한 요청 중복 (requestWhenInUse → requestAlways 순서/조건 정리)
         locationManager.requestWhenInUseAuthorization()
         locationManager.startUpdatingLocation()
-        
-//        startUpdatingLocation()
         requestAuthorization()
         startUpdatingHeading()
         print("LocationManager 초기화됨")

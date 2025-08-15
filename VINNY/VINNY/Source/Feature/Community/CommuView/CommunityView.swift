@@ -7,12 +7,40 @@
 
 import SwiftUI
 
+
 struct CommunityView: View {
     @EnvironmentObject var container: DIContainer
         
     init(container: DIContainer) {
             
     }
+
+    // MARK: - Networking
+    @MainActor
+    private func fetchPosts(reset: Bool) async {
+        if reset { page = 0 }
+        isLoading = true
+        errorMessage = nil
+        defer { isLoading = false }
+        do {
+            let result: PostListResultDTO = try await PostAPITarget.getPosts(page: page, size: size)
+            if reset {
+                posts = result.posts
+            } else {
+                posts += result.posts
+            }
+            // 다음 페이지 로딩이 필요하면 아래 주석 해제
+            // page += 1
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+
+    @State private var posts: [PostItemDTO] = []
+    @State private var isLoading = false
+    @State private var errorMessage: String?
+    @State private var page: Int = 0
+    @State private var size: Int = 10
     
     var body: some View {
 
@@ -65,11 +93,20 @@ struct CommunityView: View {
             /// 스크롤뷰
             ScrollView {
                 LazyVStack(spacing: 0) {
-                    ForEach(0..<5, id: \.self) { post in
-                        PostCardView(container: container)
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 10)
-
+                    if isLoading {
+                        ProgressView()
+                            .padding(.vertical, 24)
+                    } else if let err = errorMessage {
+                        Text(err)
+                            .foregroundStyle(.red)
+                            .padding(.vertical, 24)
+                    } else {
+                        ForEach(posts, id: \.self) { item in
+                            PostCardView(item: item)
+                                .environmentObject(container)
+                                .padding(.horizontal, 16)
+                                .padding(.vertical, 10)
+                        }
                     }
                     
                     Spacer()
@@ -81,6 +118,8 @@ struct CommunityView: View {
         }
         .background(Color.backFillStatic)
         .navigationBarBackButtonHidden()
+        .task { await fetchPosts(reset: true) }
+        .refreshable { await fetchPosts(reset: true) }
     }
 }
 

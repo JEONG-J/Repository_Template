@@ -13,7 +13,7 @@ enum MapAPITarget {
     //코스 상세정보 API
     case getAllShop
     case getSavedShopOnMap
-//    case getShopOnMap(shopId: Int)
+    case getShopOnMap(shopId: Int)
 }
 
 extension MapAPITarget: TargetType {
@@ -45,8 +45,8 @@ extension MapAPITarget: TargetType {
             return "shops/all"
         case .getSavedShopOnMap:
             return "shops/favorite"
-//        case .getShopOnMap(let shopId):
-//            return "/shops/\(shopId)"
+        case .getShopOnMap(let shopId):
+            return "shops/\(shopId)"
         }
     }
     
@@ -56,8 +56,8 @@ extension MapAPITarget: TargetType {
             return .get
         case .getSavedShopOnMap:
             return .get
-//        case .getShopOnMap:
-//            return .get
+        case .getShopOnMap:
+            return .get
         }
     }
     
@@ -67,8 +67,8 @@ extension MapAPITarget: TargetType {
             return .requestPlain
         case .getSavedShopOnMap:
             return .requestPlain
-//        case .getShopOnMap:
-//            return .requestPlain
+        case .getShopOnMap:
+            return .requestPlain
         
         }
     }

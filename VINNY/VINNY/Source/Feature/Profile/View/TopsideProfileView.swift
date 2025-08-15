@@ -46,10 +46,10 @@ struct TopsideProfileView: View {
                     KFImage(URL(string: viewModel.profile?.profileImage ?? ""))
                         .placeholder {
                             ProgressView()
-                            
                         }
                         .onFailureImage(UIImage(named: "noneProfile"))
                         .resizable()
+                        .scaledToFill()
                         .frame(width: 64, height: 64)
                         .clipShape(Circle())
                         .padding(.leading, 16)
