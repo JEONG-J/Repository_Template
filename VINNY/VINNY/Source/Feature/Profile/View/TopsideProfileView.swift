@@ -22,7 +22,6 @@ struct TopsideProfileView: View {
                     height: UIScreen.main.bounds.width
                 )
                 .clipped() // 넘치는 부분 잘라냄
-                .ignoresSafeArea(edges: .top)
             VStack(spacing: 24) {
                 HStack {
                     Text("프로필")
