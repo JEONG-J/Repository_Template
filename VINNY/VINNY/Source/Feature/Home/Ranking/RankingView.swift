@@ -97,7 +97,7 @@ struct RankingView: View {
                 
                 ForEach(1..<11, id: \.self) { rank in
                     Button(action: {
-                        container.navigationRouter.push(to: .ShopView)
+                        container.navigationRouter.push(to: .ShopView(id: 0))
                     }) {
                         rankingCard(rank: rank)
                     }

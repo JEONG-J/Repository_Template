@@ -67,8 +67,9 @@ final class MapViewModel: ObservableObject {
             case .success(let response):
                 guard (200...299).contains(response.statusCode) else { return }
                 do {
-                    let wrap = try JSONDecoder().decode(MapAllResponse.self, from: response.data)
-                    let markers = wrap.result.map { item -> Marker in
+                    let decoded = try JSONDecoder().decode(MapAllResponseDTO.self, from: response.data)
+
+                    let markers = decoded.result.map { item in
                         let styleName = item.vintageStyleList.first?.vintageStyleName
                         return Marker(
                             coordinate: .init(latitude: item.latitude, longitude: item.longitude),
@@ -76,6 +77,7 @@ final class MapViewModel: ObservableObject {
                             category: Category.fromAPI(styleName)
                         )
                     }
+                    
                     DispatchQueue.main.async {
                         self.makers = markers
                     }

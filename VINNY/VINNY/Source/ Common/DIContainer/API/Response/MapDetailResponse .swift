@@ -1,18 +1,18 @@
 import Foundation
 
-struct MapAllResponse: Decodable {
+struct MapAllResponseDTO: Decodable {
     let isSuccess: Bool
     let code: String
     let message: String
-    let result: [MapShopItem]
+    let result: [ShopItem]
 }
-struct MapShopItem: Decodable {
+struct ShopItem: Decodable {
     let id: Int
     let latitude: Double
     let longitude: Double
-    let vintageStyleList: [VintageStyleDTO]
+    let vintageStyleList: [StyleItem]
 }
-struct VintageStyleDTO: Decodable {
+struct StyleItem: Decodable {
     let id: Int
     let vintageStyleName: String
 }
