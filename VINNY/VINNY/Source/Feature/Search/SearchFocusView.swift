@@ -86,7 +86,7 @@ struct SearchFocusView: View {
             )
             .padding(.horizontal, 16)
             .padding(.top, 18)
-            .onAppear {
+            .task {
                 isTextFieldFocused = true
                 updateRecentKeywords()
             }

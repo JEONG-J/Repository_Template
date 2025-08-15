@@ -48,11 +48,11 @@ struct TopsideProfileView: View {
                         .placeholder {
                             Image("noneProfile")
                                 .resizable()
-                                .frame(width: 390, height: 390)
-                            
+                                .scaledToFill()
                         }
                         .onFailureImage(UIImage(named: "noneProfile"))
                         .resizable()
+                        .scaledToFill()
                         .frame(width: 64, height: 64)
                         .clipShape(Circle())
                         .padding(.leading, 16)

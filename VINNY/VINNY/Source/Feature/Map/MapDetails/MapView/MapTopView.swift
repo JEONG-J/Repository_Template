@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+/// 지도 상단의 타이틀/알림/검색 엔트리
 struct MapTopView: View {
     @EnvironmentObject var container: DIContainer
     
