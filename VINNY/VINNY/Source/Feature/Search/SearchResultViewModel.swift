@@ -5,13 +5,13 @@ import Foundation
 final class SearchResultViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var shops: [Shops] = [] {
-        didSet { print("🧪 vm.shops updated:", shops.count) }
+        didSet { print("vm.shops updated:", shops.count) }
     }
     @Published var posts: [PostSearchResultDTO] = [] {
-        didSet { print("🧪 vm.posts updated:", posts.count) }
+        didSet { print("vm.posts updated:", posts.count) }
     }
     @Published var error: String? {
-        didSet { if let e = error { print("❌ vm.error:", e) } }
+        didSet { if let e = error { print("vm.error:", e) } }
     }
 
     // 동시에 여러 검색이 겹칠 때 이전 작업 취소

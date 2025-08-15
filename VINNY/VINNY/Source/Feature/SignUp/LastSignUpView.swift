@@ -85,8 +85,12 @@ struct LastSignUpView: View {
             nickname = container.onboardingSelection.nickname
             intro    = container.onboardingSelection.comment
         }
-        .onChange(of: nickname) { container.onboardingSelection.nickname = $0 }
-        .onChange(of: intro)    { container.onboardingSelection.comment  = $0 }
+        .onChange(of: nickname) { oldValue, newValue in
+            container.onboardingSelection.nickname = newValue
+        }
+        .onChange(of: intro) { oldValue, newValue in
+            container.onboardingSelection.comment = newValue
+        }
     }
 
     // MARK: - Submit (여기서 최종 온보딩 API 호출)
@@ -123,7 +127,7 @@ struct LastSignUpView: View {
             comment:        introTrim
         )
         // 디버그 로그
-        print("📦 onboard payload:",
+        print("onboard payload:",
               "styles:", dto.vintageStyleIds,
               "brands:", dto.brandIds,
               "items:", dto.vintageItemIds,
@@ -137,15 +141,15 @@ struct LastSignUpView: View {
                 isSubmitting = false
                 switch result {
                 case .success(let res) where (200..<300).contains(res.statusCode):
-                    print("✅ Onboarding success:", res.statusCode)
+                    print("Onboarding success:", res.statusCode)
                     container.onboardingSelection.reset()
-                    container.navigationRouter.push(to: .HomeView)
+                    container.navigationRouter.push(to: .VinnyTabView)
                 case .success(let res):
                     let bodyStr = String(data: res.data, encoding: .utf8) ?? "no body"
-                    print("⛔️ Onboarding failed:", res.statusCode, bodyStr)
+                    print("Onboarding failed:", res.statusCode, bodyStr)
                     errorText = "오류가 발생했어요. (\(res.statusCode))"
                 case .failure(let err):
-                    print("❌ Onboarding error:", err)
+                    print("Onboarding error:", err)
                     errorText = "네트워크 오류가 발생했어요."
                 }
             }

@@ -32,10 +32,10 @@ final class MapViewModel: ObservableObject {
     /// 위치를 받아 지도 카메라와 중심 좌표를 설정
     func updateFromLocation(_ location: CLLocation?) {
         guard let coordinate = location?.coordinate else {
-            print("🚨 location is nil")
+            print("location is nil")
             return
         }
-        print("✅ Updating map to coordinate: \(coordinate.latitude), \(coordinate.longitude)")
+        print("Updating map to coordinate: \(coordinate.latitude), \(coordinate.longitude)")
         currentMapCenter = coordinate
         cameraPosition = .region(MKCoordinateRegion(center: coordinate,
                                                     span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)))

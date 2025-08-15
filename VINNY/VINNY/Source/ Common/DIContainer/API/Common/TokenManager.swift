@@ -69,10 +69,10 @@ final class TokenManager {
             KeychainHelper.shared.save(response.accessToken, forKey: "accessToken")
             KeychainHelper.shared.save(response.refreshToken, forKey: "refreshToken")
 
-            print("토큰 재발급 성공 ✅")
+            print("토큰 재발급 성공")
             return true
         } catch {
-            print("토큰 재발급 실패 ❌: \(error)")
+            print("토큰 재발급 실패: \(error)")
             KeychainHelper.shared.delete(forKey: "accessToken")
             KeychainHelper.shared.delete(forKey: "refreshToken")
             return false

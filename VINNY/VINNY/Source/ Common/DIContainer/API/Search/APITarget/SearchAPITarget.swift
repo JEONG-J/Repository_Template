@@ -71,9 +71,6 @@ private extension MoyaProvider {
 }
 
 // 🔗 호출 함수 (Service 역할 통합)
-// ⛳️ 주의: 현재 DTO는 result가 '배열'로 정의되어 있으므로 그대로 map 해서 반환한다.
-
-
 extension SearchAPITarget {
     static func searchPosts(keyword: String) async throws -> [PostSearchResultDTO] {
         let res = try await searchProvider.asyncRequest(.getSearchPost(keyword: keyword))
