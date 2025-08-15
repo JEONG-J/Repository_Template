@@ -49,10 +49,11 @@ struct RankingView: View {
                                     }
                                 }
                             )
+                        }
                     }
                 }
                 .padding(.vertical, 8)
-                
+                    
                 ScrollView(.horizontal, showsIndicators: false) {
                     LazyHStack(spacing: 8) {
                         ForEach(regions, id: \.self) { region in
@@ -72,8 +73,8 @@ struct RankingView: View {
                                             selectedRegions.insert(region)
                                         }
                                     }
-                                })
-                            }
+                                }
+                            )
                         }
                     }
                 }
@@ -93,16 +94,19 @@ struct RankingView: View {
                 .padding(.top, 10)
                 .padding(.bottom, 6)
                 .padding(.horizontal, 6)
-            }
-            
-            ForEach(1..<11, id: \.self) { rank in
-                rankingCard(rank: rank)
+                
+                ForEach(1..<11, id: \.self) { rank in
+                    Button(action: {
+                        container.navigationRouter.push(to: .ShopView(id: 0))
+                    }) {
+                        rankingCard(rank: rank)
+                    }
+                }
             }
         }
     }
     
     private func rankingCard(rank: Int) -> some View {
-        
         VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 8) {
                 Text("\(rank)")
@@ -120,10 +124,12 @@ struct RankingView: View {
                         .font(.suit(.light, size: 12))
                         .foregroundStyle(Color.contentAdditive)
                 }
+                
                 Spacer()
                 
+
                 Button(action: {
-                    container.navigationRouter.push(to: .ShopView)
+                    container.navigationRouter.push(to: .ShopView(id: 0)) // TODO: 실제 shopId로 교체
                 }) {
                     Image("chevron.right")
                         .resizable()

@@ -39,6 +39,17 @@ struct UIKitDarkMapView: UIViewRepresentable {
             let region = MKCoordinateRegion(center: center, latitudinalMeters: 1000, longitudinalMeters: 1000)
             uiView.setRegion(region, animated: true)
         }
+        
+        // makers 변경 반영: 사용자 위치 빼고 다 교체
+        let nonUser = uiView.annotations.filter { !($0 is MKUserLocation) }
+        uiView.removeAnnotations(nonUser)
+        
+        for marker in viewModel.makers {
+            let a = MKPointAnnotation()
+            a.coordinate = marker.coordinate
+            a.title = marker.title
+            uiView.addAnnotation(a)
+        }
     }
 
     // 마커 추가 관리

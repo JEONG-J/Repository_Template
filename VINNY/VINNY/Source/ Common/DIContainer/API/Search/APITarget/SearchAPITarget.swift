@@ -30,6 +30,12 @@ extension SearchAPITarget: TargetType {
             )
         }
     }
+    // MARK: - Static API calls (member functions)
+    static func searchShops(keyword: String) async throws -> [Shops] {
+        let res = try await searchProvider.asyncRequest(.getSearchShop(keyword: keyword))
+        let decoded = try JSONDecoder().decode(ShopSearchResponseDTO.self, from: res.data)
+        return decoded.result.map(Shops.init(from:)) // DTO → 도메인 변환
+    }
 
     var headers: [String : String]? {
         var h: [String: String] = [
@@ -43,6 +49,7 @@ extension SearchAPITarget: TargetType {
     }
 
     var sampleData: Data { Data() }
+    
 }
 
 // 공용 Provider + async 도우미
@@ -64,19 +71,10 @@ private extension MoyaProvider {
 }
 
 // 🔗 호출 함수 (Service 역할 통합)
-// ⛳️ 주의: 현재 네 DTO는 result가 '단일 객체'로 정의되어 있으므로 배열로 반환하려면 감싸서 돌려준다.
 extension SearchAPITarget {
-    static func searchShops(keyword: String) async throws -> [Shops] {
-        let res = try await searchProvider.asyncRequest(.getSearchShop(keyword: keyword))
-        let decoded = try JSONDecoder().decode(ShopSearchResponseDTO.self, from: res.data)
-        let shops = decoded.result.map(Shops.init(from:))
-        print("decoded shops count:", shops.count)   // ← 디버그
-        return shops
-    }
-
     static func searchPosts(keyword: String) async throws -> [PostSearchResultDTO] {
-            let res = try await searchProvider.asyncRequest(.getSearchPost(keyword: keyword))
-            let decoded = try JSONDecoder().decode(PostSearchResponseDTO.self, from: res.data)
-            return decoded.result              // ← 이제 배열 그대로 반환
-        }
+        let res = try await searchProvider.asyncRequest(.getSearchPost(keyword: keyword))
+        let decoded = try JSONDecoder().decode(PostSearchResponseDTO.self, from: res.data)
+        return decoded.result
     }
+}
