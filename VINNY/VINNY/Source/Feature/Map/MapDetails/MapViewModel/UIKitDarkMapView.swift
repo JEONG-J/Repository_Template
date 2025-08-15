@@ -100,7 +100,7 @@ struct UIKitDarkMapView: UIViewRepresentable {
                 $0.coordinate.longitude == annotation.coordinate.longitude
             }) {
                 DispatchQueue.main.async {
-                    print("✅ Marker selected: \(matched.title)")
+                    print("Marker selected: \(matched.title)")
                     self.viewModel.selectedMarker = matched
                     
                     mapView.removeAnnotation(annotation)

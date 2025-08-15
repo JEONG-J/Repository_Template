@@ -39,7 +39,7 @@ struct MyProfileView: View {
             .padding(.top, 16)
         }
         .onAppear {
-            print("✅ MyProfileView onAppear - fetch 초기화")
+            print("MyProfileView onAppear - fetch 초기화")
             viewModel.fetchProfile()
             viewModel.fetchWrittenPosts() // 초기값이 0 (게시물)일 때 먼저 호출
         }

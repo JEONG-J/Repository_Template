@@ -27,7 +27,7 @@ struct ProfileEditCard: View {
             .background(Color.backRootRegular)
             .clipShape(RoundedRectangle(cornerRadius: 16))
             .onChange(of: profilePickerItem, initial: false) { newItem, _ in
-                print("📸 프로필 이미지 선택됨: \(String(describing: newItem))")
+                print("프로필 이미지 선택됨: \(String(describing: newItem))")
 
                 Task {
                     guard let item = newItem else { return }
@@ -35,21 +35,21 @@ struct ProfileEditCard: View {
                     do {
                         if let data = try await item.loadTransferable(type: Data.self),
                            let image = UIImage(data: data) {
-                            print("✅ 프로필 이미지 로딩 성공")
+                            print("프로필 이미지 로딩 성공")
                             await MainActor.run {
                                 selectedImage = image
                             }
                             await viewModel.uploadProfileImage(data: data)
                         } else {
-                            print("❌ 프로필 이미지 디코딩 실패")
+                            print("프로필 이미지 디코딩 실패")
                         }
                     } catch {
-                        print("❌ 프로필 이미지 로딩 에러: \(error)")
+                        print("프로필 이미지 로딩 에러: \(error)")
                     }
                 }
             }
             .onChange(of: backgroundPickerItem, initial: false) { newItem, _ in
-                print("📸 배경 이미지 선택됨: \(String(describing: newItem))")
+                print("배경 이미지 선택됨: \(String(describing: newItem))")
 
                 Task {
                     guard let item = newItem else { return }
@@ -57,16 +57,16 @@ struct ProfileEditCard: View {
                     do {
                         if let data = try await item.loadTransferable(type: Data.self),
                            let image = UIImage(data: data) {
-                            print("✅ 배경 이미지 로딩 성공")
+                            print("배경 이미지 로딩 성공")
                             await MainActor.run {
                                 selectedBackgroundImage = image
                             }
                             await viewModel.uploadBackgroundImage(data: data)
                         } else {
-                            print("❌ 배경 이미지 디코딩 실패")
+                            print("배경 이미지 디코딩 실패")
                         }
                     } catch {
-                        print("❌ 배경 이미지 로딩 에러: \(error)")
+                        print("배경 이미지 로딩 에러: \(error)")
                     }
                 }
             }

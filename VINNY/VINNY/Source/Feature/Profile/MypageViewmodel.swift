@@ -19,7 +19,7 @@ final class MypageViewModel: ObservableObject {
     // MARK: - 프로필 조회
     func fetchProfile()  {
         isLoading = true
-        print("📡 [Mypage] fetchProfile 호출됨")
+        print("[Mypage] fetchProfile 호출됨")
         mypageUseCase.requestUnwrap(
             target: .getProfile,
             envelope: ApiResponse<MypageProfileResponse>.self,
@@ -30,13 +30,13 @@ final class MypageViewModel: ObservableObject {
         ) { [weak self] result in
             DispatchQueue.main.async {
                 self?.isLoading = false
-                print("📦 fetchProfile result: \(result)")
+                print("fetchProfile result: \(result)")
                 switch result {
                 case .success(let profile):
                     self?.profile = profile
                 case .failure(let error):
                     self?.errorMessage = error.localizedDescription
-                    print("❌ fetchProfile error: \(error)")
+                    print("fetchProfile error: \(error)")
                 }
             }
         }
@@ -44,7 +44,7 @@ final class MypageViewModel: ObservableObject {
 
     // MARK: - 게시글 목록
     func fetchWrittenPosts() {
-        print("📡 [Mypage] fetchWrittenPosts 호출됨")
+        print("[Mypage] fetchWrittenPosts 호출됨")
         mypageUseCase.requestUnwrap(
             target: .getWrittenPosts,
             envelope: ApiResponse<[MypageWrittenPostsResponse]>.self,
@@ -54,12 +54,12 @@ final class MypageViewModel: ObservableObject {
             result: \.result
         ) { [weak self] result in
             DispatchQueue.main.async {
-                print("📦 fetchWrittenPosts result: \(result)")
+                print("fetchWrittenPosts result: \(result)")
                 switch result {
                 case .success(let posts):
                     self?.writtenPosts = posts
                 case .failure(let error):
-                    print("❌ fetchWrittenPosts error: \(error)")
+                    print("fetchWrittenPosts error: \(error)")
                 }
             }
         }
@@ -67,7 +67,7 @@ final class MypageViewModel: ObservableObject {
 
     // MARK: - 저장한 게시글
     func fetchSavedPosts() {
-        print("📡 [Mypage] fetchSavedPosts 호출됨")
+        print("[Mypage] fetchSavedPosts 호출됨")
         mypageUseCase.requestUnwrap(
             target: .getSavedPosts,
             envelope: ApiResponse<[MypageSavedPostsResponse]>.self,
@@ -77,12 +77,12 @@ final class MypageViewModel: ObservableObject {
             result: \.result
         ) { [weak self] result in
             DispatchQueue.main.async {
-                print("📦 fetchSavedPosts result: \(result)")
+                print("fetchSavedPosts result: \(result)")
                 switch result {
                 case .success(let posts):
                     self?.savedPosts = posts
                 case .failure(let error):
-                    print("❌ fetchSavedPosts error: \(error)")
+                    print("fetchSavedPosts error: \(error)")
                 }
             }
         }
@@ -90,7 +90,7 @@ final class MypageViewModel: ObservableObject {
 
     // MARK: - 찜한 샵
     func fetchSavedShops() {
-        print("📡 [Mypage] fetchSavedShops 호출됨")
+        print("[Mypage] fetchSavedShops 호출됨")
         mypageUseCase.requestUnwrap(
             target: .getSavedShops,
             envelope: ApiResponse<[MypageSavedShopsResponse]>.self,
@@ -100,12 +100,12 @@ final class MypageViewModel: ObservableObject {
             result: \.result
         ) { [weak self] result in
             DispatchQueue.main.async {
-                print("📦 fetchSavedShops result: \(result)")
+                print("fetchSavedShops result: \(result)")
                 switch result {
                 case .success(let shops):
                     self?.savedShops = shops
                 case .failure(let error):
-                    print("❌ fetchSavedShops error: \(error)")
+                    print("fetchSavedShops error: \(error)")
                 }
             }
         }
@@ -114,7 +114,7 @@ final class MypageViewModel: ObservableObject {
     // MARK: - 기존 프로필 수정
     func updateProfile(nickname: String, comment: String) {
         let dto = MyPageNicknameDTO(nickname: nickname, comment: comment)
-        print("📡 [Mypage] updateProfile 호출됨 - 닉네임: \(nickname), 코멘트: \(comment)")
+        print("[Mypage] updateProfile 호출됨 - 닉네임: \(nickname), 코멘트: \(comment)")
         mypageUseCase.requestUnwrap(
             target: .updateProfile(dto: dto),
             envelope: ApiResponse<MypageUpdateProfileResponse>.self,
@@ -124,7 +124,7 @@ final class MypageViewModel: ObservableObject {
             result: \.result
         ) { [weak self] result in
             DispatchQueue.main.async {
-                print("📦 updateProfile result: \(result)")
+                print("updateProfile result: \(result)")
                 switch result {
                 case .success(let updated):
                     self?.profile = MypageProfileResponse(
@@ -138,7 +138,7 @@ final class MypageViewModel: ObservableObject {
                         savedCount: self?.profile?.savedCount ?? 0
                     )
                 case .failure(let error):
-                    print("❌ updateProfile error: \(error)")
+                    print("updateProfile error: \(error)")
                 }
             }
         }
@@ -146,7 +146,7 @@ final class MypageViewModel: ObservableObject {
 
     // MARK: - 프로필 이미지 업로드
     func uploadProfileImage(data: Data) async {
-        print("📡 [Mypage] uploadProfileImage 호출됨")
+        print("[Mypage] uploadProfileImage 호출됨")
         mypageUseCase.requestUnwrap(
             target: .updateProfileImage(image: data),
             envelope: ApiResponse<MypageUpdateProfileImageResponse>.self,
@@ -156,12 +156,12 @@ final class MypageViewModel: ObservableObject {
             result: \.result
         ) { [weak self] result in
             DispatchQueue.main.async {
-                print("📦 uploadProfileImage result: \(result)")
+                print("uploadProfileImage result: \(result)")
                 switch result {
                 case .success(let updated):
                     self?.profile?.profileImage = updated.profileImage
                 case .failure(let error):
-                    print("❌ uploadProfileImage error: \(error)")
+                    print("uploadProfileImage error: \(error)")
                 }
             }
         }
@@ -169,7 +169,7 @@ final class MypageViewModel: ObservableObject {
 
     // MARK: - 배경 이미지 업로드
     func uploadBackgroundImage(data: Data) async {
-        print("📡 [Mypage] uploadBackgroundImage 호출됨")
+        print("[Mypage] uploadBackgroundImage 호출됨")
         mypageUseCase.requestUnwrap(
             target: .updateBackground(image: data),
             envelope: ApiResponse<MypageUpdateBackgroundImageResponse>.self,
@@ -179,12 +179,12 @@ final class MypageViewModel: ObservableObject {
             result: \.result
         ) { [weak self] result in
             DispatchQueue.main.async {
-                print("📦 uploadBackgroundImage result: \(result)")
+                print("uploadBackgroundImage result: \(result)")
                 switch result {
                 case .success(let updated):
                     self?.profile?.backgroundImage = updated.backgroundImage
                 case .failure(let error):
-                    print("❌ uploadBackgroundImage error: \(error)")
+                    print("uploadBackgroundImage error: \(error)")
                 }
             }
         }

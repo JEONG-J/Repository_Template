@@ -70,7 +70,7 @@ extension SearchAPITarget {
         let res = try await searchProvider.asyncRequest(.getSearchShop(keyword: keyword))
         let decoded = try JSONDecoder().decode(ShopSearchResponseDTO.self, from: res.data)
         let shops = decoded.result.map(Shops.init(from:))
-        print("✅ decoded shops count:", shops.count)   // ← 디버그
+        print("decoded shops count:", shops.count)   // ← 디버그
         return shops
     }
 

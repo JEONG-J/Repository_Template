@@ -45,7 +45,7 @@ class LocationManager: NSObject{
 //        startUpdatingLocation()
         requestAuthorization()
         startUpdatingHeading()
-        print("📍 LocationManager 초기화됨")
+        print("LocationManager 초기화됨")
     }
     
     // MARK: - 권한 요청
