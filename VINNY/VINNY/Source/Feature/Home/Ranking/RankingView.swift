@@ -127,10 +127,14 @@ struct RankingView: View {
                 
                 Spacer()
                 
-                Image("chevron.right")
-                    .resizable()
-                    .frame(width: 16, height: 16)
-                    .padding(8)
+
+                Button(action: {
+                    container.navigationRouter.push(to: .ShopView(id: 0)) // TODO: 실제 shopId로 교체
+                }) {
+                    Image("chevron.right")
+                        .resizable()
+                        .frame(width: 16, height: 16)
+                }
             }
             .padding(.vertical, 10)
             
