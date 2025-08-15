@@ -1,5 +1,4 @@
 import SwiftUI
-import PhotosUI
 
 struct ProfileEditCard: View {
     @EnvironmentObject var container: DIContainer
@@ -10,10 +9,10 @@ struct ProfileEditCard: View {
     @State private var intro: String
 
     @State private var selectedImage: UIImage?
-    @State private var profilePickerItem: PhotosPickerItem? = nil
-
     @State private var selectedBackgroundImage: UIImage?
-    @State private var backgroundPickerItem: PhotosPickerItem? = nil
+
+    @State private var showingProfileImagePicker = false
+    @State private var showingBackgroundImagePicker = false
 
     init(isPresented: Binding<Bool>, viewModel: MypageViewModel) {
         self._isPresented = isPresented
@@ -26,47 +25,29 @@ struct ProfileEditCard: View {
         mainContent()
             .background(Color.backRootRegular)
             .clipShape(RoundedRectangle(cornerRadius: 16))
-            .onChange(of: profilePickerItem, initial: false) { newItem, _ in
-                print("프로필 이미지 선택됨: \(String(describing: newItem))")
-
-                Task {
-                    guard let item = newItem else { return }
-
-                    do {
-                        if let data = try await item.loadTransferable(type: Data.self),
-                           let image = UIImage(data: data) {
-                            print("프로필 이미지 로딩 성공")
-                            await MainActor.run {
-                                selectedImage = image
+            .sheet(isPresented: $showingProfileImagePicker) {
+                ImagePicker(sourceType: .photoLibrary) { image in
+                    self.selectedImage = image
+                    if let data = image.jpegData(compressionQuality: 0.8) {
+                        Task {
+                            let success = await viewModel.uploadProfileImage(data: data)
+                            if success {
+                                isPresented = false
                             }
-                            await viewModel.uploadProfileImage(data: data)
-                        } else {
-                            print("프로필 이미지 디코딩 실패")
                         }
-                    } catch {
-                        print("프로필 이미지 로딩 에러: \(error)")
                     }
                 }
             }
-            .onChange(of: backgroundPickerItem, initial: false) { newItem, _ in
-                print("배경 이미지 선택됨: \(String(describing: newItem))")
-
-                Task {
-                    guard let item = newItem else { return }
-
-                    do {
-                        if let data = try await item.loadTransferable(type: Data.self),
-                           let image = UIImage(data: data) {
-                            print("배경 이미지 로딩 성공")
-                            await MainActor.run {
-                                selectedBackgroundImage = image
+            .sheet(isPresented: $showingBackgroundImagePicker) {
+                ImagePicker(sourceType: .photoLibrary) { image in
+                    self.selectedBackgroundImage = image
+                    if let data = image.jpegData(compressionQuality: 0.8) {
+                        Task {
+                            let success = await viewModel.uploadBackgroundImage(data: data)
+                            if success {
+                                isPresented = false
                             }
-                            await viewModel.uploadBackgroundImage(data: data)
-                        } else {
-                            print("배경 이미지 디코딩 실패")
                         }
-                    } catch {
-                        print("배경 이미지 로딩 에러: \(error)")
                     }
                 }
             }
@@ -126,11 +107,11 @@ struct ProfileEditCard: View {
                         case .success(let image):
                             image.resizable()
                         default:
-                            Image("example_profile").resizable()
+                            Image("noneProfile").resizable()
                         }
                     }
                 } else {
-                    Image("example_profile").resizable()
+                    Image("noneProfile").resizable()
                 }
             }
             .frame(width: 64, height: 64)
@@ -157,22 +138,18 @@ struct ProfileEditCard: View {
     @ViewBuilder
     private func imagePickers() -> some View {
         HStack(spacing: 8) {
-            PhotosPicker(
-                selection: $profilePickerItem,
-                matching: .images,
-                photoLibrary: .shared()
-            ) {
+            Button {
+                showingProfileImagePicker = true
+            } label: {
                 Image("profileimageupload")
                     .resizable()
                     .scaledToFit()
                     .frame(height: 46)
             }
 
-            PhotosPicker(
-                selection: $backgroundPickerItem,
-                matching: .images,
-                photoLibrary: .shared()
-            ) {
+            Button {
+                showingBackgroundImagePicker = true
+            } label: {
                 Image("backgroundimageupload")
                     .resizable()
                     .scaledToFit()

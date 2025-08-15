@@ -3,7 +3,7 @@ import SwiftUI
 
 final class MypageViewModel: ObservableObject {
     private let mypageUseCase: DefaultNetworkManager<MypageAPITarget>
-
+    
     // MARK: - 상태
     @Published var profile: MypageProfileResponse?
     @Published var writtenPosts: [MypageWrittenPostsResponse] = []
@@ -11,11 +11,11 @@ final class MypageViewModel: ObservableObject {
     @Published var savedShops: [MypageSavedShopsResponse] = []
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
-
+    
     init(useCase: DefaultNetworkManager<MypageAPITarget>) {
         self.mypageUseCase = useCase
     }
-
+    
     // MARK: - 프로필 조회
     func fetchProfile()  {
         isLoading = true
@@ -41,7 +41,7 @@ final class MypageViewModel: ObservableObject {
             }
         }
     }
-
+    
     // MARK: - 게시글 목록
     func fetchWrittenPosts() {
         print("[Mypage] fetchWrittenPosts 호출됨")
@@ -64,7 +64,7 @@ final class MypageViewModel: ObservableObject {
             }
         }
     }
-
+    
     // MARK: - 저장한 게시글
     func fetchSavedPosts() {
         print("[Mypage] fetchSavedPosts 호출됨")
@@ -87,7 +87,7 @@ final class MypageViewModel: ObservableObject {
             }
         }
     }
-
+    
     // MARK: - 찜한 샵
     func fetchSavedShops() {
         print("[Mypage] fetchSavedShops 호출됨")
@@ -110,7 +110,7 @@ final class MypageViewModel: ObservableObject {
             }
         }
     }
-
+    
     // MARK: - 기존 프로필 수정
     func updateProfile(nickname: String, comment: String) {
         let dto = MyPageNicknameDTO(nickname: nickname, comment: comment)
@@ -143,50 +143,64 @@ final class MypageViewModel: ObservableObject {
             }
         }
     }
-
+    
     // MARK: - 프로필 이미지 업로드
-    func uploadProfileImage(data: Data) async {
-        print("[Mypage] uploadProfileImage 호출됨")
-        mypageUseCase.requestUnwrap(
-            target: .updateProfileImage(image: data),
-            envelope: ApiResponse<MypageUpdateProfileImageResponse>.self,
-            isSuccess: \.isSuccess,
-            code: \.code,
-            message: \.message,
-            result: \.result
-        ) { [weak self] result in
-            DispatchQueue.main.async {
-                print("uploadProfileImage result: \(result)")
-                switch result {
-                case .success(let updated):
-                    self?.profile?.profileImage = updated.profileImage
-                case .failure(let error):
-                    print("uploadProfileImage error: \(error)")
+    @MainActor
+    func uploadProfileImage(data: Data) async -> Bool {
+        var didSucceed = false
+        
+        await withCheckedContinuation { continuation in
+            mypageUseCase.requestUnwrap(
+                target: .updateProfileImage(image: data),
+                envelope: ApiResponse<MypageUpdateProfileImageResponse>.self,
+                isSuccess: \.isSuccess,
+                code: \.code,
+                message: \.message,
+                result: \.result
+            ) { [weak self] result in
+                DispatchQueue.main.async {
+                    switch result {
+                    case .success(let updated):
+                        self?.profile?.profileImage = updated.profileImage
+                        didSucceed = true
+                    case .failure(let error):
+                        print(" uploadProfileImage error: \(error)")
+                    }
+                    continuation.resume()
                 }
             }
         }
+        
+        return didSucceed
     }
-
-    // MARK: - 배경 이미지 업로드
-    func uploadBackgroundImage(data: Data) async {
-        print("[Mypage] uploadBackgroundImage 호출됨")
-        mypageUseCase.requestUnwrap(
-            target: .updateBackground(image: data),
-            envelope: ApiResponse<MypageUpdateBackgroundImageResponse>.self,
-            isSuccess: \.isSuccess,
-            code: \.code,
-            message: \.message,
-            result: \.result
-        ) { [weak self] result in
-            DispatchQueue.main.async {
-                print("uploadBackgroundImage result: \(result)")
-                switch result {
-                case .success(let updated):
-                    self?.profile?.backgroundImage = updated.backgroundImage
-                case .failure(let error):
-                    print("uploadBackgroundImage error: \(error)")
+    
+    // 배경 이미지 업로드
+    @MainActor
+    func uploadBackgroundImage(data: Data) async -> Bool {
+        var didSucceed = false
+        
+        await withCheckedContinuation { continuation in
+            mypageUseCase.requestUnwrap(
+                target: .updateBackground(image: data),
+                envelope: ApiResponse<MypageUpdateBackgroundImageResponse>.self,
+                isSuccess: \.isSuccess,
+                code: \.code,
+                message: \.message,
+                result: \.result
+            ) { [weak self] result in
+                DispatchQueue.main.async {
+                    switch result {
+                    case .success(let updated):
+                        self?.profile?.backgroundImage = updated.backgroundImage
+                        didSucceed = true
+                    case .failure(let error):
+                        print("uploadBackgroundImage error: \(error)")
+                    }
+                    continuation.resume()
                 }
             }
         }
+        
+        return didSucceed
     }
 }
