@@ -24,7 +24,9 @@ final class MapViewModel: ObservableObject {
 //        .init(coordinate: .init(latitude: 37.5521997, longitude: 126.9209760), title: "도조&만쥬 빈티지샵", category: .street)
     ]
     
-    @Published var selectedMarker: Marker? = nil // 사용자가 선택한 마커 → 바텀 시트로 노출됨
+    @Published var selectedMarker: Marker? // 사용자가 선택한 마커 → 바텀 시트로 노출됨
+    @Published var selectedShopDetail: GetShopOnMapDTO? = nil // 상세 상태 보관
+    
     @Published var hasSetInitialRegion: Bool = false // 최초 진입 시 한 번만 자동 위치 설정 여부
     @Published var shouldTrackUserLocation: Bool = true // 사용자가 지도를 직접 조작했는지 여부 → true일 경우에만 카메라 이동 허용
     
@@ -94,30 +96,33 @@ final class MapViewModel: ObservableObject {
     }
     
     // 지도 가게 썸네일 조회
-//    func fetchShopDetail(shopId: Int, completion: ((GetShopOnMapDTO) -> Void)? = nil) {
-//        mapProvider.request(.getShopOnMap(shopId: shopId)) { (result: Result<Response, MoyaError>) in
-//            switch result {
-//            case .success(let response):
-//                guard (200...299).contains(response.statusCode) else {
-//                    print("❌ HTTP \(response.statusCode)")
-//                    print("↳ body:", String(data: response.data, encoding: .utf8) ?? "no body")
-//                    return
-//                }
-//                do {
-//                    let dto = try JSONDecoder().decode(
-//                        MapEnvelope<GetShopOnMapDTO>.self,
-//                        from: response.data
-//                    ).result
-//                    DispatchQueue.main.async {
-//                        completion?(dto)
-//                    }
-//                } catch {
-//                    print("❌ Decode detail error:", error)
-//                    print("↳ raw:", String(data: response.data, encoding: .utf8) ?? "binary")
-//                }
-//            case .failure(let err):
-//                print("❌ API error:", err)
-//            }
-//        }
-//    }
+    func fetchShopDetail(shopId: Int, completion: ((GetShopOnMapDTO) -> Void)? = nil) {
+        mapProvider.request(.getShopOnMap(shopId: shopId)) { (result: Result<Response, MoyaError>) in
+            switch result {
+            case .success(let response):
+                guard (200...299).contains(response.statusCode) else {
+                    print("❌ HTTP \(response.statusCode)")
+                    print("↳ body:", String(data: response.data, encoding: .utf8) ?? "no body")
+                    return
+                }
+                do {
+                    let dto = try JSONDecoder().decode(
+                        MapEnvelope<GetShopOnMapDTO>.self,
+                        from: response.data
+                    ).result
+                    
+                    DispatchQueue.main.async {
+                        if self.selectedMarker?.shopId == dto.id {
+                            self.selectedShopDetail = dto         // 상세 저장
+                        }
+                    }
+                } catch {
+                    print("❌ Decode detail error:", error)
+                    print("↳ raw:", String(data: response.data, encoding: .utf8) ?? "binary")
+                }
+            case .failure(let err):
+                print("❌ API error:", err)
+            }
+        }
+    }
 }

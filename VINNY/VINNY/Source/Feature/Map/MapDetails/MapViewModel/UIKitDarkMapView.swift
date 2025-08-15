@@ -45,20 +45,22 @@ struct UIKitDarkMapView: UIViewRepresentable {
         uiView.removeAnnotations(nonUser)
         
         for marker in viewModel.makers {
-            let a = MKPointAnnotation()
-            a.coordinate = marker.coordinate
-            a.title = marker.title
-            uiView.addAnnotation(a)
+//            let a = MKPointAnnotation()
+//            a.coordinate = marker.coordinate
+//            a.title = marker.title
+//            uiView.addAnnotation(a)
+            uiView.addAnnotation(ShopAnnotation(marker: marker))
         }
     }
 
     // 마커 추가 관리
     private func addMarkers(to mapView: MKMapView) {
         for marker in viewModel.makers {
-            let annotation = MKPointAnnotation()
-            annotation.coordinate = marker.coordinate
-            annotation.title = marker.title
-            mapView.addAnnotation(annotation)
+//            let annotation = MKPointAnnotation()
+//            annotation.coordinate = marker.coordinate
+//            annotation.title = marker.title
+//            mapView.addAnnotation(annotation)
+            mapView.addAnnotation(ShopAnnotation(marker: marker))
         }
     }
     
@@ -66,6 +68,16 @@ struct UIKitDarkMapView: UIViewRepresentable {
         return Coordinator(viewModel: viewModel)
     }
 
+    final class ShopAnnotation: MKPointAnnotation {
+        let shopId: Int
+        init(marker: Marker) {
+            self.shopId = marker.shopId
+            super.init()
+            self.coordinate = marker.coordinate
+            self.title = marker.title
+        }
+    }
+    
     // marker 또는 커스텀 annotation 처리
     class Coordinator: NSObject, MKMapViewDelegate {
         var viewModel: MapViewModel
@@ -103,64 +115,115 @@ struct UIKitDarkMapView: UIViewRepresentable {
             }
         }
         
+//        func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
+//            guard let annotation = view.annotation else { return }
+//
+//            if let matched = viewModel.makers.first(where: {
+//                $0.coordinate.latitude == annotation.coordinate.latitude &&
+//                $0.coordinate.longitude == annotation.coordinate.longitude
+//            }) {
+//                DispatchQueue.main.async {
+//                    print("Marker selected: \(matched.title)")
+//                    self.viewModel.selectedMarker = matched
+//                    
+//                    mapView.removeAnnotation(annotation)
+//                    mapView.addAnnotation(annotation)
+//                }
+//            }
+//        }
         func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
-            guard let annotation = view.annotation else { return }
+            guard let shopAnno = view.annotation as? ShopAnnotation else { return }
 
-            if let matched = viewModel.makers.first(where: {
-                $0.coordinate.latitude == annotation.coordinate.latitude &&
-                $0.coordinate.longitude == annotation.coordinate.longitude
-            }) {
-                DispatchQueue.main.async {
-                    print("Marker selected: \(matched.title)")
-                    self.viewModel.selectedMarker = matched
-                    
-                    mapView.removeAnnotation(annotation)
-                    mapView.addAnnotation(annotation)
+            // makers에서 해당 마커 찾기
+            guard let matched = viewModel.makers.first(where: { $0.shopId == shopAnno.shopId }) else { return }
+
+            DispatchQueue.main.async {
+                print("Marker selected: \(matched.title)")
+                self.viewModel.selectedMarker = matched
+                self.viewModel.selectedShopDetail = nil
+
+                // ✅ 상세 API 호출
+                self.viewModel.fetchShopDetail(shopId: matched.shopId) { detail in
+                    print("✅ detail loaded: \(detail.name)")
+                    // 시트 열기/갱신은 SwiftUI 쪽에서 selectedShopDetail 바인딩으로 처리
                 }
+
+                // 선택 상태 리렌더링
+                mapView.removeAnnotation(shopAnno)
+                mapView.addAnnotation(shopAnno)
             }
         }
 
+//        func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
+//            if annotation is MKUserLocation {
+//                return nil
+//            }
+//            
+//            let identifier = "CustomMarker"
+//            var annotationView = mapView.dequeueReusableAnnotationView(withIdentifier: identifier)
+//            
+//            if annotationView == nil {
+//                annotationView = MKAnnotationView(annotation: annotation, reuseIdentifier: identifier)
+//            } else {
+//                annotationView?.annotation = annotation
+//            }
+//            
+//            // 해당 annotation에 맞는 Marker 찾기
+//            guard let matched = viewModel.makers.first(where: {
+//                $0.coordinate.latitude == annotation.coordinate.latitude &&
+//                $0.coordinate.longitude == annotation.coordinate.longitude
+//            }) else {
+//                return nil
+//            }
+//
+//            // SwiftUI View 생성
+//            let isSelected = viewModel.selectedMarker?.id == matched.id
+//
+//            let hosting = UIHostingController(
+//                rootView: LocationMapAnnotationView(category: matched.category, isSelected: isSelected)
+//            )
+//            hosting.view.backgroundColor = .clear
+//            
+//            let targetSize = hosting.view.intrinsicContentSize
+//            hosting.view.bounds = CGRect(origin: .zero, size: targetSize)
+//            
+//            let renderer = UIGraphicsImageRenderer(size: targetSize)
+//            let image = renderer.image { _ in
+//                hosting.view.drawHierarchy(in: hosting.view.bounds, afterScreenUpdates: true)
+//            }
+//            
+//            annotationView?.image = image
+//            annotationView?.canShowCallout = false
+//            
+//            return annotationView
+//        }
         func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
-            if annotation is MKUserLocation {
-                return nil
-            }
-            
+            if annotation is MKUserLocation { return nil }
+
             let identifier = "CustomMarker"
-            var annotationView = mapView.dequeueReusableAnnotationView(withIdentifier: identifier)
-            
-            if annotationView == nil {
-                annotationView = MKAnnotationView(annotation: annotation, reuseIdentifier: identifier)
-            } else {
-                annotationView?.annotation = annotation
-            }
-            
-            // 해당 annotation에 맞는 Marker 찾기
-            guard let matched = viewModel.makers.first(where: {
-                $0.coordinate.latitude == annotation.coordinate.latitude &&
-                $0.coordinate.longitude == annotation.coordinate.longitude
-            }) else {
-                return nil
-            }
+            let annotationView = mapView.dequeueReusableAnnotationView(withIdentifier: identifier)
+                ?? MKAnnotationView(annotation: annotation, reuseIdentifier: identifier)
+            annotationView.annotation = annotation
 
-            // SwiftUI View 생성
+            guard
+                let shopAnno = annotation as? ShopAnnotation,
+                let matched = viewModel.makers.first(where: { $0.shopId == shopAnno.shopId })
+            else { return nil }
+
             let isSelected = viewModel.selectedMarker?.id == matched.id
-
             let hosting = UIHostingController(
                 rootView: LocationMapAnnotationView(category: matched.category, isSelected: isSelected)
             )
             hosting.view.backgroundColor = .clear
-            
-            let targetSize = hosting.view.intrinsicContentSize
-            hosting.view.bounds = CGRect(origin: .zero, size: targetSize)
-            
-            let renderer = UIGraphicsImageRenderer(size: targetSize)
+
+            let size = hosting.view.intrinsicContentSize
+            hosting.view.bounds = CGRect(origin: .zero, size: size)
+            let renderer = UIGraphicsImageRenderer(size: size)
             let image = renderer.image { _ in
                 hosting.view.drawHierarchy(in: hosting.view.bounds, afterScreenUpdates: true)
             }
-            
-            annotationView?.image = image
-            annotationView?.canShowCallout = false
-            
+            annotationView.image = image
+            annotationView.canShowCallout = false
             return annotationView
         }
 
