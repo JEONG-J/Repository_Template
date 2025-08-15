@@ -15,7 +15,7 @@ struct EmptyView: View {
                     .resizable()
                     .frame(width: 40, height: 40)
                     .padding(.horizontal, 10)
-                Text("게시글에 아무 것도 없어요!")
+                Text("표시할 내용이 없어요!")
                     .font(.suit(.regular, size: 16))
                     .foregroundStyle(Color.contentAssistive)
                     .padding(.horizontal, 10)

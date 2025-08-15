@@ -70,8 +70,10 @@ struct SearchResultView: View {
         .onAppear {
             Task { await vm.bootstrap(keyword: searchText, tab: selectedTab) }
         }
-        .onChange(of: selectedTab) { new in
-            Task { await vm.search(keyword: searchText, tab: new) }
+        .onChange(of: selectedTab) { oldValue, newValue in
+            Task {
+                await vm.search(keyword: searchText, tab: newValue)
+            }
         }
     }
     
