@@ -44,7 +44,7 @@ struct SearchView: View {
 
             Text("검색하기")
                 .font(.suit(.bold, size: 24))
-                .foregroundColor(.white)
+                .foregroundStyle(.white)
         }
         .padding(.horizontal, 16)
         .padding(.top, 16)
@@ -84,7 +84,7 @@ struct SearchView: View {
         VStack(alignment: .leading, spacing: 8) {
             Text("카테고리로 모아보기")
                 .font(.system(size: 15, weight: .semibold))
-                .foregroundColor(.white)
+                .foregroundStyle(.white)
                 .padding(.top, 18)
 
             LazyVGrid(columns: columns, spacing: 12) {

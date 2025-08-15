@@ -174,7 +174,7 @@ struct LastSignUpView: View {
                 if text.wrappedValue.isEmpty {
                     Text(placeholder)
                         .font(.suit(.regular, size: 16))
-                        .foregroundColor(Color("ContentAssistive"))
+                        .foregroundStyle(Color("ContentAssistive"))
                         .padding(.leading, 16)
                 }
 

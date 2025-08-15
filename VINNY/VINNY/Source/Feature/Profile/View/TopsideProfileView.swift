@@ -11,8 +11,7 @@ struct TopsideProfileView: View {
             // 배경 이미지 (없으면 noneBackground)
             KFImage(URL(string: viewModel.profile?.backgroundImage ?? ""))
                 .placeholder {
-                    Image("noneBackGround")
-                        .resizable()
+                    ProgressView()
                 }
                 .onFailureImage(UIImage(named: "noneBackGround"))
                 .resizable()
@@ -46,9 +45,7 @@ struct TopsideProfileView: View {
                     //프로필 이미지 (없으면 noneProfile)
                     KFImage(URL(string: viewModel.profile?.profileImage ?? ""))
                         .placeholder {
-                            Image("noneProfile")
-                                .resizable()
-                                .scaledToFill()
+                            ProgressView()
                         }
                         .onFailureImage(UIImage(named: "noneProfile"))
                         .resizable()

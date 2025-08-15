@@ -55,7 +55,7 @@ struct SearchResultView: View {
                         if vm.posts.isEmpty {
                             Text("게시글 검색 결과가 없습니다.")
                                 .font(.suit(.regular, size: 14))
-                                .foregroundColor(.contentAssistive)
+                                .foregroundStyle(.contentAssistive)
                                 .padding(.top, 24)
                         } else {
                             CommunityResultCell(posts: vm.posts)
@@ -102,7 +102,7 @@ struct SearchResultView: View {
             
             TextField("검색어 입력", text: $searchText)
                 .font(.suit(.regular, size: 16))
-                .foregroundColor(.white)
+                .foregroundStyle(.white)
                 .focused($isSearchFieldFocused)
                 .onSubmit {
                     Task{ await vm.search(keyword: searchText, tab: selectedTab)
@@ -148,7 +148,7 @@ struct SearchResultView: View {
                         // 텍스트 하단에 밑줄을 붙이고, 밑줄 높이만큼 하단 여백을 추가
                         Text(tabs[index])
                             .font(.suit(.semibold, size: 16))
-                            .foregroundColor(selectedTab == index ? .contentBase : .contentAssistive)
+                            .foregroundStyle(selectedTab == index ? .contentBase : .contentAssistive)
                             .padding(.bottom, 10) // ← 밑줄 공간 확보 (필요시 8~12 사이로 미세조정)
                             .background(alignment: .bottomLeading) {
                                 if selectedTab == index {

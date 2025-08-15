@@ -20,8 +20,8 @@ struct CategoryItemView: View {
                 .clipped()
 
             Text("\(categoryItem.emoji) \(categoryItem.name)")
-                .font(.system(size: 13, weight: .semibold))
-                .foregroundColor(.white)
+                .font(.suit(.semibold, size: 13))
+                .foregroundStyle(.white)
                 .shadow(radius: 1)
                 .multilineTextAlignment(.center)
         }

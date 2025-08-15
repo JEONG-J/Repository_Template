@@ -117,7 +117,6 @@ struct SectionHeader: View {
             Button(action: trailingAction) {
                 HStack(spacing: 6) {
                     Image(systemName: "xmark")
-                        .font(.system(size: 12))
                     Text(trailingTitle)
                         .font(.suit(.medium, size: 14))
                 }
