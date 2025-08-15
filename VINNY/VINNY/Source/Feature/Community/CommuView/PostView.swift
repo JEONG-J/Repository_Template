@@ -52,10 +52,8 @@ struct PostView: View {
                                 .padding(.top, 24)
                         } else if let d = detail {
                             HStack(spacing: 8) {
-                                Image("post1") // TODO: d.author.profileImageUrl 원격 이미지로 교체
-                                    .resizable()
+                                URLImageView(d.author.profileImageUrl ?? "")
                                     .frame(width: 40, height: 40)
-                                    .aspectRatio(contentMode: .fill)
                                     .clipShape(Circle())
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text(d.author.nickname)
@@ -91,10 +89,7 @@ struct PostView: View {
                                 } else {
                                     TabView(selection: $currentIndex) {
                                         ForEach(Array(d.images.enumerated()), id: \.offset) { pair in
-                                            // TODO: RemoteImageView(url: pair.element)
-                                            Image("emptyBigImage")
-                                                .resizable()
-                                                .aspectRatio(contentMode: .fill)
+                                            URLImageView(pair.element)
                                                 .frame(maxWidth: .infinity)
                                                 .frame(height: 440)
                                                 .clipped()
@@ -204,10 +199,13 @@ struct PostView: View {
                 isPresented: $isShowingDialog
             ) {
                 Button("수정") {
-                    
+                    isShowingDialog = false
+                    container.editingPostId = postId
+                    container.navigationRouter.push(to: .PostEditView(postId: postId))
                 }
                 Button("삭제", role: .destructive) {
                     isShowingDialog = false
+                    container.editingPostId = postId
                     isShowingDeleteDialog = true
                 }
                 Button("취소", role: .cancel) {
@@ -219,8 +217,11 @@ struct PostView: View {
                 PostDeleteView(isShowing: $isShowingDeleteDialog)
             }
         }
+        .onAppear {
+            container.editingPostId = postId
+        }
         .task(id: postId) { await fetch() }
-        .navigationBarBackButtonHidden()
+        .navigationBarBackButtonHidden(true)
     }
     
     @MainActor
@@ -229,7 +230,7 @@ struct PostView: View {
         errorMessage = nil
         defer { isLoading = false }
         do {
-            let d = try await PostAPITarget.getPostDetail(postId: postId)
+            let d = try await PostAPITarget.fetchPostDetail(postId: postId)
             self.detail = d
             // 동기화: 좋아요/북마크/카운트
             self.isLiked = d.likedByMe
@@ -238,6 +239,40 @@ struct PostView: View {
             self.currentIndex = 0
         } catch {
             self.errorMessage = error.localizedDescription
+        }
+    }
+}
+
+private struct URLImageView: View {
+    private let urlString: String
+    init(_ urlString: String) { self.urlString = urlString }
+
+    var body: some View {
+        Group {
+            if let url = URL(string: urlString), !urlString.isEmpty {
+                AsyncImage(url: url) { phase in
+                    switch phase {
+                    case .empty:
+                        ZStack { Color.clear; ProgressView() }
+                    case .success(let image):
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                    case .failure:
+                        Image("emptyImage")
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                    @unknown default:
+                        Image("emptyImage")
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                    }
+                }
+            } else {
+                Image("emptyImage")
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+            }
         }
     }
 }

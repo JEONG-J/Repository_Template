@@ -31,6 +31,8 @@ enum NavigationDestination: Hashable {
     case ShopView(id:Int)
     case RecommendView
     case NotificationView
+    case PostEditView(postId: Int)
+    case PostDeleteView(postId: Int)
 
     static func == (lhs: NavigationDestination, rhs: NavigationDestination) -> Bool {
         switch (lhs, rhs) {
@@ -80,6 +82,10 @@ enum NavigationDestination: Hashable {
             return true
         case(.NotificationView, .NotificationView):
             return true
+        case let (.PostEditView(a), .PostEditView(b)):
+            return a == b
+        case let (.PostDeleteView(a), .PostDeleteView(b)):
+            return a == b
         default:
             return false
         }
@@ -135,6 +141,12 @@ enum NavigationDestination: Hashable {
             hasher.combine("RecommendView")
         case .NotificationView:
             hasher.combine("NotificationView")
+        case let .PostEditView(postId):
+            hasher.combine("PostEditView")
+            hasher.combine(postId)
+        case let .PostDeleteView(postId):
+            hasher.combine("PostDeleteView")
+            hasher.combine(postId)
         }
     }
 }

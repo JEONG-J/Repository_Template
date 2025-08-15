@@ -62,7 +62,67 @@ struct PostStyleMiniDTO: Decodable, Hashable {
     let styleName: String
 }
 
+
 struct PostBrandMiniDTO: Decodable, Hashable {
     let brandId: Int
     let brandName: String
+}
+
+
+// MARK: - GET /api/post/{postId} (Detail)
+struct PostDetailResponseDTO: Decodable {
+    let isSuccess: Bool
+    let code: String
+    let message: String
+    let result: PostDetailDTO
+    let timestamp: String
+}
+
+struct PostDetailDTO: Decodable, Hashable {
+    let postId: Int
+    let title: String
+    let author: PostAuthorDTO
+    let content: String
+    let images: [String]
+    let createdAt: String
+    let createdAtRelative: String
+    let likesCount: Int
+    let bookmarkedByMe: Bool
+    let shop: PostShopMiniDTO?
+    let styles: [PostStyleMiniDTO]
+    let brand: PostBrandMiniDTO?
+    let likedByMe: Bool
+}
+
+
+// MARK: - POST /api/post (Create)
+struct CreatePostRequestDTO: Encodable {
+    let title: String
+    let content: String
+    let shopId: Int?
+    let styleId: Int?
+    let brandId: Int?
+}
+
+struct CreatePostResponseDTO: Decodable {
+    let isSuccess: Bool
+    let code: String
+    let message: String
+    let result: CreatePostResultDTO
+    let timestamp: String
+}
+
+struct CreatePostResultDTO: Decodable {
+    let postId: Int
+}
+
+// MARK: - PUT /api/post/{postId} (Update)
+
+
+struct UpdatePostResponseDTO: Decodable {
+    let isSuccess: Bool
+    let code: String
+    let message: String
+    let result: CreatePostResultDTO   // server returns { postId }, same shape as create
+    let timestamp: String
 }

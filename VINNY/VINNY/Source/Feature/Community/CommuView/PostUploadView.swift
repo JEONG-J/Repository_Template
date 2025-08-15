@@ -16,6 +16,10 @@ struct PostUploadView: View {
     }
     @StateObject var viewModel = PostUploadViewModel()
     
+    @State private var isSaving: Bool = false
+    @State private var errorMessage: String? = nil
+    @State private var showErrorAlert: Bool = false
+    
     /// 이미지 업로드 관련 상태
     @State private var showPhotosPicker = false // 포토 피커(이미지 선택 창) 표시 여부
     @State private var selectedItems: [PhotosPickerItem] = [] // 선택된 이미지 아이템들
@@ -38,8 +42,9 @@ struct PostUploadView: View {
             // MARK: - 상단 고정 바
             ZStack {
                 HStack {
-                    Button (action: {
-                        print("뒤로 가기")
+                    Button(action: {
+                        print("[PostUpload] back tapped")
+                        container.navigationRouter.pop()
                     }) {
                         Image("arrowBack")
                             .resizable()
@@ -64,22 +69,31 @@ struct PostUploadView: View {
                             if viewModel.postImages.isEmpty {
                                 Image("emptyBigImage")
                                     .resizable()
-                                    .aspectRatio(1, contentMode: .fill)
-                                    .frame(maxWidth: .infinity)
+                                    .scaledToFill()
+                                    .frame(height: 320)
+                                    .clipped()
                                     .padding(.top, 4)
                             } else {
                                 ForEach(0..<viewModel.postImages.count, id: \.self) { index in
                                     Image(uiImage: viewModel.postImages[index])
                                         .resizable()
-                                        .aspectRatio(1, contentMode: .fill)
-                                        .frame(maxWidth: .infinity)
+                                        .scaledToFill()
+                                        .frame(height: 320)
+                                        .clipped()
                                         .padding(.top, 4)
                                 }
                             }
                         }
-                        .aspectRatio(1, contentMode: .fill)
+                        .frame(height: 320)
                         .padding(.vertical, 4)
                         .tabViewStyle(.page(indexDisplayMode: .never))
+                        .onChange(of: viewModel.postImages.count) { old, newCount in
+                            if newCount <= 0 {
+                                viewModel.currentIndex = 0
+                            } else if viewModel.currentIndex >= newCount {
+                                viewModel.currentIndex = max(0, newCount - 1)
+                            }
+                        }
                         
                         /// PostCard와 동일
                         HStack(spacing: 4) {
@@ -139,6 +153,9 @@ struct PostUploadView: View {
                                                 viewModel.postImages.append(image)
                                             }
                                         }
+                                        await MainActor.run {
+                                            viewModel.currentIndex = 0
+                                        }
                                     }
                                 }
                             }
@@ -149,7 +166,8 @@ struct PostUploadView: View {
                     
                     // MARK: - 내용 입력
                     Rectangle()
-                        .frame(width: .infinity, height: 4)
+                        .frame(height: 4)
+                        .frame(maxWidth: .infinity)
                         .foregroundStyle(Color.borderDividerRegular)
                         .padding(.vertical, 10)
                     
@@ -186,7 +204,8 @@ struct PostUploadView: View {
                     .padding(.horizontal, 16)
                     
                     Rectangle()
-                        .frame(width: .infinity, height: 4)
+                        .frame(height: 4)
+                        .frame(maxWidth: .infinity)
                         .foregroundStyle(Color.borderDividerRegular)
                         .padding(.vertical, 10)
                     
@@ -334,7 +353,45 @@ struct PostUploadView: View {
             
             // MARK: - 하단 고정 버튼(업로드)
             Button(action: {
-                print("업로드")
+                Task { @MainActor in
+                    print("[PostUpload] Upload tapped")
+                    print("[PostUpload] State — title='\(viewModel.title)', content='\(viewModel.content)', images=\(viewModel.postImages.count), isSaving=\(isSaving)")
+
+                    guard !isSaving else { print("[PostUpload] Skipped — already saving"); return }
+
+                    let trimmedTitle = viewModel.title.trimmingCharacters(in: .whitespacesAndNewlines)
+                    let trimmedContent = viewModel.content.trimmingCharacters(in: .whitespacesAndNewlines)
+                    if trimmedTitle.isEmpty || trimmedContent.isEmpty {
+                        print("[PostUpload] Validation failed — empty title or content")
+                        errorMessage = "제목과 내용을 입력해주세요."
+                        showErrorAlert = true
+                        return
+                    }
+
+                    isSaving = true
+                    defer { isSaving = false }
+
+                    let imageDatas: [Data] = viewModel.postImages.compactMap { $0.jpegData(compressionQuality: 0.85) }
+                    print("[PostUpload] Preparing request — images: \(imageDatas.count)")
+
+                    let dto = CreatePostRequestDTO(
+                        title: trimmedTitle,
+                        content: trimmedContent,
+                        shopId: nil,
+                        styleId: nil,
+                        brandId: nil
+                    )
+
+                    do {
+                        let newId = try await PostAPITarget.submitPost(dto: dto, images: imageDatas)
+                        print("[PostUpload] Upload success — postId: \(newId)")
+                        container.navigationRouter.pop()
+                    } catch {
+                        print("[PostUpload] Upload failed: \(error)")
+                        errorMessage = error.localizedDescription
+                        showErrorAlert = true
+                    }
+                }
             }) {
                 Text("업로드")
                     .font(.suit(.medium, size: 16))
@@ -355,6 +412,17 @@ struct PostUploadView: View {
         }
         .background(Color.backFillStatic)
         .navigationBarBackButtonHidden()
+        .overlay(alignment: .center) {
+            if isSaving { ProgressView().controlSize(.large) }
+        }
+        .alert("업로드 실패", isPresented: $showErrorAlert) {
+            Button("확인") { errorMessage = nil }
+        } message: {
+            Text(errorMessage ?? "알 수 없는 오류")
+        }
+        .onAppear {
+            print("[PostUpload] appeared")
+        }
     }
     
     private func BrandTagComponent(tag: String, onDelete: @escaping () -> Void) -> some View {

@@ -15,6 +15,7 @@ enum AuthAPITarget {
     case reissueToken(dto: ReissueTokenRequestDTO)
     case fetchMe
     case session
+    case logout
     
 }
 
@@ -33,12 +34,14 @@ extension AuthAPITarget: TargetType {
             return "api/auth/me"
         case .session:
             return "api/auth/session"
+        case .logout:
+            return "api/auth/logout"
         }
     }
 
     var method: Moya.Method {
         switch self {
-        case .login, .reissueToken:
+        case .login, .reissueToken, .logout:
             return .post
         case .session, .fetchMe:
             return .get
@@ -54,6 +57,8 @@ extension AuthAPITarget: TargetType {
         case .fetchMe:
             return .requestPlain
         case .session:
+            return .requestPlain
+        case .logout:
             return .requestPlain
         }
     }
@@ -73,8 +78,10 @@ extension AuthAPITarget: TargetType {
 extension AuthAPITarget: AccessTokenAuthorizable {
     var authorizationType: AuthorizationType? {
         switch self {
-        case .login, .reissueToken: return .none
-        case .fetchMe, .session:    return .bearer   
+        case .login, .reissueToken:
+            return .none
+        case .fetchMe, .session, .logout:
+            return .bearer
         }
     }
 }

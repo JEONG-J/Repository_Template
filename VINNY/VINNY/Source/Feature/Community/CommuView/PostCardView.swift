@@ -22,11 +22,8 @@ struct PostCardView: View {
             VStack(alignment: .leading, spacing: 0) {
                 // Header: author
                 HStack(spacing: 8) {
-                    // TODO: 원격 프로필 이미지로 교체 (item.author.profileImageUrl)
-                    Image("example_profile")
-                        .resizable()
+                    URLImageView(item.author.profileImageUrl ?? "")
                         .frame(width: 40, height: 40)
-                        .aspectRatio(contentMode: .fill)
                         .clipShape(Circle())
                     VStack(alignment: .leading, spacing: 2) {
                         Text(item.author.nickname)
@@ -57,10 +54,7 @@ struct PostCardView: View {
                         TabView(selection: $currentIndex) {
                             ForEach(Array(item.images.enumerated()), id: \.offset) { pair in
                                 let urlString = pair.element
-                                // TODO: Replace placeholder with RemoteImageView(url: urlString)
-                                Image("emptyBigImage")
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fill)
+                                URLImageView(urlString)
                                     .frame(maxWidth: .infinity)
                                     .frame(height: 282)
                                     .clipped()
@@ -172,6 +166,40 @@ struct PostCardView: View {
             self.isLiked = item.likedByMe
             self.isBookmarked = item.bookmarkedByMe
             self.likeCount = item.likesCount
+        }
+    }
+}
+
+private struct URLImageView: View {
+    private let urlString: String
+    init(_ urlString: String) { self.urlString = urlString }
+
+    var body: some View {
+        Group {
+            if let url = URL(string: urlString), !urlString.isEmpty {
+                AsyncImage(url: url) { phase in
+                    switch phase {
+                    case .empty:
+                        ZStack { Color.clear; ProgressView() }
+                    case .success(let image):
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                    case .failure:
+                        Image("emptyBigImage")
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                    @unknown default:
+                        Image("emptyBigImage")
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                    }
+                }
+            } else {
+                Image("emptyBigImage")
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+            }
         }
     }
 }

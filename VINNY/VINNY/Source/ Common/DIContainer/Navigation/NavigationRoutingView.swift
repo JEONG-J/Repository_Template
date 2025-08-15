@@ -13,6 +13,7 @@ struct NavigationRoutingView: View {
     @EnvironmentObject var container: DIContainer
     
     @State var destination: NavigationDestination
+    @State private var deleteShowing: Bool = true
     
     var body: some View {
         switch destination {
@@ -26,7 +27,7 @@ struct NavigationRoutingView: View {
             LoginView(container: container)
                 .environmentObject(container)
         case .SearchView:
-            SearchView(container: _container)
+            SearchView()
                 .environmentObject(container)
         case .BrandView:
             BrandView(container: container)
@@ -84,6 +85,18 @@ struct NavigationRoutingView: View {
         case .NotificationView:
             NotificationView(container: container)
                 .environmentObject(container)
+        case .PostEditView(let postId):
+            PostEditView()
+                .environmentObject(container)
+        case .PostDeleteView(let postId):
+            PostDeleteView(isShowing: $deleteShowing)
+                .environmentObject(container)
+                .onAppear { container.editingPostId = postId }
+                .onChange(of: deleteShowing) { newValue in
+                    if newValue == false {
+                        container.navigationRouter.pop()
+                    }
+                }
         }
     }
     

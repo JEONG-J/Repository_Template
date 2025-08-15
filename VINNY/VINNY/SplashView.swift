@@ -49,22 +49,45 @@ final class SplashViewModel: ObservableObject {
             self.route(by: status ?? "LOGIN")
         }
     }
+    
     private func fetchSessionStatus() async -> String? {
         do {
             let first = try await callSession()
-            
             if first.result.needRefresh {
                 let refreshed = await TokenManager.shared.refreshToken()
                 if refreshed {
-                    let second = try await callSession()
-                    return second.result.status
+                    // 재발급 후 다시 세션 확인
+                    do {
+                        let second = try await callSession()
+                        return normalizedStatus(from: second.result.status)
+                    } catch {
+                        // 세션 재확인 실패해도 토큰 갱신이 됐다면 홈으로 진입
+                        return "HOME"
+                    }
                 } else {
+                    // 재발급 실패 → 로그인 필요
                     return "LOGIN"
                 }
             } else {
-                return first.result.status
+                // needRefresh가 아니더라도 서버 status를 홈 기준으로 정규화
+                return normalizedStatus(from: first.result.status)
             }
         } catch {
+            // 첫 세션이 401이면: refresh 시도 후 재호출
+            if isUnauthorized(error) {
+                let refreshed = await TokenManager.shared.refreshToken()
+                if refreshed {
+                    do {
+                        let second = try await callSession()
+                        return normalizedStatus(from: second.result.status)
+                    } catch {
+                        return "LOGIN"
+                    }
+                } else {
+                    return "LOGIN"
+                }
+            }
+            // 그 외 네트워크/서버 에러면 일단 로그인으로 진입(스플래시에서 막히지 않도록)
             return "LOGIN"
         }
     }
@@ -77,12 +100,39 @@ final class SplashViewModel: ObservableObject {
     private func route(by status: String) {
         switch status {
         case "HOME":
-            container.navigationRouter.destinations = [.VinnyTabView]
+            container.navigationRouter.hardReset(to: .VinnyTabView)
         case "ONBOARD":
             container.onboardingSelection.reset()
-            container.navigationRouter.destinations = [.CategoryView]
+            container.navigationRouter.hardReset(to: .CategoryView)
+        case "LOGIN":
+            container.navigationRouter.hardReset(to: .LoginView)
         default:
-            container.navigationRouter.destinations = [.LoginView]
+            container.navigationRouter.hardReset(to: .LoginView)
+        }
+    }
+    private func isUnauthorized(_ error: Error) -> Bool {
+        let ns = error as NSError
+        if ns.domain == NSURLErrorDomain { return false }
+        // Moya/Alamofire에서 statusCode는 보통 NSError.code 또는 userInfo에 실립니다.
+        // 여기선 간단히 서버가 401 계열이면 true로 간주
+        if ns.code == 401 { return true }
+        // 필요하면 더 정교하게 statusCode 추출
+        return false
+    }
+
+    /// 서버 status를 홈 진입 기준으로 정규화
+    private func normalizedStatus(from raw: String?) -> String {
+        switch raw?.uppercased() {
+        case "HOME":
+            return "HOME"
+        case "ONBOARD":
+            return "ONBOARD"
+        case "LOGIN", "AUTH", "LOGINED":
+            return "LOGIN"
+        default:
+            // 알 수 없으면 로그인으로 유도
+            return "LOGIN"
         }
     }
 }
+
