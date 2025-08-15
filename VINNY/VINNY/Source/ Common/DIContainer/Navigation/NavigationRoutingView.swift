@@ -62,10 +62,10 @@ struct NavigationRoutingView: View {
             SettingView(container: container)
                 .environmentObject(container)
         case .TopsideProfileView:
-            TopsideProfileView(container: container)
+            TopsideProfileView()
                 .environmentObject(container)
         case .MyProfileView:
-            MyProfileView(container: container)
+            MyProfileView()
                 .environmentObject(container)
         case .TasteResetView:
             TasteResetView(container: container)

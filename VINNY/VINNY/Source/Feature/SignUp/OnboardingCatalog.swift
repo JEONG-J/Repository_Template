@@ -29,8 +29,7 @@ enum OnboardingCatalog {
         .init(id: 9,  title: "👞 레더"),
         .init(id: 10, title: "🏃‍♂️ 스포티"),
         .init(id: 11, title: "🐴 웨스턴"),
-        .init(id: 12, title: "👚 Y2K"),
-        .init(id: 13, title: "기타")
+        .init(id: 12, title: "👚 Y2K")
     ]
 
     // MARK: - 브랜드

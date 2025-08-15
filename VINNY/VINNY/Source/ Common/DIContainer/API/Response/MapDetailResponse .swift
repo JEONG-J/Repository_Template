@@ -1,15 +1,26 @@
 import Foundation
 
-struct GetAllShopDTO: Codable {
+struct MapAllResponseDTO: Decodable {
+    let isSuccess: Bool
+    let code: String
+    let message: String
+    let result: [ShopItem]
+    let timestamp: String?
+}
+struct ShopItem: Decodable {
     let id: Int
-    let laditude: Double
+    let latitude: Double
     let longitude: Double
-    let style: [String]
+    let vintageStyleList: [StyleItem]
+}
+struct StyleItem: Decodable {
+    let id: Int
+    let vintageStyleName: String
 }
 
 struct GetSavedShopDTO: Codable {
     let id: Int
-    let laditude: Double
+    let latitude: Double
     let longitude: Double
     let style: [String]
 }
@@ -25,10 +36,28 @@ struct GetShopOnMapDTO: Decodable {
     let longitude: Double
     let region: String
     let images: [ShopImage] //수정 가능성 있음
-    let styles: [String]
+    let styles: [StyleItem]
+    
+    private enum CodingKeys: String, CodingKey {
+        case id, name, openTime, closeTime, instagram, address, latitude, longitude, region, images
+        case styles = "shopVintageStyleList"
+    }
 }
 
 struct ShopImage: Decodable {
     let url: String
     let isMainImage: Bool
+    
+    private enum CodingKeys: String, CodingKey {
+        case url
+        case isMainImage = "main"
+    }
+}
+
+struct MapEnvelope<T: Decodable>: Decodable {
+    let isSuccess: Bool
+    let code: String
+    let message: String
+    let result: T
+    let timestamp: String?
 }

@@ -10,7 +10,9 @@ import SwiftUI
 struct PostCardView: View {
     @EnvironmentObject var container: DIContainer
 
+
     let item: PostItemDTO
+
 
     @State private var currentIndex: Int = 0
     @State private var isLiked: Bool = false
@@ -129,7 +131,6 @@ struct PostCardView: View {
                 container.navigationRouter.push(to: .PostView(id: item.postId))
             }
 
-            // like/bookmark row
             HStack(spacing: 6) {
                 Button(action: {
                     isLiked.toggle()

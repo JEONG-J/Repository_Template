@@ -20,7 +20,19 @@ extension MapAPITarget: TargetType {
     
     
     var headers: [String : String]? {
-        return ["Content-Type": "application/json"]
+        var h: [String: String] = [
+            "Accept": "application/json"
+        ]
+        // getAllShop엔 토큰 금지
+        switch self {
+        case .getAllShop:
+            break
+        default:
+            if let token = KeychainHelper.shared.get(forKey: "accessToken"), !token.isEmpty {
+                h["Authorization"] = "Bearer \(token)"
+            }
+        }
+        return h
     }
     
     var baseURL: URL{
@@ -30,11 +42,11 @@ extension MapAPITarget: TargetType {
     var path: String {
         switch self {
         case .getAllShop:
-            return "/all"
+            return "shops/all"
         case .getSavedShopOnMap:
-            return "/favorite"
+            return "shops/favorite"
         case .getShopOnMap(let shopId):
-            return "/shops/\(shopId)"
+            return "shops/\(shopId)"
         }
     }
     

@@ -152,9 +152,9 @@
 //            return .success(result)
 //
 //        } catch {
-//            print("❌ 디코딩 실패: \(error)")
+//            print("디코딩 실패: \(error)")
 //            if let raw = String(data: response.data, encoding: .utf8) {
-//                print("🔍 서버 응답 원문:\n\(raw)")
+//                print("서버 응답 원문:\n\(raw)")
 //            }
 //
 //            return .failure(.decodingError(underlyingError: error as! DecodingError))

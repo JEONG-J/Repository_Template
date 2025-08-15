@@ -74,6 +74,12 @@ struct MapView: View {
                     
                     // 마커 눌렀을 떄 효과 (커스텀)
                     if let marker = viewModel.selectedMarker {
+                        let d = viewModel.selectedShopDetail
+                        
+                        // 대표 이미지 url 계산
+                        let mainURLString = d?.images.first(where: {$0.isMainImage})?.url ?? d?.images.first?.url
+                        let mainURL = mainURLString.flatMap(URL.init(string:))
+                        
                         // 터치 감지는 따로 TapGesture만 담당
                         Color.clear
                             .ignoresSafeArea()
@@ -90,7 +96,14 @@ struct MapView: View {
                                     }
                             )
                         
-                        ShopInfoSheet(shopName: marker.title)
+                        ShopInfoSheet(
+                            shopName:     d?.name ?? "",
+                            shopAddress:  d?.address ?? "정보 없음",
+                            shopIG:       d?.instagram ?? "",
+                            shopTime:     d.map { "\($0.openTime) ~ \($0.closeTime)" } ?? "정보 없음",
+                            categories:   d?.styles.map { $0.vintageStyleName } ?? [],
+                            imageURL: mainURL
+                        )
                             .frame(maxWidth: .infinity)
                             .frame(height: 380)
                             .offset(y: dragOffset)
@@ -110,6 +123,7 @@ struct MapView: View {
                                             }
                                             withAnimation {
                                                 viewModel.selectedMarker = nil
+                                                viewModel.selectedShopDetail = nil
                                                 dragOffset = 0
                                             }
                                         } else {
@@ -133,6 +147,7 @@ struct MapView: View {
                 viewModel.updateFromLocation(location)
                 viewModel.hasSetInitialRegion = true
             }
+            viewModel.fetchShops()
         }
         // 위치 바뀔 때 최초 1회 자동 이동 (중복 방지)
         .onChange(of: locationManager.currentLocation) {
