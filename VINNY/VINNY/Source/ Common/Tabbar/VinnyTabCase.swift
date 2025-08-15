@@ -53,7 +53,12 @@ enum SBTabCase: String, CaseIterable {
         case .community:
             return AnyView(CommunityView(container: container))
         case .myprofile:
-            return AnyView(MyProfileView(container: container))
+            let viewModel = MypageViewModel(useCase: container.useCaseProvider.mypageUseCase)
+            return AnyView(
+                MyProfileView()
+                    .environmentObject(viewModel)
+                    .environmentObject(container)
+            )
         }
     }
 }

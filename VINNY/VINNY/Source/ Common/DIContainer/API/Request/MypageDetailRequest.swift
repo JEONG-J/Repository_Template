@@ -7,8 +7,8 @@
 
 import Foundation
 
-struct MypageDetailRequest: Codable {
-    
-    
+struct MyPageNicknameDTO: Encodable {
+    let nickname: String
+    let comment: String
     
 }

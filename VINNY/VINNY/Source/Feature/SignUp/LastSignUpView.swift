@@ -85,8 +85,12 @@ struct LastSignUpView: View {
             nickname = container.onboardingSelection.nickname
             intro    = container.onboardingSelection.comment
         }
-        .onChange(of: nickname) { container.onboardingSelection.nickname = $0 }
-        .onChange(of: intro)    { container.onboardingSelection.comment  = $0 }
+        .onChange(of: nickname) { oldValue, newValue in
+            container.onboardingSelection.nickname = newValue
+        }
+        .onChange(of: intro) { oldValue, newValue in
+            container.onboardingSelection.comment = newValue
+        }
     }
 
     // MARK: - Submit (여기서 최종 온보딩 API 호출)
@@ -139,7 +143,7 @@ struct LastSignUpView: View {
                 case .success(let res) where (200..<300).contains(res.statusCode):
                     print("✅ Onboarding success:", res.statusCode)
                     container.onboardingSelection.reset()
-                    container.navigationRouter.push(to: .HomeView)
+                    container.navigationRouter.push(to: .VinnyTabView)
                 case .success(let res):
                     let bodyStr = String(data: res.data, encoding: .utf8) ?? "no body"
                     print("⛔️ Onboarding failed:", res.statusCode, bodyStr)

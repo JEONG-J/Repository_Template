@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1E78A8472E4E663D00268FC5 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 1E78A8462E4E663D00268FC5 /* Kingfisher */; };
 		4802B6B62E4258AC009F4134 /* KakaoMapsSDK-SPM in Frameworks */ = {isa = PBXBuildFile; productRef = 4802B6B52E4258AC009F4134 /* KakaoMapsSDK-SPM */; };
 		48ACC45C2E4398E7002345E3 /* KakaoSDKAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 48ACC45B2E4398E7002345E3 /* KakaoSDKAuth */; };
 		48ACC45E2E439971002345E3 /* KakaoSDK in Frameworks */ = {isa = PBXBuildFile; productRef = 48ACC45D2E439971002345E3 /* KakaoSDK */; };
@@ -60,6 +61,7 @@
 			files = (
 				F188256B2E0BD69200551E31 /* Moya in Frameworks */,
 				48ACC45E2E439971002345E3 /* KakaoSDK in Frameworks */,
+				1E78A8472E4E663D00268FC5 /* Kingfisher in Frameworks */,
 				48ACC4622E439971002345E3 /* KakaoSDKUser in Frameworks */,
 				4802B6B62E4258AC009F4134 /* KakaoMapsSDK-SPM in Frameworks */,
 				48ACC4602E439971002345E3 /* KakaoSDKCommon in Frameworks */,
@@ -113,6 +115,7 @@
 				48ACC45D2E439971002345E3 /* KakaoSDK */,
 				48ACC45F2E439971002345E3 /* KakaoSDKCommon */,
 				48ACC4612E439971002345E3 /* KakaoSDKUser */,
+				1E78A8462E4E663D00268FC5 /* Kingfisher */,
 			);
 			productName = VINNY;
 			productReference = 1EDCDECB2E0BC6D200D3EC43 /* VINNY.app */;
@@ -146,6 +149,7 @@
 				F18825692E0BD69200551E31 /* XCRemoteSwiftPackageReference "Moya" */,
 				4802B6B42E4258AC009F4134 /* XCRemoteSwiftPackageReference "KakaoMapsSDK-SPM" */,
 				48ACC45A2E4398E7002345E3 /* XCRemoteSwiftPackageReference "kakao-ios-sdk" */,
+				1E78A8452E4E663D00268FC5 /* XCRemoteSwiftPackageReference "Kingfisher" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 1EDCDECC2E0BC6D200D3EC43 /* Products */;
@@ -311,6 +315,7 @@
 				INFOPLIST_FILE = VINNY/Info.plist;
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "위치 정보 사용";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "위치 권한 받아오기";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "프로필 편집을 위해 사진 접근이 필요합니다.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -343,6 +348,7 @@
 				INFOPLIST_FILE = VINNY/Info.plist;
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "위치 정보 사용";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "위치 권한 받아오기";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "프로필 편집을 위해 사진 접근이 필요합니다.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -385,6 +391,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		1E78A8452E4E663D00268FC5 /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/onevcat/Kingfisher";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 8.5.0;
+			};
+		};
 		4802B6B42E4258AC009F4134 /* XCRemoteSwiftPackageReference "KakaoMapsSDK-SPM" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/kakao-mapsSDK/KakaoMapsSDK-SPM";
@@ -412,6 +426,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		1E78A8462E4E663D00268FC5 /* Kingfisher */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1E78A8452E4E663D00268FC5 /* XCRemoteSwiftPackageReference "Kingfisher" */;
+			productName = Kingfisher;
+		};
 		4802B6B52E4258AC009F4134 /* KakaoMapsSDK-SPM */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 4802B6B42E4258AC009F4134 /* XCRemoteSwiftPackageReference "KakaoMapsSDK-SPM" */;
