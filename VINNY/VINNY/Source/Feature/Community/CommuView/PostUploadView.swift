@@ -43,7 +43,6 @@ struct PostUploadView: View {
             ZStack {
                 HStack {
                     Button(action: {
-                        print("[PostUpload] back tapped")
                         container.navigationRouter.pop()
                     }) {
                         Image("arrowBack")

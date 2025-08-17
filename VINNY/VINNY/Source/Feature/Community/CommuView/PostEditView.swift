@@ -158,7 +158,6 @@ struct PostEditView: View {
             Text(errorMessage ?? "알 수 없는 오류")
         }
         .background(Color.backFillStatic)
-        .ignoresSafeArea()
     }
 
     // MARK: - Extracted Views
@@ -180,7 +179,7 @@ struct PostEditView: View {
                 .foregroundStyle(Color.contentBase)
         }
         .padding(16)
-        .background(Color.backFillStatic)
+//        .background(Color.backFillStatic)
     }
 
     private var imagePageView: some View {
@@ -205,12 +204,9 @@ struct PostEditView: View {
             .frame(height: 320)
             .tabViewStyle(.page(indexDisplayMode: .never))
             .background(Color.backFillRegular)
-            .onChange(of: viewModel.postImages.count) { newCount in
-                if newCount <= 0 {
-                    viewModel.currentIndex = 0
-                } else if viewModel.currentIndex >= newCount {
-                    viewModel.currentIndex = max(0, newCount - 1)
-                }
+            .onChange(of: viewModel.postImages.count) {
+                let newCount = viewModel.postImages.count
+                viewModel.currentIndex = (newCount == 0) ? 0 : min(viewModel.currentIndex, max(0, newCount - 1))
             }
 
             HStack(spacing: 4) {
@@ -280,11 +276,6 @@ struct PostEditView: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 10)
-        .background(
-            RoundedRectangle(cornerRadius: 12)
-                .foregroundStyle(Color.backFillRegular)
-        )
-        .padding(.horizontal, 16)
     }
 
     private var contentInputView: some View {
@@ -310,8 +301,6 @@ struct PostEditView: View {
                     TextEditor(text: $viewModel.title)
                         .customStyleEditor(placeholder: "제목은 최대 15자까지 가능해요", userInput: $viewModel.title, maxLength: 15)
                         .frame(height: 48)
-                        .background(Color.backFillRegular)
-                        .tint(Color.contentInverted)
                 }
 
                 VStack(alignment: .leading, spacing: 8) {
@@ -324,15 +313,9 @@ struct PostEditView: View {
                     TextEditor(text: $viewModel.content)
                         .customStyleEditor(placeholder: "나만의 멋진 내용을 적어주세요!", userInput: $viewModel.content, maxLength: 100)
                         .frame(height: 156)
-                        .background(Color.backFillRegular)
-                        .tint(Color.contentInverted)
                 }
                 .padding(.vertical, 8)
             }
-            .background(
-                RoundedRectangle(cornerRadius: 12)
-                    .foregroundStyle(Color.backFillRegular)
-            )
             .padding(.horizontal, 16)
 
             Rectangle()
@@ -383,11 +366,6 @@ struct PostEditView: View {
             .padding(.vertical, 10)
         }
         .padding(.horizontal, 16)
-        .background(
-            RoundedRectangle(cornerRadius: 12)
-                .foregroundStyle(Color.backFillRegular)
-        )
-        .padding(.horizontal, 16)
     }
 
     private var brandInputView: some View {
@@ -413,10 +391,8 @@ struct PostEditView: View {
                     maxLength: nil
                 )
                 .frame(height: 48)
-                .background(Color.backFillRegular)
-                .tint(Color.contentInverted)
                 .padding(.vertical, 8)
-                .onChange(of: brandInput) { newValue in
+                .onChange(of: brandInput) { oldValue, newValue in
                     if newValue.contains("\n") {
                         let trimmed = newValue.trimmingCharacters(in: .whitespacesAndNewlines)
                         if !trimmed.isEmpty,
@@ -444,11 +420,6 @@ struct PostEditView: View {
             .padding(.vertical, 10)
         }
         .padding(.horizontal, 16)
-        .background(
-            RoundedRectangle(cornerRadius: 12)
-                .foregroundStyle(Color.backFillRegular)
-        )
-        .padding(.horizontal, 16)
     }
 
     private var shopTagView: some View {
@@ -473,10 +444,8 @@ struct PostEditView: View {
                     userInput: $shopInput,
                     maxLength: nil)
                 .frame(height: 48)
-                .background(Color.backFillRegular)
-                .tint(Color.contentInverted)
                 .padding(.vertical, 8)
-                .onChange(of: shopInput) { newValue in
+                .onChange(of: shopInput) { oldValue, newValue in
                     if newValue.contains("\n") {
                         let trimmed = newValue.trimmingCharacters(in: .whitespacesAndNewlines)
                         if !trimmed.isEmpty {
@@ -497,11 +466,6 @@ struct PostEditView: View {
                     .padding(.vertical, 10)
             }
         }
-        .padding(.horizontal, 16)
-        .background(
-            RoundedRectangle(cornerRadius: 12)
-                .foregroundStyle(Color.backFillRegular)
-        )
         .padding(.horizontal, 16)
     }
     
@@ -600,7 +564,7 @@ struct PostEditView: View {
 }
 
 #Preview {
-    NavigationStack {
-        PostEditView()
-    }
+    let container = DIContainer()
+    PostEditView()
+        .environmentObject(container)
 }
