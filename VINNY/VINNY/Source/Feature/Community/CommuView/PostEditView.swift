@@ -34,6 +34,9 @@ struct PostEditView: View {
     @State private var brandInput: String = "" // 브랜드 태그 입력창
     @State private var shopInput: String = "" // 샵 태그 입력창
 
+    @FocusState private var focusedField: Field?
+    private enum Field { case title, content, brand, shop }
+    
     // 편집(수정) 모드 식별용
     var postId: Int? = nil
     
@@ -51,6 +54,8 @@ struct PostEditView: View {
                     styleSelectionView
                     brandInputView
                     shopTagView
+                    
+                    Spacer().frame(height: 280)
                 }
                 
             }
@@ -158,6 +163,10 @@ struct PostEditView: View {
             Text(errorMessage ?? "알 수 없는 오류")
         }
         .background(Color.backFillStatic)
+        .simultaneousGesture(TapGesture().onEnded {
+            focusedField = nil
+        })
+        .ignoresSafeArea(.keyboard, edges: .bottom)
     }
 
     // MARK: - Extracted Views
@@ -179,7 +188,6 @@ struct PostEditView: View {
                 .foregroundStyle(Color.contentBase)
         }
         .padding(16)
-//        .background(Color.backFillStatic)
     }
 
     private var imagePageView: some View {
@@ -257,7 +265,7 @@ struct PostEditView: View {
                                   maxSelectionCount: 5, matching: .images,
                                   photoLibrary: .shared()
                     )
-                    .onChange(of: selectedItems) { newItems in
+                    .onChange(of: selectedItems) { oldItems, newItems in
                         Task {
                             viewModel.postImages = []
                             for item in newItems {
@@ -301,6 +309,7 @@ struct PostEditView: View {
                     TextEditor(text: $viewModel.title)
                         .customStyleEditor(placeholder: "제목은 최대 15자까지 가능해요", userInput: $viewModel.title, maxLength: 15)
                         .frame(height: 48)
+                        .focused($focusedField, equals: .title)
                 }
 
                 VStack(alignment: .leading, spacing: 8) {
@@ -313,6 +322,7 @@ struct PostEditView: View {
                     TextEditor(text: $viewModel.content)
                         .customStyleEditor(placeholder: "나만의 멋진 내용을 적어주세요!", userInput: $viewModel.content, maxLength: 100)
                         .frame(height: 156)
+                        .focused($focusedField, equals: .content)
                 }
                 .padding(.vertical, 8)
             }
@@ -391,6 +401,7 @@ struct PostEditView: View {
                     maxLength: nil
                 )
                 .frame(height: 48)
+                .focused($focusedField, equals: .brand)
                 .padding(.vertical, 8)
                 .onChange(of: brandInput) { oldValue, newValue in
                     if newValue.contains("\n") {
@@ -444,6 +455,7 @@ struct PostEditView: View {
                     userInput: $shopInput,
                     maxLength: nil)
                 .frame(height: 48)
+                .focused($focusedField, equals: .shop)
                 .padding(.vertical, 8)
                 .onChange(of: shopInput) { oldValue, newValue in
                     if newValue.contains("\n") {
