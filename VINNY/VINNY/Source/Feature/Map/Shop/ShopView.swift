@@ -16,6 +16,10 @@ struct ShopView: View {
     @State private var errorMessage: String?
     @State private var detail: ShopDetailDTO?   // 옵셔널 상태로 보관
 
+    private var coords: (lat: Double, lng: Double)? {
+        guard let d = detail, let lat = d.latitude, let lng = d.longitude else { return nil }
+        return (lat, lng)
+    }
     var body: some View {
         VStack(spacing: 0) {
             // 상단 바
@@ -57,7 +61,7 @@ struct ShopView: View {
                                 .padding(.horizontal, 16)
                                 .padding(.vertical, 8)
                         }
-
+                        
                         HStack(spacing: 8) {
                             Image("emptyImage").resizable().frame(width: 40, height: 40)
                             VStack(alignment: .leading, spacing: 2) {
@@ -75,16 +79,65 @@ struct ShopView: View {
                         .padding(.vertical, 10)
 
                         HStack(spacing: 2) {
-                            Image("time").resizable().frame(width: 16, height: 16)
-                            Text("영업 시간  \(d.openTime ?? "-") ~ \(d.closeTime ?? "-")")
+                            Image("instargram")
+                                .resizable()
+                                .frame(width: 16, height: 16)
+                            Text("인스타그램")
+                                .font(.system(size: 14))
+                                .foregroundStyle(Color.contentAssistive)
+                                .padding(.horizontal, 4)
+                                .frame(maxWidth: 82, alignment: .leading)
+                            Text(d.instagram ?? "-")
                                 .font(.system(size: 14))
                                 .foregroundStyle(Color.contentAdditive)
                                 .padding(.horizontal, 4)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                         }
                         .padding(.horizontal, 16)
-                        .padding(.vertical, 4)
-
+                        .padding(.vertical, 10)
+                        
+                        HStack(spacing: 2) {
+                            Image("time")
+                                .resizable()
+                                .frame(width: 16, height: 16)
+                            Text("영업 시간")
+                                .font(.system(size: 14))
+                                .foregroundStyle(Color.contentAssistive)
+                                .padding(.horizontal, 4)
+                                .frame(maxWidth: 82, alignment: .leading)
+                            Text("\(d.openTime ?? "-") ~ \(d.closeTime ?? "-")")
+                                .font(.system(size: 14))
+                                .foregroundStyle(Color.contentAdditive)
+                                .padding(.horizontal, 4)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                        }
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 10)
+                        
+                        HStack {
+                            HStack(spacing: 4) {
+                                Image("mapPin")
+                                    .resizable()
+                                    .frame(width: 16, height: 16)
+                                Text(d.region ?? "-")
+                                    .font(.system(size: 12))
+                                    .foregroundStyle(Color.contentAdditive)
+                            }
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(
+                                RoundedRectangle(cornerRadius: 4)
+                                    .foregroundStyle(Color.backFillRegular)
+                            )
+                            
+                            ForEach(d.shopVintageStyleList ?? [], id: \.self) { style in
+                                TagComponent(tag: style.vintageStyleName)
+                            }
+                        }
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        
                         HStack {
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("소개")
@@ -99,6 +152,8 @@ struct ShopView: View {
                         .padding(.horizontal, 20)
                         .padding(.vertical, 16)
                     }
+                    
+                    CustomTabView()
                 }
             } else if let err = errorMessage {
                 Text(err).foregroundStyle(.red).padding(.top, 24)
@@ -119,7 +174,10 @@ struct ShopView: View {
 
                 Button {
                     // 예시 좌표
-                    MapViewModel().KaKaoMap(lat: 37.5551033, lng: 126.9221464)
+                    if let c = coords {
+                        MapViewModel().KaKaoMap(lat: c.lat, lng: c.lng)
+                    }
+                    
                 } label: {
                     Text("길찾기")
                         .font(.suit(.medium, size: 16))

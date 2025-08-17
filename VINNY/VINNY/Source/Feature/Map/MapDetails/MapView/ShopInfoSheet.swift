@@ -14,6 +14,7 @@ struct ShopInfoSheet: View {
     @EnvironmentObject var container: DIContainer
     
     // MARK: - Display Model
+    var shopId: Int
     var shopName: String
     var shopAddress: String
     var shopIG: String
@@ -59,7 +60,8 @@ struct ShopInfoSheet: View {
                     }
                     Spacer()
                     Button(action: {
-                        container.navigationRouter.push(to: .ShopView(id: 0)) // TODO: 실제 shopId로 교체
+                        print("\(shopId)")
+                        container.navigationRouter.push(to: .ShopView(id: shopId))
                     }) {
                         Image("chevron.right")
                             .resizable()

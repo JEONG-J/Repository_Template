@@ -101,6 +101,7 @@ struct MapView: View {
                             )
                         
                         ShopInfoSheet(
+                            shopId:       d?.id ?? 0,
                             shopName:     d?.name ?? "",
                             shopAddress:  d?.address ?? "정보 없음",
                             shopIG:       d?.instagram ?? "",
