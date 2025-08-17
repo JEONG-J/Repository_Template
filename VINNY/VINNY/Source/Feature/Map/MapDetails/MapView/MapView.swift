@@ -37,9 +37,9 @@ struct MapView: View {
                     // 하단 유틸 버튼
                     HStack(spacing: 8) {
                         Button(action: {
-                            
+                            viewModel.toggleFavorites()
                         }) {
-                            Image("star")
+                            Image(viewModel.showingFavorites ? "selectedStar" : "star")
                                 .resizable()
                                 .frame(width: 20, height: 20)
                                 .padding(12)

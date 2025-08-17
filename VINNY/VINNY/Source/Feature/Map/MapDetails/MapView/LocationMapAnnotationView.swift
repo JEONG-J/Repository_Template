@@ -66,10 +66,13 @@ struct LocationMapAnnotationView: View {
     // MARK: - Input
     var category: Category
     var isSelected: Bool = false
+    var isFavoritesMode: Bool = false
     
     var body: some View {
         ZStack {
-            Image(isSelected ? "selectedMarker" : "marker")
+            // 즐겨찾기 모드면 기본 마커를 SavedMarker로, 선택되면 기존 selectedMarker 우선
+            let normal = isFavoritesMode ? "savedMarker" : "marker"
+            Image(isSelected ? "selectedMarker" : normal)
                 .resizable()
                 .aspectRatio(contentMode: .fit)
             
