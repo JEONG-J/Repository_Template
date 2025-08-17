@@ -26,21 +26,24 @@ struct ShopResultDTO: Decodable {
     let imageUrls: [String]
 }
 
-//홈뷰에서 스타일별 가게 조회
+//홈뷰에서 랭킹별 가게 조회
 
-struct ShopByStyleResponseDTO: Decodable {
+struct ShopByRankingResponseDTO: Decodable {
     let isSuccess : Bool
     let code : String
     let message: String
-    let result : [ShopByStyleResultDTO]
+    let result : [ShopByRankingDTO]
     let timestamp: String
 }
 
-struct ShopByStyleResultDTO: Decodable {
+struct ShopByRankingDTO: Decodable {
 
-    let shops: [ShopInfoResultDTO]
-    let totalPages: Int
-    let totalElements: Int
+    let shopId : Int
+    let name: String
+    let address :String
+    let region :String
+    let tags: [String]
+    let thumbnailUrl : String?
 }
 
 struct ShopInfoResultDTO: Decodable{
@@ -54,6 +57,12 @@ struct ShopInfoResultDTO: Decodable{
     
 }
 // MARK: - Shop Detail (GET /api/shop/{shopId})
+
+struct ShopImageDTO: Decodable {
+    let url: String
+    let main: Bool
+}
+
 struct ShopDetailResponseDTO: Decodable {
     let isSuccess: Bool
     let code: String
@@ -75,7 +84,8 @@ struct ShopDetailDTO: Decodable {
     let latitude: Double?
     let longitude: Double?
     let region: String?
-    let images: [String]?
+    let images: [ShopImageDTO]?
+    let logoImage: String
     let shopVintageStyleList: [VintageStyleDTO]?
 }
 

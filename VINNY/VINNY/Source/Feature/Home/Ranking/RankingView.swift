@@ -10,9 +10,7 @@ import SwiftUI
 struct RankingView: View {
     @EnvironmentObject var container: DIContainer
     
-    init(container: DIContainer) {
-        
-    }
+    init(container: DIContainer) { }
     private var categories: [String] = ["#빈티지", "#스트릿", "#레더"]
     private var styles: [String] = [
         "모든 종류", "🪖 밀리터리", "🇺🇸 아메카지", "🛹 스트릿", "🏔️ 아웃도어", "👕 캐주얼", "👖 데님", "💼 하이엔드", "🛠️ 워크웨어", "👞 레더", "‍🏃‍♂️ 스포티", "🐴 웨스턴", "👚 Y2K"
@@ -20,8 +18,13 @@ struct RankingView: View {
     private var regions: [String] = [
         "모든 지역", "홍대", "성수", "강남", "이태원", "동묘", "합정"
     ]
-    @State private var selectedStyles: Set<String> = ["모든 종류"]
-    @State private var selectedRegions: Set<String> = ["모든 지역"]
+    @StateObject private var vm = RankingViewModel()
+    @State private var selectedStyles: Set<String> = ["모든 종류"] {
+        didSet { fetch() }
+    }
+    @State private var selectedRegions: Set<String> = ["모든 지역"] {
+        didSet { fetch() }
+    }
     
     var body: some View {
         ScrollView {
@@ -95,32 +98,51 @@ struct RankingView: View {
                 .padding(.bottom, 6)
                 .padding(.horizontal, 6)
                 
-                ForEach(1..<11, id: \.self) { rank in
+                ForEach(vm.shops.indices, id: \.self) { i in
+                    let shop = vm.shops[i]
                     Button(action: {
-                        container.navigationRouter.push(to: .ShopView(id: 0))
+                        container.navigationRouter.push(to: .ShopView(id: shop.shopId))
                     }) {
-                        rankingCard(rank: rank)
+                        rankingCard(rank: i+1, shop: shop)
                     }
                 }
             }
         }
+        .onAppear {
+            fetch()
+        }
     }
     
-    private func rankingCard(rank: Int) -> some View {
+    private func rankingCard(rank: Int, shop: ShopByRankingDTO) -> some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 8) {
                 Text("\(rank)")
                     .font(.suit(.bold, size: 14))
                     .foregroundStyle(Color.contentAdditive)
                     .frame(width: 20)
-                Image("emptyImage")
-                    .resizable()
+                if let urlString = shop.thumbnailUrl,
+                   let url = URL(string: urlString) {
+                    AsyncImage(url: url) { phase in
+                        switch phase {
+                        case .success(let img):
+                            img.resizable()
+                        default:
+                            Image("emptyImage").resizable()
+                        }
+                    }
                     .frame(width: 40, height: 40)
+                    .clipShape(Circle())
+                } else {
+                    Image("emptyImage")
+                        .resizable()
+                        .frame(width: 40, height: 40)
+                        .clipShape(Circle())
+                }
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("샵 이름")
+                    Text(shop.name)
                         .font(.suit(.medium, size: 18))
                         .foregroundStyle(Color.contentBase)
-                    Text("샵 주소")
+                    Text(shop.address)
                         .font(.suit(.light, size: 12))
                         .foregroundStyle(Color.contentAdditive)
                 }
@@ -144,7 +166,7 @@ struct RankingView: View {
                     Image("mapPin")
                         .resizable()
                         .frame(width: 16, height: 16)
-                    Text("지역") 
+                    Text(shop.region)
                         .font(.suit(.medium, size: 12))
                         .foregroundStyle(Color.contentAdditive)
                 }
@@ -155,20 +177,44 @@ struct RankingView: View {
                         .foregroundStyle(Color.backFillRegular)
                 )
                 
-                ForEach(categories, id: \.self) { category in
-                    TagComponent(tag: category)
+                ForEach(shop.tags, id: \.self) { tag in
+                    TagComponent(tag: tag)
                 }
             }
             .padding(.vertical, 8)
             
-            Image("emptyBigImage")
-                .resizable()
-                .aspectRatio(contentMode: .fill)
-                .frame(height: 104)
-                .clipShape(RoundedRectangle(cornerRadius: 12))
-                .padding(.vertical, 8)
+            Group {
+                if let urlString = shop.thumbnailUrl,
+                   !urlString.isEmpty,
+                   let url = URL(string: urlString) {
+                    AsyncImage(url: url) { phase in
+                        switch phase {
+                        case .success(let image):
+                            image.resizable()
+                        case .failure:
+                            Image("emptyBigImage").resizable()
+                        default:
+                            Image("emptyBigImage").resizable()
+                        }
+                    }
+                } else {
+                    Image("emptyBigImage")
+                        .resizable()
+                }
+            }
+            .aspectRatio(contentMode: .fill)
+            .frame(height: 104)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .padding(.vertical, 8)
             
             Divider().padding(.vertical, 10)
+        }
+    }
+    private func fetch() {
+        let stylesToSend: [String]? = selectedStyles.contains("모든 종류") ? nil : Array(selectedStyles)
+        let regionsToSend: [String]? = selectedRegions.contains("모든 지역") ? nil : Array(selectedRegions)
+        Task {
+            await vm.getRanking(region: regionsToSend, style: stylesToSend)
         }
     }
 }
