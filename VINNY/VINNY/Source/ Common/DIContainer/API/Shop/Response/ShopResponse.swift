@@ -79,7 +79,7 @@ struct ShopDetailDTO: Decodable {
     let shopVintageStyleList: [VintageStyleDTO]?
 }
 
-struct VintageStyleDTO: Decodable {
+struct VintageStyleDTO: Decodable, Hashable {
     let id: Int
     let vintageStyleName: String
 }
