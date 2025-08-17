@@ -47,13 +47,15 @@ struct ShopView: View {
                 ScrollView {
                     LazyVStack(spacing: 0) {
                         // 대표 이미지
-                        if let first = d.images?.first, !first.isEmpty {
-                            // 네 프로젝트에 RemoteImageView 있으면 교체
-                            Image("emptyBigImage")
-                                .resizable()
-                                .aspectRatio(1, contentMode: .fit)
-                                .padding(.horizontal, 16)
-                                .padding(.vertical, 8)
+                        if let first = d.images?.first, !first.url.isEmpty, let url = URL(string: first.url) {
+                            AsyncImage(url: url) { img in
+                                img.resizable()
+                            } placeholder: {
+                                Image("emptyBigImage").resizable()
+                            }
+                            .aspectRatio(1, contentMode: .fit)
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 8)
                         } else {
                             Image("emptyBigImage")
                                 .resizable()
@@ -63,7 +65,23 @@ struct ShopView: View {
                         }
                         
                         HStack(spacing: 8) {
-                            Image("emptyImage").resizable().frame(width: 40, height: 40)
+                            if let url = URL(string: d.logoImage) {
+                                AsyncImage(url: url) { phase in
+                                    switch phase {
+                                    case .success(let img):
+                                        img.resizable()
+                                    default:
+                                        Image("emptyImage").resizable()
+                                    }
+                                }
+                                .frame(width: 40, height: 40)
+                                .clipShape(Circle())
+                            } else {
+                                Image("emptyImage")
+                                    .resizable()
+                                    .frame(width: 40, height: 40)
+                                    .clipShape(Circle())
+                            }
                             VStack(alignment: .leading, spacing: 2) {
                                 Text(d.name)               // 서버 응답 필드에 맞춰 표시
                                     .font(.system(size: 18))
