@@ -49,7 +49,7 @@ struct PostCardView: View {
                             .resizable()
                             .aspectRatio(contentMode: .fill)
                             .frame(maxWidth: .infinity)
-                            .frame(height: 282)
+                            .frame(height: 292)
                             .clipped()
                             .padding(.vertical, 4)
                     } else {
@@ -58,12 +58,12 @@ struct PostCardView: View {
                                 let urlString = pair.element
                                 URLImageView(urlString)
                                     .frame(maxWidth: .infinity)
-                                    .frame(height: 282)
+                                    .frame(height: 292)
                                     .clipped()
                                     .tag(pair.offset)
                             }
                         }
-                        .frame(height: 282)
+                        .frame(height: 292)
                         .padding(.vertical, 4)
                         .tabViewStyle(.page(indexDisplayMode: .never))
 

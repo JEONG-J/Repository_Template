@@ -136,7 +136,7 @@ struct PostUploadView: View {
                                 Button(action: {
                                     showPhotosPicker = true
                                 }) {
-                                    Image("emptyBigImage")
+                                    Image("imagePicker")
                                         .resizable()
                                         .frame(width: 80, height: 80)
                                         .clipShape(RoundedRectangle(cornerRadius: 12))
