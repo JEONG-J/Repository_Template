@@ -126,3 +126,14 @@ struct UpdatePostResponseDTO: Decodable {
     let result: CreatePostResultDTO   // server returns { postId }, same shape as create
     let timestamp: String
 }
+
+//게시글 좋아요 누르기
+struct PostLikeDTO: Decodable {
+    let isSuccess : Bool
+    let code : String
+    let message: String
+    let result : String
+    let timestamp :String
+}
+
+

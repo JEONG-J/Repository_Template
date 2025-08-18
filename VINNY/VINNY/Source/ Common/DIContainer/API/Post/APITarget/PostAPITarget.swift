@@ -14,6 +14,7 @@ enum PostAPITarget {
     case createPost(dto: CreatePostRequestDTO, images: [Data])
     case updatePost(postId: Int, body: UpdatePostRequestDTO)
     case deletePost(postId: Int)
+    case likePost(postId: Int)
 }
 
 extension PostAPITarget: TargetType {
@@ -31,6 +32,8 @@ extension PostAPITarget: TargetType {
             return "/api/post/\(postId)"
         case .deletePost(let postId):
             return "/api/post/\(postId)"
+        case .likePost(let postId):
+            return "/api/post/\(postId)/likes"
         }
     }
 
@@ -44,6 +47,8 @@ extension PostAPITarget: TargetType {
             return .patch
         case .deletePost:
             return .delete
+        case .likePost:
+            return .post
         }
     }
 
@@ -87,6 +92,8 @@ extension PostAPITarget: TargetType {
         case let .updatePost(_, body):
             return .requestJSONEncodable(body)
         case .deletePost:
+            return .requestPlain
+        case .likePost:
             return .requestPlain
         }
     }
@@ -192,6 +199,18 @@ extension PostAPITarget {
         let res = try await postProvider.asyncRequest(.deletePost(postId: postId))
         #if DEBUG
         print("[PostAPI] performDelete status: \(res.statusCode)")
+        #endif
+        return res.statusCode
+    }
+    
+    @discardableResult
+    static func performLike(postId: Int) async throws -> Int {
+        #if DEBUG
+        print("[PostAPI] performLike called — postId: \(postId)")
+        #endif
+        let res = try await postProvider.asyncRequest(.likePost(postId: postId))
+        #if DEBUG
+        print("[PostAPI] performLike status: \(res.statusCode)")
         #endif
         return res.statusCode
     }
