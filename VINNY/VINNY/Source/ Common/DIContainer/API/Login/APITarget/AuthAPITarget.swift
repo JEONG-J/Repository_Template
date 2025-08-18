@@ -75,6 +75,15 @@ extension AuthAPITarget: TargetType {
         return Data()
     }
 }
+private let authProvider = MoyaProvider<AuthAPITarget>(plugins: [NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
+
+extension AuthAPITarget {
+    @discardableResult
+    static func performLogout() async throws -> Int {
+        let res = try await authProvider.request(.logout)
+        return res.statusCode
+    }
+}
 extension AuthAPITarget: AccessTokenAuthorizable {
     var authorizationType: AuthorizationType? {
         switch self {
