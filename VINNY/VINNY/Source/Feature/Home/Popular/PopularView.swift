@@ -47,6 +47,11 @@ struct PopularView: View {
                 }
             }
         }
+        .onAppear {
+            Task {
+                await fetchPopular(reset: true)
+            }
+        }
         .task { await fetchPopular(reset: true) }
         .refreshable { await fetchPopular(reset: true) }
     }
