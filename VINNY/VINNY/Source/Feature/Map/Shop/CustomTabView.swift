@@ -9,6 +9,11 @@ import SwiftUI
 import SwiftData
 
 struct CustomTabView: View {
+    var photos: [String]
+
+    init(photos: [String] = []) {
+        self.photos = photos
+    }
     @State var selectedFilter: Int = 0
     let filters: [String] = ["사진", "후기"]
     private var isReview: Bool = false
@@ -67,17 +72,31 @@ struct CustomTabView: View {
             
             
             if selectedFilter == 0 {
-                PhotosView()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else {
+                ScrollView {
+                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+                        ForEach(photos, id: \.self) { url in
+                            AsyncImage(url: URL(string: url)) { image in
+                                image.resizable()
+                                    .scaledToFill()
+                            } placeholder: {
+                                Color.gray.opacity(0.2)
+                            }
+                            .frame(width: UIScreen.main.bounds.width / 2 - 24, height: UIScreen.main.bounds.width / 2 - 24)
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                        }
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 10)
+                }
+            } else if selectedFilter == 1 {
                 ReviewsView()
+                    .padding(.top, 16)
+                    .frame(maxWidth: .infinity)
+            } else {
+                EmptyView()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
         .background(Color.backFillStatic)
     }
-}
-
-#Preview {
-    CustomTabView()
 }

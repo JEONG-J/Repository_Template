@@ -171,7 +171,7 @@ struct ShopView: View {
                         .padding(.vertical, 16)
                     }
                     
-                    CustomTabView()
+                    CustomTabView(photos: (d.images ?? []).filter { $0.main == false }.map { $0.url })
                 }
             } else if let err = errorMessage {
                 Text(err).foregroundStyle(.red).padding(.top, 24)
