@@ -161,8 +161,15 @@ struct PostView: View {
 
                             HStack(spacing: 6) {
                                 Button(action: {
-                                    isLiked.toggle()
-                                    likeCount += isLiked ? 1 : -1
+                                    Task {
+                                        do {
+                                            _ = try await PostAPITarget.performLike(postId: postId)
+                                            isLiked.toggle()
+                                            likeCount += isLiked ? 1 : -1
+                                        } catch {
+                                            print("like failed:", error)
+                                        }
+                                    }
                                 }) {
                                     Image(isLiked ? "likeFill" : "like")
                                         .resizable()
