@@ -60,6 +60,7 @@ extension PostAPITarget: TargetType {
         case .bookmarkPost:
             return .post
         case .unbookmarkPost:
+            return .delete
         case .unlikePost:
             return .delete
         }
@@ -104,12 +105,11 @@ extension PostAPITarget: TargetType {
             return .uploadMultipart(parts)
         case let .updatePost(_, body):
             return .requestJSONEncodable(body)
-        case .deletePost:
-            return .requestPlain
-        case .likePost:
-            return .requestPlain
-        case .bookmarkPost, .unbookmarkPost:
-        case .unlikePost:
+        case .deletePost,
+             .likePost,
+             .bookmarkPost,
+             .unbookmarkPost,
+             .unlikePost:
             return .requestPlain
         }
     }

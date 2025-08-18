@@ -130,11 +130,24 @@ struct PostCardView: View {
             .onTapGesture {
                 container.navigationRouter.push(to: .PostView(id: item.postId))
             }
+            .simultaneousGesture(TapGesture())
 
             HStack(spacing: 6) {
                 Button(action: {
-                    isLiked.toggle()
-                    likeCount += isLiked ? 1 : -1
+                    Task {
+                        do {
+                            _ = try await PostAPITarget.performLike(postId: item.postId, isCurrentLiked: isLiked)
+                            if isLiked {
+                                isLiked = false
+                                likeCount -= 1
+                            } else {
+                                isLiked = true
+                                likeCount += 1
+                            }
+                        } catch {
+                            print("like failed:", error)
+                        }
+                    }
                 }) {
                     Image(isLiked ? "likeFill" : "like")
                         .resizable()
@@ -150,7 +163,11 @@ struct PostCardView: View {
                     Task {
                         do {
                             _ = try await PostAPITarget.performBookmark(postId: item.postId, isCurrentBookmarked: isBookmarked)
-                            isBookmarked.toggle()
+                            if isBookmarked {
+                                isBookmarked = false
+                            } else {
+                                isBookmarked = true
+                            }
                         } catch {
                             print("bookmark failed:", error)
                         }
