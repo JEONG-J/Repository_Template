@@ -22,7 +22,7 @@ struct ShopResultDTO: Decodable {
     let title: String
     let content: String
     let userName: String
-    let elapsedTime: String        // ← 철자 'elapsed'로 통일
+    let elapsedTime: String
     let imageUrls: [String]
 }
 
@@ -92,4 +92,17 @@ struct ShopDetailDTO: Decodable {
 struct VintageStyleDTO: Decodable, Hashable {
     let id: Int
     let vintageStyleName: String
+}
+
+//홈에 취향 저격 가게 
+struct ShopForYouResponseDTO: Decodable {
+    let id: Int
+    let name: String
+    let openTime: String?
+    let closeTime: String?
+    let instagram: String?
+    let address: String?
+    let logoImage: String
+    let images: ShopImageDTO       // single image object
+    let shopVintageStyleList: [VintageStyleDTO]?
 }

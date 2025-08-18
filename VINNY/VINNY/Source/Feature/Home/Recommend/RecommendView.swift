@@ -17,6 +17,7 @@ struct RecommendView: View {
     var shopIG: String = "vintageplus_trendy"
     var shopTime: String = "12:00 ~ 23:00"
     var categories: [String] = ["🛠️ 워크웨어", "👕 캐주얼", "💼 하이엔드"]
+    @State private var forYouShops: [ShopForYouResponseDTO] = []
         
     var body: some View {
         ScrollView {
@@ -36,27 +37,37 @@ struct RecommendView: View {
                 .padding(.bottom, 6)
                 .padding(.horizontal, 6)
                 
-                ForEach(0..<3, id: \.self) { recommend in
-                    recommendShopCard()
+                ForEach(forYouShops, id: \.id) { shop in
+                    recommendShopCard(shop: shop)
                         .padding(.vertical, 16)
                 }
             }
         }
+        .task {
+            do {
+                forYouShops = try await ShopAPITarget.getForYou(limit: 3)
+            } catch {
+                print("for-you error:", error)
+            }
+        }
     }
     
-    private func recommendShopCard() -> some View {
+    private func recommendShopCard(shop: ShopForYouResponseDTO) -> some View {
         VStack(spacing: 0) {
             HStack(spacing: 8) {
-                Image("shop1") // 프로필 이미지
-                    .resizable()
-                    .frame(width: 40, height: 40)
-                    .aspectRatio(contentMode: .fill)
-                    .clipShape(Circle())
+                AsyncImage(url: URL(string: shop.logoImage)) { img in
+                    img.resizable()
+                } placeholder: {
+                    Color.gray.opacity(0.2)
+                }
+                .frame(width: 40, height: 40)
+                .aspectRatio(contentMode: .fill)
+                .clipShape(Circle())
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("빈티지 플러스")
+                    Text(shop.name)
                         .font(.suit(.medium, size: 16))
                         .foregroundStyle(Color.contentBase)
-                    Text("서울 마포구 서교동 364-18 지하1층")
+                    Text(shop.address ?? "-")
                         .font(.suit(.light, size: 12))
                         .foregroundStyle(Color.contentAdditive)
                 }
@@ -83,7 +94,7 @@ struct RecommendView: View {
                     .foregroundStyle(Color.contentAssistive)
                     .padding(.horizontal, 4)
                     .frame(maxWidth: 82, alignment: .leading)
-                Text("\(shopIG)")
+                Text(shop.instagram ?? "-")
                     .font(.system(size: 14))
                     .foregroundStyle(Color.contentAdditive)
                     .padding(.horizontal, 4)
@@ -101,7 +112,7 @@ struct RecommendView: View {
                     .foregroundStyle(Color.contentAssistive)
                     .padding(.horizontal, 4)
                     .frame(maxWidth: 82, alignment: .leading)
-                Text("\(shopTime)")
+                Text("\(shop.openTime ?? "-") ~ \(shop.closeTime ?? "-")")
                     .font(.system(size: 14))
                     .foregroundStyle(Color.contentAdditive)
                     .padding(.horizontal, 4)
@@ -111,21 +122,24 @@ struct RecommendView: View {
             .padding(.vertical, 4)
             
             HStack(spacing: 6) {
-                ForEach(categories, id: \.self) { category in
-                    TagComponent(tag: category)
+                ForEach(shop.shopVintageStyleList ?? [], id: \.id) { style in
+                    TagComponent(tag: style.vintageStyleName)
                 }
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 8)
             .frame(maxWidth: .infinity, alignment: .leading)
             
-            Image("shop2")
-                .resizable()
-                .clipShape(RoundedRectangle(cornerRadius: 12))
-                .aspectRatio(contentMode: .fill)
-                .frame(maxWidth: .infinity, maxHeight: 184)
-                .padding(.horizontal, 16)
-                .padding(.vertical, 8)
+            AsyncImage(url: URL(string: shop.images.url)) { img in
+                img.resizable()
+            } placeholder: {
+                Color.gray.opacity(0.2)
+            }
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .aspectRatio(contentMode: .fill)
+            .frame(maxWidth: .infinity, maxHeight: 184)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
         }
         .padding(.vertical, 6)
         .background(
@@ -134,4 +148,3 @@ struct RecommendView: View {
         )
     }
 }
-
