@@ -15,6 +15,8 @@ enum PostAPITarget {
     case updatePost(postId: Int, body: UpdatePostRequestDTO)
     case deletePost(postId: Int)
     case likePost(postId: Int)
+    case bookmarkPost(postId: Int)
+    case unbookmarkPost(postId: Int)
     case unlikePost(postId: Int)
 }
 
@@ -35,6 +37,9 @@ extension PostAPITarget: TargetType {
             return "/api/post/\(postId)"
         case .likePost(let postId):
             return "/api/post/\(postId)/likes"
+        case .bookmarkPost(let postId),
+             .unbookmarkPost(let postId):
+            return "/api/post/\(postId)/bookmarks"
         case .unlikePost(let postId):
             return "/api/post/\(postId)/likes"
         }
@@ -52,6 +57,10 @@ extension PostAPITarget: TargetType {
             return .delete
         case .likePost:
             return .post
+        case .bookmarkPost:
+            return .post
+        case .unbookmarkPost:
+            return .delete
         case .unlikePost:
             return .delete
         }
@@ -96,11 +105,11 @@ extension PostAPITarget: TargetType {
             return .uploadMultipart(parts)
         case let .updatePost(_, body):
             return .requestJSONEncodable(body)
-        case .deletePost:
-            return .requestPlain
-        case .likePost:
-            return .requestPlain
-        case .unlikePost:
+        case .deletePost,
+             .likePost,
+             .bookmarkPost,
+             .unbookmarkPost,
+             .unlikePost:
             return .requestPlain
         }
     }
@@ -217,4 +226,12 @@ extension PostAPITarget {
         return res.statusCode
     }
     
+    @discardableResult
+    static func performBookmark(postId: Int, isCurrentBookmarked: Bool) async throws -> Int {
+        print("🔥 performBookmark called — postId: \(postId), current: \(isCurrentBookmarked)")
+        let target: PostAPITarget = isCurrentBookmarked ? .unbookmarkPost(postId: postId) : .bookmarkPost(postId: postId)
+        let res = try await postProvider.asyncRequest(target)
+        print("🔥 status:", res.statusCode)
+        return res.statusCode
+    }
 }

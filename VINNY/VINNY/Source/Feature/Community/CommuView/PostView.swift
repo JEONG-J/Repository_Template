@@ -53,9 +53,7 @@ struct PostView: View {
                 isShowingDialog = false
             }
         }
-        .onAppear {
-            container.editingPostId = postId
-        }
+        .onAppear { container.editingPostId = postId }
         .task(id: postId) { await fetch() }
         .navigationBarBackButtonHidden(true)
     }
@@ -235,7 +233,14 @@ struct PostView: View {
                 .foregroundStyle(Color.contentAdditive)
             Spacer()
             Button(action: {
-                isBookmarked.toggle()
+                Task {
+                    do {
+                        _ = try await PostAPITarget.performBookmark(postId: postId, isCurrentBookmarked: isBookmarked)
+                        isBookmarked.toggle()
+                    } catch {
+                        print("bookmark failed:", error)
+                    }
+                }
             }) {
                 Image(isBookmarked ? "bookmarkFill" : "bookmark")
                     .resizable()

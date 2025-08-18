@@ -147,3 +147,13 @@ struct PostLikeDelete: Decodable {
 }
 
 
+//게시글 북마크 추가
+
+
+struct PostBookMarkDTO: Decodable {
+    let isSuccess : Bool
+    let code : String
+    let message: String
+    let result : String
+    let timestamp :String
+}
