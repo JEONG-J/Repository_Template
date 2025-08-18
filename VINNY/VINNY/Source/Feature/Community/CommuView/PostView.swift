@@ -182,7 +182,14 @@ struct PostView: View {
                                 Spacer()
 
                                 Button(action: {
-                                    isBookmarked.toggle()
+                                    Task {
+                                        do {
+                                            _ = try await PostAPITarget.performBookmark(postId: postId, isCurrentBookmarked: isBookmarked)
+                                            isBookmarked.toggle()
+                                        } catch {
+                                            print("bookmark failed:", error)
+                                        }
+                                    }
                                 }) {
                                     Image(isBookmarked ? "bookmarkFill" : "bookmark")
                                         .resizable()
