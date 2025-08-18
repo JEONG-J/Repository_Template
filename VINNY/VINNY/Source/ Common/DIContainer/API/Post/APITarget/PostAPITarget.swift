@@ -17,6 +17,7 @@ enum PostAPITarget {
     case likePost(postId: Int)
     case bookmarkPost(postId: Int)
     case unbookmarkPost(postId: Int)
+    case unlikePost(postId: Int)
 }
 
 extension PostAPITarget: TargetType {
@@ -39,6 +40,8 @@ extension PostAPITarget: TargetType {
         case .bookmarkPost(let postId),
              .unbookmarkPost(let postId):
             return "/api/post/\(postId)/bookmarks"
+        case .unlikePost(let postId):
+            return "/api/post/\(postId)/likes"
         }
     }
 
@@ -57,6 +60,7 @@ extension PostAPITarget: TargetType {
         case .bookmarkPost:
             return .post
         case .unbookmarkPost:
+        case .unlikePost:
             return .delete
         }
     }
@@ -105,6 +109,7 @@ extension PostAPITarget: TargetType {
         case .likePost:
             return .requestPlain
         case .bookmarkPost, .unbookmarkPost:
+        case .unlikePost:
             return .requestPlain
         }
     }
@@ -215,14 +220,9 @@ extension PostAPITarget {
     }
     
     @discardableResult
-    static func performLike(postId: Int) async throws -> Int {
-        #if DEBUG
-        print("[PostAPI] performLike called — postId: \(postId)")
-        #endif
-        let res = try await postProvider.asyncRequest(.likePost(postId: postId))
-        #if DEBUG
-        print("[PostAPI] performLike status: \(res.statusCode)")
-        #endif
+    static func performLike(postId: Int, isCurrentLiked: Bool) async throws -> Int {
+        let target: PostAPITarget = isCurrentLiked ? .unlikePost(postId: postId) : .likePost(postId: postId)
+        let res = try await postProvider.asyncRequest(target)
         return res.statusCode
     }
     
