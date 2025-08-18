@@ -12,13 +12,13 @@ struct RecommendView: View {
     init(container: DIContainer) {
         
     }
-//    let shopName: String
+    //    let shopName: String
     var shopAddress: String = "샵 주소"
     var shopIG: String = "vintageplus_trendy"
     var shopTime: String = "12:00 ~ 23:00"
     var categories: [String] = ["🛠️ 워크웨어", "👕 캐주얼", "💼 하이엔드"]
     @State private var forYouShops: [ShopForYouResponseDTO] = []
-        
+    
     var body: some View {
         ScrollView {
             LazyVStack(spacing: 0) {
@@ -74,9 +74,10 @@ struct RecommendView: View {
                 .padding(.horizontal, 4)
                 Spacer()
                 Button(action: {
-                    container.navigationRouter.push(to: .ShopView(id: 0)) // TODO: 실제 shopId로 교체
+                    container.navigationRouter.push(to: .ShopView(id: shop.id))   //  실제 id 전달
                 }) {
                     Image("chevron.right")
+                    
                         .resizable()
                         .frame(width: 16, height: 16)
                 }
@@ -130,14 +131,16 @@ struct RecommendView: View {
             .padding(.vertical, 8)
             .frame(maxWidth: .infinity, alignment: .leading)
             
-            AsyncImage(url: URL(string: shop.images.url)) { img in
-                img.resizable()
+            AsyncImage(url: URL(string: shop.images.url)) { image in
+                image
+                    .resizable()
+                    .scaledToFill()
             } placeholder: {
                 Color.gray.opacity(0.2)
             }
-            .clipShape(RoundedRectangle(cornerRadius: 12))
-            .aspectRatio(contentMode: .fill)
             .frame(maxWidth: .infinity, maxHeight: 184)
+            .clipped()
+            .clipShape(RoundedRectangle(cornerRadius: 12))
             .padding(.horizontal, 16)
             .padding(.vertical, 8)
         }
