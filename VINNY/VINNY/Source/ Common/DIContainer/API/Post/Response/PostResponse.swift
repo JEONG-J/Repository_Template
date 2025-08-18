@@ -136,4 +136,14 @@ struct PostLikeDTO: Decodable {
     let timestamp :String
 }
 
+// 게시글 좋아요 취소
+struct PostLikeDelete: Decodable {
+    let isSuccess : Bool
+    let code : String
+    let message: String
+    let result : String
+    let timestamp :String
+    
+}
+
 
