@@ -92,7 +92,7 @@ struct UploadReviewView: View {
                                 
                                 Spacer()
                                 
-                                Text("\(viewModel.selectedImageCount)개/5개")
+                                Text("\(viewModel.selectedImageCount)개/2개")
                                     .font(.suit(.light, size: 14))
                                     .foregroundStyle(Color.contentAssistive)
                             }
@@ -117,7 +117,7 @@ struct UploadReviewView: View {
                                     }
                                     .photosPicker(isPresented: $showPhotosPicker,
                                                   selection: $selectedItems,
-                                                  maxSelectionCount: 5, matching: .images,
+                                                  maxSelectionCount: 2, matching: .images,
                                                   photoLibrary: .shared()
                                     )
                                     .onChange(of: selectedItems) { oldItems, newItems in
@@ -187,15 +187,6 @@ struct UploadReviewView: View {
                                 }
                             }
                         }) {
-//                            Text("업로드")
-//                                .font(.suit(.medium, size: 16))
-//                                .foregroundStyle(Color.contentInverted)
-//                                .frame(maxWidth: .infinity)
-//                                .padding(16)
-//                                .background(
-//                                    RoundedRectangle(cornerRadius: 12)
-//                                        .foregroundStyle(Color.backFillInverted)
-//                                )
                             HStack {
                                 if viewModel.isUploading { ProgressView() }
                                 Text(viewModel.isUploading ? "업로드 중..." : "업로드")

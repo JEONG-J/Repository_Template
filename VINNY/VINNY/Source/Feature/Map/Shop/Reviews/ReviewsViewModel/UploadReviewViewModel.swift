@@ -27,7 +27,7 @@ final class UploadReviewViewModel: ObservableObject {
     }
     
     func addImage(_ image: UIImage) {
-        if postImages.count < 5 {
+        if postImages.count < 2 {
             postImages.append(image)
         }
     }
