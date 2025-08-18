@@ -21,20 +21,22 @@ struct SavedPostView: View {
         if viewModel.savedPosts.isEmpty {
             EmptyView()
         } else {
-            LazyVGrid(columns: columns, spacing: 8) {
-                ForEach(viewModel.savedPosts, id: \.postId) { post in
-                    if let url = URL(string: post.imageUrl) {
-                        KFImage(url)
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                            .frame(width: (UIScreen.main.bounds.width - 40) / 3,
-                                   height: (UIScreen.main.bounds.width - 40) / 3)
-                            .clipped()
-                            .cornerRadius(8)
+            ScrollView {
+                LazyVGrid(columns: columns, spacing: 8) {
+                    ForEach(viewModel.savedPosts, id: \.postId) { post in
+                        if let urlString = post.imageUrl, let url = URL(string: urlString) {
+                            KFImage(url)
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                                .frame(width: (UIScreen.main.bounds.width - 40) / 3,
+                                       height: (UIScreen.main.bounds.width - 40) / 3)
+                                .clipped()
+                                .cornerRadius(8)
+                        }
                     }
                 }
+                .padding(.horizontal, 16)
             }
-            .padding(.horizontal, 16)
         }
     }
 }
