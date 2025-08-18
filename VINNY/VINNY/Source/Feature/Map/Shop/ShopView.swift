@@ -15,6 +15,7 @@ struct ShopView: View {
     @State private var isLoading = false
     @State private var errorMessage: String?
     @State private var detail: ShopDetailDTO?   // 옵셔널 상태로 보관
+    @State private var isLoved: Bool = false     // ← 
 
     private var coords: (lat: Double, lng: Double)? {
         guard let d = detail, let lat = d.latitude, let lng = d.longitude else { return nil }
@@ -91,7 +92,20 @@ struct ShopView: View {
                                     .foregroundStyle(Color.contentAdditive)
                             }
                             Spacer()
-                            Image("like").resizable().frame(width: 24, height: 24)
+                            Button(action: {
+                                Task {
+                                    do {
+                                        _ = try await ShopAPITarget.toggleShopLove(shopId: shopId, isLoved: isLoved)
+                                        isLoved.toggle()
+                                    } catch {
+                                        print("toggleFavorite failed:", error)
+                                    }
+                                }
+                            }) {
+                                Image(isLoved ? "likeFill" : "like")
+                                    .resizable()
+                                    .frame(width: 24, height: 24)
+                            }
                         }
                         .padding(.horizontal, 16)
                         .padding(.vertical, 10)

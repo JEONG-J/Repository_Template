@@ -106,3 +106,22 @@ struct ShopForYouResponseDTO: Decodable {
     let images: ShopImageDTO       // single image object
     let shopVintageStyleList: [VintageStyleDTO]?
 }
+
+
+// 가게 찜
+struct ShopLoveResponseDTO: Decodable {
+    let isSuccess: Bool
+    let code: String
+    let message: String
+    let result: ShopResultDTO?
+    let timestamp: String
+}
+
+
+struct ShopLoveCancelResponseDTO: Decodable {
+    let isSuccess: Bool
+    let code: String
+    let message: String
+    let result: String?             // ← 문자열!
+    let timestamp: String
+}
