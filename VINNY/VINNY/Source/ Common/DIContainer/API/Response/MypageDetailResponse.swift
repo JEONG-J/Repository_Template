@@ -31,7 +31,7 @@ struct MypageSavedShopsResponse: Decodable {
 //저장한 게시글 이미지 리스트 조회
 struct MypageSavedPostsResponse: Decodable {
     let postId: Int
-    let imageUrl: String
+    let imageUrl: String?
 }
 
 struct MypageUpdateProfileResponse: Decodable {
