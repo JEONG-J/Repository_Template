@@ -80,6 +80,10 @@ struct CustomTabView: View {
         .task(id: shopId) {
             await reviewsVM.load(shopId: shopId)
         }
+        .onReceive(NotificationCenter.default.publisher(for: .didUploadReview)) { note in
+            guard (note.object as? Int) == shopId else { return }
+            Task { await reviewsVM.load(shopId: shopId) }
+        }
     }
 }
 

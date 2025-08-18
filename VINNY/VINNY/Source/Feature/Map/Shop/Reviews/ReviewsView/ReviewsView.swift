@@ -64,7 +64,10 @@ struct ReviewsView: View {
             .padding(.vertical, 10)
             
             if !r.imageUrls.isEmpty {
-                let w = (UIScreen.main.bounds.width - 12 - 32) / 2
+                let ratio: CGFloat = 3.0/2.0
+
+                let w = (UIScreen.main.bounds.width - 32 - 12) / 2
+                let h = w / ratio
                 HStack(spacing: 12) {
                     ForEach(r.imageUrls.prefix(2), id: \.self) { s in
                         if let url = URL(string: s) {
@@ -73,14 +76,14 @@ struct ReviewsView: View {
                                 case .success(let img):
                                     img
                                         .resizable()
-                                        .aspectRatio(1.6, contentMode: .fill)
+                                        .scaledToFill()
                                 default:
                                     Image("emptyBigImage")
                                         .resizable()
-                                        .aspectRatio(1.6, contentMode: .fill)
+                                        .scaledToFill()
                                 }
                             }
-                            .frame(width: w, height: 104)
+                            .frame(width: w, height: h)                   
                             .clipped()
                             .clipShape(RoundedRectangle(cornerRadius: 8))
                         }

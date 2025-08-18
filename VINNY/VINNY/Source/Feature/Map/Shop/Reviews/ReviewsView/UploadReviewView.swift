@@ -10,10 +10,10 @@ import PhotosUI
 struct UploadReviewView: View {
     @EnvironmentObject var container: DIContainer
     
-    init(container: DIContainer) {
-        
-    }
+    let shopId: Int
+    
     @StateObject var viewModel = UploadReviewViewModel()
+    @State private var showError = false
     
     /// 이미지 업로드 관련 상태
     @State private var showPhotosPicker = false // 포토 피커(이미지 선택 창) 표시 여부
@@ -110,7 +110,7 @@ struct UploadReviewView: View {
                                     Button(action: {
                                         showPhotosPicker = true
                                     }) {
-                                        Image("emptyBigImage")
+                                        Image("imagePicker")
                                             .resizable()
                                             .frame(width: 80, height: 80)
                                             .clipShape(RoundedRectangle(cornerRadius: 12))
@@ -177,17 +177,43 @@ struct UploadReviewView: View {
                         
                         // MARK: - 하단 고정 버튼(업로드)
                         Button(action: {
-                            print("업로드")
+                            viewModel.upload(shopId: shopId) { created in
+                                if let created {
+                                    // 목록 갱신 알림
+                                    NotificationCenter.default.post(name: .didUploadReview, object: shopId)
+                                    container.navigationRouter.pop()
+                                } else {
+                                    showError = true
+                                }
+                            }
                         }) {
-                            Text("업로드")
-                                .font(.suit(.medium, size: 16))
-                                .foregroundStyle(Color.contentInverted)
-                                .frame(maxWidth: .infinity)
-                                .padding(16)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 12)
-                                        .foregroundStyle(Color.backFillInverted)
-                                )
+//                            Text("업로드")
+//                                .font(.suit(.medium, size: 16))
+//                                .foregroundStyle(Color.contentInverted)
+//                                .frame(maxWidth: .infinity)
+//                                .padding(16)
+//                                .background(
+//                                    RoundedRectangle(cornerRadius: 12)
+//                                        .foregroundStyle(Color.backFillInverted)
+//                                )
+                            HStack {
+                                if viewModel.isUploading { ProgressView() }
+                                Text(viewModel.isUploading ? "업로드 중..." : "업로드")
+                            }
+                            .font(.suit(.medium, size: 16))
+                            .frame(maxWidth: .infinity)
+                            .padding(16)
+                            .background(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .foregroundStyle(Color.backFillInverted)
+                            )
+                            .foregroundStyle(Color.contentInverted)
+                        }
+                        .disabled(!viewModel.canSubmit || viewModel.isUploading)
+                        .alert("업로드 실패", isPresented: $showError) {
+                            Button("확인", role: .cancel) { }
+                        } message: {
+                            Text(viewModel.uploadError ?? "네트워크 오류가 발생했어요.")
                         }
                         .padding(.horizontal, 16)
                         .padding(.vertical, 10)
@@ -202,8 +228,7 @@ struct UploadReviewView: View {
         }
     }
 }
-#Preview {
-    let container = DIContainer()
-    UploadReviewView(container: container)
-        .environmentObject(container)
+
+extension Notification.Name {
+    static let didUploadReview = Notification.Name("didUploadReview")
 }

@@ -180,7 +180,7 @@ struct ShopView: View {
             // 하단 버튼(기존 유지)
             HStack(spacing: 8) {
                 Button {
-                    container.navigationRouter.push(to: .UploadReviewView)
+                    container.navigationRouter.push(to: .UploadReviewView(shopId: shopId))
                 } label: {
                     Text("후기 작성")
                         .font(.suit(.medium, size: 16))
