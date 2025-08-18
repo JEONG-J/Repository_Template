@@ -47,7 +47,8 @@ struct ShopView: View {
                 ScrollView {
                     LazyVStack(spacing: 0) {
                         // 대표 이미지
-                        if let first = d.images?.first, !first.isEmpty {
+                        if let first = d.images?.first, !first.url.isEmpty,
+                           let url = URL(string: first.url) {
                             // 네 프로젝트에 RemoteImageView 있으면 교체
                             Image("emptyBigImage")
                                 .resizable()
