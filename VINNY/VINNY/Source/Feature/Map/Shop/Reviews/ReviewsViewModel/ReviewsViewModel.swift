@@ -12,10 +12,12 @@ import Moya
 final class ReviewsViewModel: ObservableObject {
     @Published var reviews: [ShopReview] = []
     @Published var isLoading = false
+    @Published var isDeleting = false
     @Published var errorMessage: String?
     
     private let provider = MoyaProvider<ShopsAPITarget>()
     
+    // 전체 목록 조회
     func load(shopId: Int) async {
         isLoading = true
         errorMessage = nil
@@ -50,6 +52,34 @@ final class ReviewsViewModel: ObservableObject {
                     self.errorMessage = error.localizedDescription
                 }
                 
+            case .failure(let err):
+                self.errorMessage = err.localizedDescription
+            }
+        }
+    }
+    
+    // 후기 삭제
+    func deleteReview(shopId: Int, reviewId: Int) async {
+        guard !isDeleting else { return }
+        isDeleting = true
+        errorMessage = nil
+        
+        provider.request(.deleteShopReview(shopId: shopId, reviewId: reviewId)) { [weak self] (result: Result<Response, MoyaError>) in
+            guard let self else { return }
+            self.isDeleting = false
+            
+            switch result {
+            case .success(let response):
+                guard (200...299).contains(response.statusCode) else {
+                    self.errorMessage = "HTTP \(response.statusCode)"
+                    #if DEBUG
+                    print("↳ body:", String(data: response.data, encoding: .utf8) ?? "no body")
+                    #endif
+                    return
+                }
+                self.reviews.removeAll { $0.reviewId == reviewId }
+                NotificationCenter.default.post(name: .didUploadReview, object: shopId)
+
             case .failure(let err):
                 self.errorMessage = err.localizedDescription
             }

@@ -9,6 +9,7 @@ import SwiftUI
 
 struct ReviewsView: View {
     @ObservedObject var viewModel: ReviewsViewModel
+    var onTapDelete: (ShopReview) -> Void = { _ in }
     
     var body: some View {
         Group {
@@ -44,6 +45,14 @@ struct ReviewsView: View {
                 }
                 
                 Spacer()
+                
+                Button(action: {
+                    onTapDelete(r)
+                }) {
+                    Image("close")
+                        .resizable()
+                        .frame(width: 16, height: 16)
+                }
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 10)
@@ -68,29 +77,53 @@ struct ReviewsView: View {
 
                 let w = (UIScreen.main.bounds.width - 32 - 12) / 2
                 let h = w / ratio
-                HStack(spacing: 12) {
-                    ForEach(r.imageUrls.prefix(2), id: \.self) { s in
-                        if let url = URL(string: s) {
-                            AsyncImage(url: url) { phase in
-                                switch phase {
-                                case .success(let img):
-                                    img
-                                        .resizable()
-                                        .scaledToFill()
-                                default:
-                                    Image("emptyBigImage")
-                                        .resizable()
-                                        .scaledToFill()
-                                }
+                if r.imageUrls.count == 1, let s = r.imageUrls.first, let url = URL(string: s) {
+                    HStack(spacing: 0) {
+                        AsyncImage(url: url) { phase in
+                            switch phase {
+                            case .success(let img):
+                                img
+                                    .resizable()
+                                    .scaledToFill()
+                            default:
+                                Image("emptyBigImage")
+                                    .resizable()
+                                    .scaledToFill()
                             }
-                            .frame(width: w, height: h)                   
-                            .clipped()
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                        }
+                        .frame(width: w, height: h)
+                        .clipped()
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        
+                        Spacer()
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 8)
+                } else {
+                    HStack(spacing: 12) {
+                        ForEach(r.imageUrls.prefix(2), id: \.self) { s in
+                            if let url = URL(string: s) {
+                                AsyncImage(url: url) { phase in
+                                    switch phase {
+                                    case .success(let img):
+                                        img
+                                            .resizable()
+                                            .scaledToFill()
+                                    default:
+                                        Image("emptyBigImage")
+                                            .resizable()
+                                            .scaledToFill()
+                                    }
+                                }
+                                .frame(width: w, height: h)
+                                .clipped()
+                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                            }
                         }
                     }
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 8)
                 }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 8)
             }
             
             Divider()
@@ -98,4 +131,6 @@ struct ReviewsView: View {
     }
 }
 
-
+#Preview {
+    ReviewsView(viewModel: ReviewsViewModel())
+}

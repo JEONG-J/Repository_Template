@@ -10,11 +10,11 @@ import SwiftData
 
 struct CustomTabView: View {
     let shopId: Int
+    @ObservedObject var reviewsVM: ReviewsViewModel 
+    var onTapDelete: (ShopReview) -> Void = { _ in }
     
     @State var selectedFilter: Int = 0
     let filters: [String] = ["사진", "후기"]
-    
-    @StateObject private var reviewsVM = ReviewsViewModel()
     
     var body: some View {
         VStack(spacing: 0) {
@@ -72,7 +72,7 @@ struct CustomTabView: View {
                 PhotosView()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
-                ReviewsView(viewModel: reviewsVM)
+                ReviewsView(viewModel: reviewsVM, onTapDelete: onTapDelete)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
@@ -87,6 +87,4 @@ struct CustomTabView: View {
     }
 }
 
-#Preview {
-    CustomTabView(shopId: 287)
-}
+
