@@ -12,6 +12,7 @@ enum ShopsAPITarget {
     
     //코스 상세정보 API
     case getShopReview(shopId: Int)//가게 후기 목록 조회
+    case postShopReview(shopId: Int) //가게 후기 작성
     case deleteShopReview(shopId: Int, reviewId: Int)//가게 후기 삭제
     case getshopDetail(shopId: Int)//가게 상세 조회
     
@@ -21,7 +22,11 @@ extension ShopsAPITarget: TargetType {
     
     
     var headers: [String : String]? {
-        return ["Content-Type": "application/json"]
+        var h = ["Content-Type": "application/json"]
+        if let token = KeychainHelper.shared.get(forKey: "accessToken"), !token.isEmpty {
+            h["Authorization"] = "Bearer \(token)"
+        }
+        return h
     }
     
     var baseURL: URL{
@@ -31,6 +36,8 @@ extension ShopsAPITarget: TargetType {
     var path: String {
         switch self {
         case .getShopReview(let shopId):
+            return "\(shopId)/reviews"
+        case .postShopReview(let shopId):
             return "\(shopId)/reviews"
         case .deleteShopReview(let shopId, let reviewId):
             return "\(shopId)/reviews/\(reviewId)"
@@ -43,6 +50,8 @@ extension ShopsAPITarget: TargetType {
         switch self {
         case .getShopReview, .getshopDetail:
             return .get
+        case .postShopReview:
+            return .post
         case .deleteShopReview:
             return .delete
 
@@ -51,8 +60,10 @@ extension ShopsAPITarget: TargetType {
     
     var task: Task {
         switch self {
-            case .getShopReview:
+        case .getShopReview:
              return .requestPlain
+        case .postShopReview:
+            return .requestPlain
         case .deleteShopReview:
             return .requestPlain
         case .getshopDetail:

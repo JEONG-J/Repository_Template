@@ -171,7 +171,7 @@ struct ShopView: View {
                         .padding(.vertical, 16)
                     }
                     
-                    CustomTabView()
+                    CustomTabView(shopId: shopId)
                 }
             } else if let err = errorMessage {
                 Text(err).foregroundStyle(.red).padding(.top, 24)

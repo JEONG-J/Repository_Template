@@ -8,29 +8,37 @@
 import SwiftUI
 
 struct ReviewsView: View {
-    private var userName: String = "유저 이름"
-    private var userInfo: String = "유저 소개 글"
-    private var timestamp: String = "1시간 전"
-    private var title: String = "제목"
-    private var content: String = "글 내용"
+    @ObservedObject var viewModel: ReviewsViewModel
     
     var body: some View {
-        VStack {
-            ReviewsCard(Name: userName, Info: userInfo, Timestamp: timestamp, Title: title, Content: content)
+        Group {
+            if viewModel.isLoading {
+                ProgressView().padding(.top, 24)
+            } else if let err = viewModel.errorMessage {
+                Text(err).foregroundStyle(.red).padding(.top, 24)
+            } else if viewModel.reviews.isEmpty {
+                EmptyView()
+            } else {
+                LazyVStack(spacing: 0) {
+                    ForEach(viewModel.reviews) { r in
+                        ReviewsCard(r)
+                    }
+                }
+            }
         }
     }
     
-    private func ReviewsCard(Name: String, Info: String, Timestamp: String, Title: String, Content: String) -> some View {
+    private func ReviewsCard(_ r: ShopReview) -> some View {
         VStack(spacing: 0) {
             HStack(spacing: 8) {
                 Image("emptyImage")
                     .resizable()
                     .frame(width: 40, height: 40)
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("\(Name)")
+                    Text(r.userName)
                         .font(.suit(.medium, size: 16))
                         .foregroundStyle(Color.contentBase)
-                    Text("\(Info)")
+                    Text(r.userName)
                         .font(.suit(.regular, size: 12))
                         .foregroundStyle(Color.contentAdditive)
                 }
@@ -41,13 +49,13 @@ struct ReviewsView: View {
             .padding(.vertical, 10)
             
             VStack (alignment: .leading, spacing: 2) {
-                Text("\(Timestamp)")
+                Text(r.elapsedTime)
                     .font(.suit(.regular, size: 12))
                     .foregroundStyle(Color.contentAssistive)
-                Text("\(Title)")
+                Text(r.title)
                     .font(.suit(.regular, size: 18))
                     .foregroundStyle(Color.contentBase)
-                Text("\(Content)")
+                Text(r.content)
                     .font(.suit(.regular, size: 14))
                     .foregroundStyle(Color.contentAdditive)
             }
@@ -55,29 +63,36 @@ struct ReviewsView: View {
             .padding(.horizontal, 20)
             .padding(.vertical, 10)
             
-            HStack(spacing: 12) {
-                Image("emptyBigImage")
-                    .resizable()
-                    .aspectRatio(1.6, contentMode: .fill)
-                    .frame(width: (UIScreen.main.bounds.width - 12 - 32) / 2, height: 104 )
-                    .clipped()
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                    
-                Image("emptyBigImage")
-                    .resizable()
-                    .aspectRatio(1.6, contentMode: .fill)
-                    .frame(width: (UIScreen.main.bounds.width - 12 - 32) / 2, height: 104 )
-                    .clipped()
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
+            if !r.imageUrls.isEmpty {
+                let w = (UIScreen.main.bounds.width - 12 - 32) / 2
+                HStack(spacing: 12) {
+                    ForEach(r.imageUrls.prefix(2), id: \.self) { s in
+                        if let url = URL(string: s) {
+                            AsyncImage(url: url) { phase in
+                                switch phase {
+                                case .success(let img):
+                                    img
+                                        .resizable()
+                                        .aspectRatio(1.6, contentMode: .fill)
+                                default:
+                                    Image("emptyBigImage")
+                                        .resizable()
+                                        .aspectRatio(1.6, contentMode: .fill)
+                                }
+                            }
+                            .frame(width: w, height: 104)
+                            .clipped()
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                        }
+                    }
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 8)
             
             Divider()
         }
     }
 }
 
-#Preview {
-    ReviewsView()
-}
+

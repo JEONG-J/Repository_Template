@@ -9,10 +9,12 @@ import SwiftUI
 import SwiftData
 
 struct CustomTabView: View {
+    let shopId: Int
+    
     @State var selectedFilter: Int = 0
     let filters: [String] = ["사진", "후기"]
-    private var isReview: Bool = false
-    private var reviewCount: Int = 59
+    
+    @StateObject private var reviewsVM = ReviewsViewModel()
     
     var body: some View {
         VStack(spacing: 0) {
@@ -32,7 +34,7 @@ struct CustomTabView: View {
                                         .font(selectedFilter == index ? .suit(.bold, size: 16) : .suit(.light, size: 16))
                                         .foregroundStyle(selectedFilter == index ? Color.contentBase : Color.contentDisabled)
                                     if filters[index] == "후기" {
-                                        Text("\(reviewCount)개")
+                                        Text("\(reviewsVM.reviews.count)개")
                                             .foregroundStyle(Color.contentAdditive)
                                             .font(.suit(.medium, size: 12))
                                             .padding(.horizontal, 6)
@@ -70,14 +72,17 @@ struct CustomTabView: View {
                 PhotosView()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
-                ReviewsView()
+                ReviewsView(viewModel: reviewsVM)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
         .background(Color.backFillStatic)
+        .task(id: shopId) {
+            await reviewsVM.load(shopId: shopId)
+        }
     }
 }
 
 #Preview {
-    CustomTabView()
+    CustomTabView(shopId: 287)
 }
