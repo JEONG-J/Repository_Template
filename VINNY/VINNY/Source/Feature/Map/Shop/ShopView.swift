@@ -98,58 +98,58 @@ struct ShopView: View {
                                 }
                                 Spacer()
                                 Button(action: {
-                                  Task {
-                                      do {
-                                         _ = try await ShopAPITarget.toggleShopLove(shopId: shopId, isLoved: isLoved)
-                                          isLoved.toggle()
-                                      } catch {
-                                          print("toggleFavorite failed:", error)
-                                      }
-                                  }
-                              }) {
-                                  Image(isLoved ? "likeFill" : "like")
-                                      .resizable()
-                                      .frame(width: 24, height: 24)
-                              }
-                        }
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 10)
-
-                        HStack(spacing: 2) {
-                            Image("instargram")
-                                .resizable()
-                                .frame(width: 16, height: 16)
-                            Text("인스타그램")
-                                .font(.system(size: 14))
-                                .foregroundStyle(Color.contentAssistive)
-                                .padding(.horizontal, 4)
-                                .frame(maxWidth: 82, alignment: .leading)
-                            Text(d.instagram ?? "-")
-                                .font(.system(size: 14))
-                                .foregroundStyle(Color.contentAdditive)
-                                .padding(.horizontal, 4)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                        }
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 10)
-                        
-                        HStack(spacing: 2) {
-                            Image("time")
-                                .resizable()
-                                .frame(width: 16, height: 16)
-                            Text("영업 시간")
-                                .font(.system(size: 14))
-                                .foregroundStyle(Color.contentAssistive)
-                                .padding(.horizontal, 4)
-                                .frame(maxWidth: 82, alignment: .leading)
-                            Text("\(d.openTime ?? "-") ~ \(d.closeTime ?? "-")")
-                                .font(.system(size: 14))
-                                .foregroundStyle(Color.contentAdditive)
-                                .padding(.horizontal, 4)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                        }
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 10)
+                                    Task {
+                                        do {
+                                            _ = try await ShopAPITarget.toggleShopLove(shopId: shopId, isLoved: isLoved)
+                                            isLoved.toggle()
+                                        } catch {
+                                            print("toggleFavorite failed:", error)
+                                        }
+                                    }
+                                }) {
+                                    Image(isLoved ? "likeFill" : "like")
+                                        .resizable()
+                                        .frame(width: 24, height: 24)
+                                }
+                            }
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 10)
+                            
+                            HStack(spacing: 2) {
+                                Image("instargram")
+                                    .resizable()
+                                    .frame(width: 16, height: 16)
+                                Text("인스타그램")
+                                    .font(.system(size: 14))
+                                    .foregroundStyle(Color.contentAssistive)
+                                    .padding(.horizontal, 4)
+                                    .frame(maxWidth: 82, alignment: .leading)
+                                Text(d.instagram ?? "-")
+                                    .font(.system(size: 14))
+                                    .foregroundStyle(Color.contentAdditive)
+                                    .padding(.horizontal, 4)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                            }
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 10)
+                            
+                            HStack(spacing: 2) {
+                                Image("time")
+                                    .resizable()
+                                    .frame(width: 16, height: 16)
+                                Text("영업 시간")
+                                    .font(.system(size: 14))
+                                    .foregroundStyle(Color.contentAssistive)
+                                    .padding(.horizontal, 4)
+                                    .frame(maxWidth: 82, alignment: .leading)
+                                Text("\(d.openTime ?? "-") ~ \(d.closeTime ?? "-")")
+                                    .font(.system(size: 14))
+                                    .foregroundStyle(Color.contentAdditive)
+                                    .padding(.horizontal, 4)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                            }
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 10)
                             
                             HStack {
                                 HStack(spacing: 4) {
@@ -190,28 +190,19 @@ struct ShopView: View {
                             .padding(.vertical, 16)
                         }
                         
-                        CustomTabView(shopId: shopId, reviewsVM: reviewsVM) { review in
+                        CustomTabView(
+                            shopId: shopId,
+                            reviewsVM: reviewsVM,
+                            photos: (d.images ?? []).filter { $0.main == false }.map { $0.url }
+                        ) { review in
                             reviewToDelete = review
                             showDeleteDialog = true
                         }
                     }
-            } else if let err = errorMessage {
-                Text(err).foregroundStyle(.red).padding(.top, 24)
-            }
-
-            // 하단 버튼(기존 유지)
-            HStack(spacing: 8) {
-                Button {
-                    container.navigationRouter.push(to: .UploadReviewView)
-                } label: {
-                    Text("후기 작성")
-                        .font(.suit(.medium, size: 16))
-                        .foregroundStyle(Color.contentBase)
-                        .frame(maxWidth: .infinity)
-                        .padding(16)
-                        .background(RoundedRectangle(cornerRadius: 8).foregroundStyle(Color.backFillRegular))
+                } else if let err = errorMessage {
+                    Text(err).foregroundStyle(.red).padding(.top, 24)
                 }
-                
+                    
                 // 하단 버튼(기존 유지)
                 HStack(spacing: 8) {
                     Button {
@@ -242,19 +233,19 @@ struct ShopView: View {
                 }
                 .padding(.vertical, 10)
                 .padding(.horizontal, 16)
+                .background(Color.backFillStatic)
+                .navigationBarBackButtonHidden()
+                // ✅ 여기서 로드 (ViewModel 없이)
+                .task(id: shopId) { await fetch() }
+                
+                if showDeleteDialog, let r = reviewToDelete {
+                    ReviewDeleteView(
+                        isShowing: $showDeleteDialog,
+                        shopId: shopId,
+                        reviewId: r.reviewId,
+                        reviewsVM: reviewsVM
+                    )            }
             }
-            .background(Color.backFillStatic)
-            .navigationBarBackButtonHidden()
-            // ✅ 여기서 로드 (ViewModel 없이)
-            .task(id: shopId) { await fetch() }
-            
-            if showDeleteDialog, let r = reviewToDelete {
-                ReviewDeleteView(
-                    isShowing: $showDeleteDialog,
-                    shopId: shopId,
-                    reviewId: r.reviewId,
-                    reviewsVM: reviewsVM          
-                )            }
         }
     }
 

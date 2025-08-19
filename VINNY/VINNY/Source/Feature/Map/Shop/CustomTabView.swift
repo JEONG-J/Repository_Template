@@ -15,8 +15,16 @@ struct CustomTabView: View {
 
     var photos: [String]
 
-    init(photos: [String] = []) {
+    init(
+        shopId: Int,
+        reviewsVM: ReviewsViewModel,
+        photos: [String] = [],
+        onTapDelete: @escaping (ShopReview) -> Void = { _ in }
+    ) {
+        self.shopId = shopId
+        self.reviewsVM = reviewsVM
         self.photos = photos
+        self.onTapDelete = onTapDelete
     }
     @State var selectedFilter: Int = 0
     let filters: [String] = ["사진", "후기"]
