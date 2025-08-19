@@ -245,11 +245,24 @@ struct PostEditView: View {
 
             ScrollView(.horizontal, showsIndicators: false) {
                 LazyHStack(spacing: 8) {
-                    ForEach(0..<viewModel.postImages.count, id: \.self) { index in
-                        Image(uiImage: viewModel.postImages[index])
-                            .resizable()
-                            .frame(width: 80, height: 80)
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                    ForEach(Array(viewModel.postImages.enumerated()), id: \.offset) { index, img in
+                        ImageThumb(index: index, image: img) { i in
+                            // 이미지 배열에서 제거
+                            if i < viewModel.postImages.count {
+                                viewModel.postImages.remove(at: i)
+                            }
+                            // PhotosPicker 선택 목록에서도 제거
+                            if i < selectedItems.count {
+                                selectedItems.remove(at: i)
+                            }
+                            // 현재 페이지 인덱스 보정
+                            let newCount = viewModel.postImages.count
+                            if newCount == 0 {
+                                viewModel.currentIndex = 0
+                            } else if viewModel.currentIndex >= newCount {
+                                viewModel.currentIndex = max(0, newCount - 1)
+                            }
+                        }
                     }
 
                     Button(action: {
@@ -267,15 +280,31 @@ struct PostEditView: View {
                     )
                     .onChange(of: selectedItems) { oldItems, newItems in
                         Task {
-                            viewModel.postImages = []
+                            var newlyLoaded: [UIImage] = []
                             for item in newItems {
                                 if let data = try? await item.loadTransferable(type: Data.self),
                                    let image = UIImage(data: data) {
-                                    viewModel.postImages.append(image)
+                                    newlyLoaded.append(image)
                                 }
                             }
                             await MainActor.run {
-                                viewModel.currentIndex = 0
+                                // 남은 수용량 계산(이미 있던 것 + 새것 <= 5)
+                                let remaining = max(0, 5 - viewModel.postImages.count)
+                                if remaining > 0 {
+                                    let slice = newlyLoaded.prefix(remaining)
+                                    viewModel.postImages.append(contentsOf: slice)
+                                }
+                                // 페이지 인덱스 보정
+                                if !viewModel.postImages.isEmpty {
+                                    viewModel.currentIndex = min(viewModel.currentIndex, viewModel.postImages.count - 1)
+                                } else {
+                                    viewModel.currentIndex = 0
+                                }
+
+                                // 선택 목록도 5장 제한에 맞춰 정리(선택지가 너무 많을 때 잘라냄)
+                                if selectedItems.count > 5 {
+                                    selectedItems = Array(selectedItems.prefix(5))
+                                }
                             }
                         }
                     }
