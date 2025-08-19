@@ -12,11 +12,11 @@ import Foundation
 
 enum AuthAPITarget {
     case login(dto: LoginRequestDTO)
+    case appleLogin(dto: AppleLoginRequestDTO)
     case reissueToken(dto: ReissueTokenRequestDTO)
     case fetchMe
     case session
     case logout
-    
 }
 
 extension AuthAPITarget: TargetType {
@@ -28,6 +28,8 @@ extension AuthAPITarget: TargetType {
         switch self {
         case .login:
             return "api/auth/login/kakao"
+        case .appleLogin:
+            return "api/auth/login/apple"
         case .reissueToken:
             return "api/auth/reissue"
         case .fetchMe:
@@ -41,7 +43,7 @@ extension AuthAPITarget: TargetType {
 
     var method: Moya.Method {
         switch self {
-        case .login, .reissueToken, .logout:
+        case .login, .appleLogin, .reissueToken, .logout:
             return .post
         case .session, .fetchMe:
             return .get
@@ -51,6 +53,8 @@ extension AuthAPITarget: TargetType {
     var task: Task {
         switch self {
         case .login(let dto):
+            return .requestJSONEncodable(dto)
+        case .appleLogin(let dto):
             return .requestJSONEncodable(dto)
         case .reissueToken(let dto):
             return .requestJSONEncodable(dto)
@@ -90,7 +94,7 @@ extension AuthAPITarget {
 extension AuthAPITarget: AccessTokenAuthorizable {
     var authorizationType: AuthorizationType? {
         switch self {
-        case .login, .reissueToken:
+        case .login, .appleLogin, .reissueToken:
             return .none
         case .fetchMe, .session, .logout:
             return .bearer

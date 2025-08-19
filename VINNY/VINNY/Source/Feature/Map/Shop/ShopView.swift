@@ -237,16 +237,17 @@ struct ShopView: View {
                 .navigationBarBackButtonHidden()
                 // ✅ 여기서 로드 (ViewModel 없이)
                 .task(id: shopId) { await fetch() }
-                
-                if showDeleteDialog, let r = reviewToDelete {
-                    ReviewDeleteView(
-                        isShowing: $showDeleteDialog,
-                        shopId: shopId,
-                        reviewId: r.reviewId,
-                        reviewsVM: reviewsVM
-                    )            }
+            }
+            if showDeleteDialog, let r = reviewToDelete {
+                ReviewDeleteView(
+                    isShowing: $showDeleteDialog,
+                    shopId: shopId,
+                    reviewId: r.reviewId,
+                    reviewsVM: reviewsVM
+                )
             }
         }
+        .background(Color.backFillStatic)
     }
 
     @MainActor
