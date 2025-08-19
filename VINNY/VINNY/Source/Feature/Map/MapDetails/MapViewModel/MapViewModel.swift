@@ -80,12 +80,12 @@ final class MapViewModel: ObservableObject {
                     let decoded = try JSONDecoder().decode(MapAllResponseDTO.self, from: response.data)
 
                     let markers = decoded.result.map { item in
-                        let styleName = item.vintageStyleList.first?.vintageStyleName
+                        let primaryName = item.mainVintageStyle?.vintageStyleName ?? item.vintageStyleList.first?.vintageStyleName
                         return Marker(
                             shopId: item.id,
                             coordinate: .init(latitude: item.latitude, longitude: item.longitude),
                             title: "Shop #\(item.id)",
-                            category: Category.fromAPI(styleName)
+                            category: Category.fromAPI(primaryName)
                         )
                     }
                     
@@ -149,12 +149,12 @@ final class MapViewModel: ObservableObject {
                         .result
 
                     let markers = saved.map { item in
-                        let firstStyleName = item.vintageStyleList.first?.vintageStyleName
+                        let primaryName = item.mainVintageStyle?.vintageStyleName ?? item.vintageStyleList.first?.vintageStyleName
                         return Marker(
                             shopId: item.id,
                             coordinate: .init(latitude: item.latitude, longitude: item.longitude),
                             title: "Shop #\(item.id)",
-                            category: Category.fromAPI(firstStyleName)
+                            category: Category.fromAPI(primaryName)
                         )
                     }
 

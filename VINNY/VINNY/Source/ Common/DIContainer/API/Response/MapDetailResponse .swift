@@ -12,6 +12,7 @@ struct ShopItem: Decodable {
     let latitude: Double
     let longitude: Double
     let vintageStyleList: [StyleItem]
+    let mainVintageStyle: StyleItem?
 }
 
 struct StyleItem: Decodable, Hashable {
