@@ -73,8 +73,8 @@ struct NavigationRoutingView: View {
         case .LastSignUpView:
             LastSignUpView(container: container)
                 .environmentObject(container)
-        case .UploadReviewView:
-            UploadReviewView(container: container)
+        case .UploadReviewView(let shopId):
+            UploadReviewView(shopId: shopId)
                 .environmentObject(container)
         case .ShopView(let id):
             ShopView(shopId: id)

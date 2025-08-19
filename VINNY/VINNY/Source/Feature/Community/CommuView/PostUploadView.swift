@@ -126,12 +126,25 @@ struct PostUploadView: View {
                         }
                         
                         ScrollView(.horizontal, showsIndicators: false) {
-                            LazyHStack(spacing: 8) {
-                                ForEach(0..<viewModel.postImages.count, id: \.self) { index in
-                                    Image(uiImage: viewModel.postImages[index])
-                                        .resizable()
-                                        .frame(width: 80, height: 80)
-                                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                            LazyHStack(spacing: 4) {
+                                ForEach(Array(viewModel.postImages.enumerated()), id: \.offset) { index, img in
+                                    ImageThumb(index: index, image: img) { i in
+                                        // 이미지 배열에서 제거
+                                        if i < viewModel.postImages.count {
+                                            viewModel.postImages.remove(at: i)
+                                        }
+                                        // PhotosPicker 선택 목록에서도 제거
+                                        if i < selectedItems.count {
+                                            selectedItems.remove(at: i)
+                                        }
+                                        // 현재 페이지 인덱스 보정
+                                        let newCount = viewModel.postImages.count
+                                        if newCount == 0 {
+                                            viewModel.currentIndex = 0
+                                        } else if viewModel.currentIndex >= newCount {
+                                            viewModel.currentIndex = max(0, newCount - 1)
+                                        }
+                                    }
                                 }
                                 
                                 /// 버튼 누를 시 이미지 선택 할 수 있도록
@@ -549,6 +562,31 @@ struct PostUploadView: View {
                     RoundedRectangle(cornerRadius: 4)
                         .foregroundStyle(Color.backFillRegular)
                 )
+            }
+        }
+    }
+}
+
+struct ImageThumb: View {
+    let index: Int
+    let image: UIImage
+    let onDelete: (Int) -> Void
+    
+    var body: some View {
+        ZStack(alignment: .topTrailing) {
+            Image(uiImage: image)
+                .resizable()
+                .aspectRatio(contentMode: .fill) 
+                .frame(width: 80, height: 80)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .padding(4)
+            
+            Button(action: {
+                onDelete(index)
+            }) {
+                Image("imageDelete")
+                    .resizable()
+                    .frame(width: 16, height: 16)
             }
         }
     }

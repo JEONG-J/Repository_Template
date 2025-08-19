@@ -12,3 +12,8 @@ struct ShopReviewRequest: Codable {
     let shopId: Int
     
 }
+
+struct ReviewCreateDTO: Codable {
+    let title: String
+    let content: String
+}
