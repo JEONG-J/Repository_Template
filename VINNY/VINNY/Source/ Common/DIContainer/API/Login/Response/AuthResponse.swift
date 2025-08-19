@@ -22,6 +22,14 @@ struct LoginResult: Decodable {
     let isNewUser: Bool
 }
 
+struct ApiEnvelope<T: Decodable>: Decodable {
+    let isSuccess: Bool
+    let code: String
+    let message: String
+    let result: T
+    let timestamp: String
+}
+
 struct ReissueTokenResponseDTO: Decodable {
     let grantType: String
     let accessToken: String

@@ -14,3 +14,9 @@ struct LoginRequestDTO: Encodable {
 struct ReissueTokenRequestDTO: Encodable {
     let refreshToken: String
 }
+
+struct AppleLoginRequestDTO: Encodable {
+    let authorizationCode: String
+    let identityToken: String
+    let platform: String = "ios"
+}

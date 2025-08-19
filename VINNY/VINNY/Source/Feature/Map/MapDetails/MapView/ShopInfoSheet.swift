@@ -20,6 +20,7 @@ struct ShopInfoSheet: View {
     var shopIG: String
     var shopTime: String
     var categories: [String]
+    var logoImageURL: URL? = nil
     var imageURL: URL? = nil
     
     var body: some View {
@@ -28,7 +29,7 @@ struct ShopInfoSheet: View {
                 HStack(spacing: 8) {
                     // NOTE: 이미지 로딩/실패/없음 모두 동일 프레임 유지
                     ZStack {
-                        if let url = imageURL {
+                        if let url = logoImageURL {
                             KFImage(url)
                                 .placeholder {
                                     // 로딩 중 동그란 스켈레톤
