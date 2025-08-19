@@ -16,7 +16,7 @@ struct ShopView: View {
     @State private var isLoading = false
     @State private var errorMessage: String?
     @State private var detail: ShopDetailDTO?   // 옵셔널 상태로 보관
-    @State private var isLoved: Bool = false     // ← 
+    @State private var isLoved: Bool = false     // ←ㅈ
 
     @State private var showDeleteDialog = false
     @State private var reviewToDelete: ShopReview?
@@ -112,11 +112,52 @@ struct ShopView: View {
                                         .frame(width: 24, height: 24)
                                 }
                             }
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 10)
-                            
-                            HStack(spacing: 2) {
-                                Image("instargram")
+                            .onAppear {
+                                isLoved = d.saved      // ★여기 추가!
+                            }
+                        }
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 10)
+
+                        HStack(spacing: 2) {
+                            Image("instargram")
+                                .resizable()
+                                .frame(width: 16, height: 16)
+                            Text("인스타그램")
+                                .font(.system(size: 14))
+                                .foregroundStyle(Color.contentAssistive)
+                                .padding(.horizontal, 4)
+                                .frame(maxWidth: 82, alignment: .leading)
+                            Text(d.instagram ?? "-")
+                                .font(.system(size: 14))
+                                .foregroundStyle(Color.contentAdditive)
+                                .padding(.horizontal, 4)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                        }
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 10)
+                        
+                        HStack(spacing: 2) {
+                            Image("time")
+                                .resizable()
+                                .frame(width: 16, height: 16)
+                            Text("영업 시간")
+                                .font(.system(size: 14))
+                                .foregroundStyle(Color.contentAssistive)
+                                .padding(.horizontal, 4)
+                                .frame(maxWidth: 82, alignment: .leading)
+                            Text("\(d.openTime ?? "-") ~ \(d.closeTime ?? "-")")
+                                .font(.system(size: 14))
+                                .foregroundStyle(Color.contentAdditive)
+                                .padding(.horizontal, 4)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                        }
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 10)
+                        
+                        HStack {
+                            HStack(spacing: 4) {
+                                Image("mapPin")
                                     .resizable()
                                     .frame(width: 16, height: 16)
                                 Text("인스타그램")
@@ -255,8 +296,9 @@ struct ShopView: View {
         errorMessage = nil
         defer { isLoading = false }
         do {
-            let d = try await ShopAPITarget.getDetail(shopId: shopId)
-            detail = d
+            let response = try await ShopAPITarget.getDetail(shopId: shopId)
+            detail = response
+            isLoved = response.saved
         } catch {
             errorMessage = error.localizedDescription
         }
