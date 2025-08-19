@@ -709,3 +709,27 @@ private extension PostUploadView {
 
 
 
+struct ImageThumb: View {
+    let index: Int
+    let image: UIImage
+    let onDelete: (Int) -> Void
+    
+    var body: some View {
+        ZStack(alignment: .topTrailing) {
+            Image(uiImage: image)
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .frame(width: 80, height: 80)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .padding(4)
+            
+            Button(action: {
+                onDelete(index)
+            }) {
+                Image("imageDelete")
+                    .resizable()
+                    .frame(width: 16, height: 16)
+            }
+        }
+    }
+}
