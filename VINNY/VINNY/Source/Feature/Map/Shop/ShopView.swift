@@ -60,14 +60,16 @@ struct ShopView: View {
                                     Image("emptyBigImage").resizable()
                                 }
                                 .aspectRatio(1, contentMode: .fit)
+                                .clipped()
+                                .clipShape(RoundedRectangle(cornerRadius: 12))
                                 .padding(.horizontal, 16)
-                                .padding(.vertical, 8)
+                                .padding(.vertical, 16)
                             } else {
                                 Image("emptyBigImage")
                                     .resizable()
                                     .aspectRatio(1, contentMode: .fit)
                                     .padding(.horizontal, 16)
-                                    .padding(.vertical, 8)
+                                    .padding(.vertical, 16)
                             }
                             
                             HStack(spacing: 8) {
@@ -115,49 +117,11 @@ struct ShopView: View {
                             .onAppear {
                                 isLoved = d.saved      // ★여기 추가!
                             }
-                        }
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 10)
-
-                        HStack(spacing: 2) {
-                            Image("instargram")
-                                .resizable()
-                                .frame(width: 16, height: 16)
-                            Text("인스타그램")
-                                .font(.system(size: 14))
-                                .foregroundStyle(Color.contentAssistive)
-                                .padding(.horizontal, 4)
-                                .frame(maxWidth: 82, alignment: .leading)
-                            Text(d.instagram ?? "-")
-                                .font(.system(size: 14))
-                                .foregroundStyle(Color.contentAdditive)
-                                .padding(.horizontal, 4)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                        }
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 10)
-                        
-                        HStack(spacing: 2) {
-                            Image("time")
-                                .resizable()
-                                .frame(width: 16, height: 16)
-                            Text("영업 시간")
-                                .font(.system(size: 14))
-                                .foregroundStyle(Color.contentAssistive)
-                                .padding(.horizontal, 4)
-                                .frame(maxWidth: 82, alignment: .leading)
-                            Text("\(d.openTime ?? "-") ~ \(d.closeTime ?? "-")")
-                                .font(.system(size: 14))
-                                .foregroundStyle(Color.contentAdditive)
-                                .padding(.horizontal, 4)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                        }
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 10)
-                        
-                        HStack {
-                            HStack(spacing: 4) {
-                                Image("mapPin")
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 10)
+                            
+                            HStack(spacing: 2) {
+                                Image("instargram")
                                     .resizable()
                                     .frame(width: 16, height: 16)
                                 Text("인스타그램")
@@ -172,8 +136,8 @@ struct ShopView: View {
                                     .frame(maxWidth: .infinity, alignment: .leading)
                             }
                             .padding(.horizontal, 16)
-                            .padding(.vertical, 10)
-                            
+                            .padding(.vertical, 4)
+                                
                             HStack(spacing: 2) {
                                 Image("time")
                                     .resizable()
@@ -190,7 +154,7 @@ struct ShopView: View {
                                     .frame(maxWidth: .infinity, alignment: .leading)
                             }
                             .padding(.horizontal, 16)
-                            .padding(.vertical, 10)
+                            .padding(.vertical, 4)
                             
                             HStack {
                                 HStack(spacing: 4) {
@@ -229,8 +193,9 @@ struct ShopView: View {
                             }
                             .padding(.horizontal, 20)
                             .padding(.vertical, 16)
-                        }
                         
+                        }
+                    
                         CustomTabView(
                             shopId: shopId,
                             reviewsVM: reviewsVM,
