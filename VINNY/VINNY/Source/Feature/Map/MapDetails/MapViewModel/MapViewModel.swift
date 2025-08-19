@@ -143,31 +143,37 @@ final class MapViewModel: ObservableObject {
                     return
                 }
                 do {
-                    let saved = try JSONDecoder().decode(
-                        MapEnvelope<[GetSavedShopDTO]>.self,
-                        from: response.data
-                    ).result
-                    
+                    // 서버 스펙: envelope 안에 [GetSavedShopDTO]
+                    let saved = try JSONDecoder()
+                        .decode(MapEnvelope<[GetSavedShopDTO]>.self, from: response.data)
+                        .result
+
                     let markers = saved.map { item in
-                        Marker(
+                        let firstStyleName = item.vintageStyleList.first?.vintageStyleName
+                        return Marker(
                             shopId: item.id,
                             coordinate: .init(latitude: item.latitude, longitude: item.longitude),
                             title: "Shop #\(item.id)",
-                            category: Category.fromAPI(item.style.first)
+                            category: Category.fromAPI(firstStyleName)
                         )
                     }
+
                     DispatchQueue.main.async {
                         self.makers = markers
                     }
                 } catch {
                     print("❌ Decode favorites error:", error)
                     print("↳ raw:", String(data: response.data, encoding: .utf8) ?? "binary")
+                    // 실패 시 전부 즐겨찾기로 보이지 않도록 기존 makers 유지 or 비우는 쪽 택1
+                    // self.makers = []
                 }
+
             case .failure(let err):
                 print("❌ API error (favorites):", err)
             }
         }
     }
+
     
     // ★ 버튼 토글 시 호출
     func toggleFavorites() {

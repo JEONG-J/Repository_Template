@@ -13,16 +13,20 @@ struct ShopItem: Decodable {
     let longitude: Double
     let vintageStyleList: [StyleItem]
 }
-struct StyleItem: Decodable {
+
+struct StyleItem: Decodable, Hashable {
     let id: Int
     let vintageStyleName: String
 }
 
-struct GetSavedShopDTO: Codable {
+struct GetSavedShopDTO: Decodable {
     let id: Int
     let latitude: Double
     let longitude: Double
-    let style: [String]
+    let vintageStyleList: [VintageStyleDTO]
+    let mainVintageStyle: VintageStyleDTO?
+    
+    var style: [String] { vintageStyleList.map(\.vintageStyleName) }
 }
 
 struct GetShopOnMapDTO: Decodable {

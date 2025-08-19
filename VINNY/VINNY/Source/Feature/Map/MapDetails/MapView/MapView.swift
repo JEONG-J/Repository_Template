@@ -143,6 +143,17 @@ struct MapView: View {
             MapTopView()
         }
         // MARK: Lifecycle
+        .onAppear {
+            if viewModel.showingFavorites {
+                viewModel.showingFavorites = false
+            }
+            viewModel.fetchShops()
+        }
+        .onDisappear {
+            viewModel.showingFavorites = false
+            viewModel.selectedMarker = nil
+            viewModel.selectedShopDetail = nil
+        }
         .task {
             // 최초 1회 카메라 이동
             if !viewModel.hasSetInitialRegion,
@@ -154,7 +165,7 @@ struct MapView: View {
             viewModel.fetchShops()
         }
         // 위치 바뀔 때 최초 1회 자동 이동 (중복 방지)
-        .onChange(of: locationManager.currentLocation) { newLocation in
+        .onChange(of: locationManager.currentLocation) { oldLocation, newLocation in
             guard !viewModel.hasSetInitialRegion, let location = newLocation else { return }
             viewModel.updateFromLocation(location)
             viewModel.hasSetInitialRegion = true
