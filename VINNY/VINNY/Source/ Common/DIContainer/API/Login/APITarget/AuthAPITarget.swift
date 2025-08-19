@@ -63,16 +63,28 @@ extension AuthAPITarget: TargetType {
         }
     }
 
-    var headers: [String : String]? {
-            return [
-                "Content-Type": "application/json",
-                "Accept": "*/*",
-                "Accept-Language": "ko-KR,ko;q=0.9"
-            ]
+    var headers: [String: String]? {
+        var h: [String: String] = [
+            "Accept": "application/json",
+            "Accept-Language": "ko-KR,ko;q=0.9"
+        ]
+        if let token = KeychainHelper.shared.get(forKey: "accessToken"), !token.isEmpty {
+            h["Authorization"] = "Bearer \(token)"
         }
-
+        h["Content-Type"] = "application/json"
+        return h
+    }
     var sampleData: Data {
         return Data()
+    }
+}
+private let authProvider = MoyaProvider<AuthAPITarget>(plugins: [NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
+
+extension AuthAPITarget {
+    @discardableResult
+    static func performLogout() async throws -> Int {
+        let res = try await authProvider.request(.logout)
+        return res.statusCode
     }
 }
 extension AuthAPITarget: AccessTokenAuthorizable {

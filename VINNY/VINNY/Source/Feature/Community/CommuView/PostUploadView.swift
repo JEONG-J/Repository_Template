@@ -35,7 +35,9 @@ struct PostUploadView: View {
     ]
     @State private var selectedStyles: Set<String> = []
     @State private var brandInput: String = "" // 브랜드 태그 입력창
+    @State private var brandSuggestions: [String] = []
     @State private var shopInput: String = "" // 샵 태그 입력창
+    @State private var shopSuggestions: [String] = []
     
     @FocusState private var focusedField: Field?
     private enum Field { case title, content, brand, shop }
@@ -301,6 +303,15 @@ struct PostUploadView: View {
                                         viewModel.brands.append(trimmed)
                                     }
                                     brandInput = ""
+                                    brandSuggestions = []
+                                } else {
+                                    Task {
+                                        do {
+                                            brandSuggestions = try await AutoCompleteAPITarget.fetchBrandAutoComplete(keyword: newValue)
+                                        } catch {
+                                            brandSuggestions = []
+                                        }
+                                    }
                                 }
                             }
                         
@@ -309,7 +320,7 @@ struct PostUploadView: View {
                             .foregroundStyle(Color.contentBase)
                             .padding(.top, 10)
                             .padding(.bottom, 6)
-                        
+
                         HStack(spacing: 8) {
                             ForEach(viewModel.brands, id: \.self) { tag in
                                 BrandTagComponent(tag: tag) {
@@ -318,6 +329,26 @@ struct PostUploadView: View {
                             }
                         }
                         .padding(.vertical, 10)
+
+                        if brandSuggestions.count > 0 {
+                            VStack(alignment: .leading, spacing: 4) {
+                                ForEach(brandSuggestions, id: \.self) { suggestion in
+                                    Button(action: {
+                                        if !viewModel.brands.contains(suggestion),
+                                           viewModel.brands.count < 3 {
+                                            viewModel.brands.append(suggestion)
+                                        }
+                                        brandInput = ""
+                                        brandSuggestions = []
+                                    }) {
+                                        Text(suggestion)
+                                            .foregroundColor(.contentBase)
+                                            .padding(.vertical, 4)
+                                    }
+                                }
+                            }
+                            .padding(.vertical, 4)
+                        }
                     }
                     .padding(.horizontal, 16)
                     
@@ -351,7 +382,16 @@ struct PostUploadView: View {
                                     if !trimmed.isEmpty {
                                         viewModel.shoptag = trimmed
                                     }
-                                    shopInput = "" // 초기화
+                                    shopInput = ""
+                                    shopSuggestions = []
+                                } else {
+                                    Task {
+                                        do {
+                                            shopSuggestions = try await AutoCompleteAPITarget.fetchShopAutoComplete(keyword: newValue)
+                                        } catch {
+                                            shopSuggestions = []
+                                        }
+                                    }
                                 }
                             }
                         
@@ -360,10 +400,27 @@ struct PostUploadView: View {
                             .foregroundStyle(Color.contentBase)
                             .padding(.top, 10)
                             .padding(.bottom, 6)
-                        
+
                         if let tag = viewModel.shoptag {
                             ShopTagComponent(tag: tag)
                                 .padding(.vertical, 10)
+                        }
+
+                        if shopSuggestions.count > 0 {
+                            VStack(alignment: .leading, spacing: 4) {
+                                ForEach(shopSuggestions, id: \.self) { suggestion in
+                                    Button(action: {
+                                        viewModel.shoptag = suggestion
+                                        shopInput = ""
+                                        shopSuggestions = []
+                                    }) {
+                                        Text(suggestion)
+                                            .foregroundColor(.contentBase)
+                                            .padding(.vertical, 4)
+                                    }
+                                }
+                            }
+                            .padding(.vertical, 4)
                         }
                     }
                     .padding(.horizontal, 16)

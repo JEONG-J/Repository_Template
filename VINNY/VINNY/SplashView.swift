@@ -54,40 +54,23 @@ final class SplashViewModel: ObservableObject {
         do {
             let first = try await callSession()
             if first.result.needRefresh {
-                let refreshed = await TokenManager.shared.refreshToken()
-                if refreshed {
-                    // 재발급 후 다시 세션 확인
-                    do {
-                        let second = try await callSession()
-                        return normalizedStatus(from: second.result.status)
-                    } catch {
-                        // 세션 재확인 실패해도 토큰 갱신이 됐다면 홈으로 진입
-                        return "HOME"
-                    }
-                } else {
-                    // 재발급 실패 → 로그인 필요
+                // 1) 토큰 재발급 시도
+                guard await TokenManager.shared.refreshToken(),
+                      let second = try? await callSession() else {
                     return "LOGIN"
                 }
+                // 2) 재발급 성공 & 세션 성공 → 홈 상태 반환
+                return normalizedStatus(from: second.result.status)
             } else {
-                // needRefresh가 아니더라도 서버 status를 홈 기준으로 정규화
                 return normalizedStatus(from: first.result.status)
             }
         } catch {
-            // 첫 세션이 401이면: refresh 시도 후 재호출
-            if isUnauthorized(error) {
-                let refreshed = await TokenManager.shared.refreshToken()
-                if refreshed {
-                    do {
-                        let second = try await callSession()
-                        return normalizedStatus(from: second.result.status)
-                    } catch {
-                        return "LOGIN"
-                    }
-                } else {
-                    return "LOGIN"
-                }
+            // 첫 시도가 401 → 리프레시 → 다시 session → 성공해야 홈
+            if isUnauthorized(error),
+               await TokenManager.shared.refreshToken(),
+               let second = try? await callSession() {
+                return normalizedStatus(from: second.result.status)
             }
-            // 그 외 네트워크/서버 에러면 일단 로그인으로 진입(스플래시에서 막히지 않도록)
             return "LOGIN"
         }
     }
@@ -135,4 +118,3 @@ final class SplashViewModel: ObservableObject {
         }
     }
 }
-

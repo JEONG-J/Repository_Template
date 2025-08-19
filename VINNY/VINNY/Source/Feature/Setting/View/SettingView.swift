@@ -153,7 +153,7 @@ struct SettingView: View {
                 Task { @MainActor in
                     // 1) 서버 로그아웃
                     do {
-                        _ = try await container.useCaseProvider.authUseCase.request(.logout)
+                        _ = try await AuthAPITarget.performLogout()
                     } catch {
                         print("[Logout] API failed: \(error)")
                     }
@@ -164,7 +164,9 @@ struct SettingView: View {
                     showLogoutAlert = false
                     // 루트로 돌아간 뒤 LoginView로 이동
                     container.navigationRouter.popToRoot()
-                    container.navigationRouter.push(to: .LoginView)
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        container.navigationRouter.push(to: .LoginView)
+                    }
                     print("[Logout] navigated to LoginView via popToRoot + push")
                     isProcessingLogout = false
                 }

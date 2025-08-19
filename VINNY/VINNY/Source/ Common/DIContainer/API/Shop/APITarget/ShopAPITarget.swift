@@ -7,13 +7,16 @@
 
 
 // ShopAPITarget.swift
-// ShopAPITarget.swift  ✅ 신규
+// ShopAPITarget.swift
 import Foundation
 import Moya
 
 enum ShopAPITarget {
     case getDetail(id: Int)
     case ranking(page: Int, size: Int, region: [String]?, style: [String]?)
+    case forYou(limit: Int)
+    case shopLove(shopId: Int)
+    case shopUnLove(shopId: Int)
 }
 
 extension ShopAPITarget: TargetType {
@@ -24,6 +27,12 @@ extension ShopAPITarget: TargetType {
             return "/api/shop/\(id)"           // Swagger: GET /api/shop/{shopId}
         case .ranking:
             return "/api/shops/ranking"
+        case .forYou:
+            return "/api/home/shops/for-you"
+        case .shopLove(let shopId):
+            return "/api/shops/\(shopId)/favorite"
+        case .shopUnLove(let shopId):
+            return "/api/shops/\(shopId)/favorite"
         }
     }
     var method: Moya.Method {
@@ -32,6 +41,12 @@ extension ShopAPITarget: TargetType {
             return .get
         case .ranking:
             return .get
+        case .forYou:
+            return .get
+        case .shopLove:
+            return .post
+        case .shopUnLove:
+            return .patch
         }
     }
     var task: Task {
@@ -43,6 +58,12 @@ extension ShopAPITarget: TargetType {
             if let region, !region.isEmpty { params["region"] = region.joined(separator: ",") }
             if let style, !style.isEmpty { params["style"] = style.joined(separator: ",") }
             return .requestParameters(parameters: params, encoding: URLEncoding.default)
+        case .forYou(let limit):
+            return .requestParameters(parameters: ["limit": limit], encoding: URLEncoding.queryString)
+        case .shopLove:
+            return .requestPlain
+        case .shopUnLove:
+            return .requestPlain
         }
     }
     var headers: [String : String]? {
@@ -79,6 +100,12 @@ extension ShopAPITarget: TargetType {
             }
             """
             return Data(json.utf8)
+        case .forYou:
+            return Data()
+        case .shopLove:
+            return Data()
+        case .shopUnLove:
+            return Data()
         }
     }
 }
@@ -124,5 +151,25 @@ extension ShopAPITarget {
         )
         let decoded = try JSONDecoder().decode(ShopByRankingResponseDTO.self, from: res.data)
         return decoded.result
+    }
+    static func getForYou(limit: Int = 10) async throws -> [ShopForYouResponseDTO] {
+        let res = try await shopProvider.asyncRequest(.forYou(limit: limit))
+        return try JSONDecoder().decode([ShopForYouResponseDTO].self, from: res.data)
+    }
+}
+
+
+extension ShopAPITarget {
+    @discardableResult
+    static func postShopLove(shopId: Int) async throws -> Int {
+        let res = try await shopProvider.asyncRequest(.shopLove(shopId: shopId))
+        return res.statusCode
+    }
+
+    @discardableResult
+    static func toggleShopLove(shopId: Int, isLoved: Bool) async throws -> Int {
+        let target: ShopAPITarget = isLoved ? .shopUnLove(shopId: shopId) : .shopLove(shopId: shopId)
+        let res = try await shopProvider.asyncRequest(target)
+        return res.statusCode
     }
 }

@@ -13,43 +13,33 @@ let columns = [
 ]
 
 struct PhotosView: View {
-    @StateObject private var viewModel: PhotosViewModel
-    
-    init() {
-        _viewModel = StateObject(wrappedValue: PhotosViewModel(mock: true))
-    }
+    let urls: [String]
     
     var body: some View {
-        ScrollView {
-            LazyVGrid(columns: columns, spacing: 8) {
-                ForEach(viewModel.posts, id: \.id) { post in
-                    VStack {
-                        AsyncImage(url: URL(string: post.imageUrl.first ?? "")) { image in
-                            image
-                                .resizable()
-                                .aspectRatio(1.6, contentMode: .fill)
-                                .clipped()
-                                .clipShape(RoundedRectangle(cornerRadius: 8))
-                        } placeholder: {
-                            Rectangle()
-                                .fill(Color.gray.opacity(0.2))
-                                .aspectRatio(1.6, contentMode: .fit)
-                                .clipShape(RoundedRectangle(cornerRadius: 8))
-                        }
-                    }
-                    .task {
-                        if post.id == viewModel.posts.last?.id {
-                            viewModel.fetchPosts()
-                        }
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                ForEach(urls, id: \.self) { url in
+                    AsyncImage(url: URL(string: url)) { image in
+                        image
+                            .resizable()
+                            .aspectRatio(1, contentMode: .fill)
+                            .frame(width: 100, height: 100)
+                            .clipped()
+                            .cornerRadius(8)
+                    } placeholder: {
+                        Rectangle()
+                            .fill(Color.gray.opacity(0.2))
+                            .frame(width: 100, height: 100)
+                            .cornerRadius(8)
                     }
                 }
             }
             .padding(.horizontal, 16)
-            .padding(.top, 16)
+            .padding(.vertical, 16)
         }
     }
 }
 
 #Preview {
-    PhotosView()
+    PhotosView(urls: [])
 }
