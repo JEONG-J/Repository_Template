@@ -15,7 +15,7 @@ struct ShopView: View {
     @State private var isLoading = false
     @State private var errorMessage: String?
     @State private var detail: ShopDetailDTO?   // 옵셔널 상태로 보관
-    @State private var isLoved: Bool = false     // ← 
+    @State private var isLoved: Bool = false     // ←ㅈ
 
     private var coords: (lat: Double, lng: Double)? {
         guard let d = detail, let lat = d.latitude, let lng = d.longitude else { return nil }
@@ -105,6 +105,9 @@ struct ShopView: View {
                                 Image(isLoved ? "likeFill" : "like")
                                     .resizable()
                                     .frame(width: 24, height: 24)
+                            }
+                            .onAppear {
+                                isLoved = d.saved      // ★여기 추가!
                             }
                         }
                         .padding(.horizontal, 16)
@@ -234,8 +237,9 @@ struct ShopView: View {
         errorMessage = nil
         defer { isLoading = false }
         do {
-            let d = try await ShopAPITarget.getDetail(shopId: shopId)
-            detail = d
+            let response = try await ShopAPITarget.getDetail(shopId: shopId)
+            detail = response
+            isLoved = response.saved
         } catch {
             errorMessage = error.localizedDescription
         }

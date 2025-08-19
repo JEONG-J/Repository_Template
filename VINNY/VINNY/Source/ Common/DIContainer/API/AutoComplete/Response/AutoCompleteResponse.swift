@@ -7,11 +7,19 @@
 
 import Foundation
 
+//샵검색
+
+struct AutoCompleteShopDTO: Decodable {
+    let name: String
+    let imageUrl: String
+    let address: String
+}
+
 struct AutoCompleteShopsResponseDTO: Decodable {
     let isSuccess: Bool
     let code: String
     let message: String
-    let result: [String]
+    let result: [AutoCompleteShopDTO]
     let timestamp: String
 }
 
@@ -20,6 +28,11 @@ struct AutoCompleteBrandsResponseDTO: Decodable {
     let isSuccess: Bool
     let code: String
     let message: String
-    let result: [String]
+    let result: [AutoCompleteBrandDTO]
     let timestamp: String
+}
+
+struct AutoCompleteBrandDTO: Decodable {
+    let keyword :String
+    let imageUrl: String
 }

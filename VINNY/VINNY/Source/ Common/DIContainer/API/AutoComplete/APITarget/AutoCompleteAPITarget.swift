@@ -54,14 +54,14 @@ extension AutoCompleteAPITarget: TargetType {
 private let autoProvider = MoyaProvider<AutoCompleteAPITarget>(plugins: [NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
 
 extension AutoCompleteAPITarget {
-    static func fetchShopAutoComplete(keyword: String) async throws -> [String] {
+    static func fetchShopAutoComplete(keyword: String) async throws -> [AutoCompleteShopDTO] {
         let res = try await autoProvider.request(.shops(keyword: keyword))
         let decoded = try JSONDecoder().decode(AutoCompleteShopsResponseDTO.self, from: res.data)
         return decoded.result
     }
-    static func fetchBrandAutoComplete(keyword: String) async throws -> [String] {
+    static func fetchBrandAutoComplete(keyword: String) async throws -> [AutoCompleteBrandDTO] {
         let res = try await autoProvider.request(.brands(keyword: keyword))
-        let decoded = try JSONDecoder().decode(AutoCompleteShopsResponseDTO.self, from: res.data)
+        let decoded = try JSONDecoder().decode(AutoCompleteBrandsResponseDTO.self, from: res.data)
         return decoded.result
     }
 }

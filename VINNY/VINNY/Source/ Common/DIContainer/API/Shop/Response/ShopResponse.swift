@@ -84,11 +84,24 @@ struct ShopDetailDTO: Decodable {
     let latitude: Double?
     let longitude: Double?
     let region: String?
-    let images: [ShopImageDTO]?
     let logoImage: String
+    let saved: Bool
+    
+    let images: [ShopImageDTO]?
+    
     let shopVintageStyleList: [VintageStyleDTO]?
 }
-
+struct ShopDetailReviewDTO: Decodable {
+    let reviewId: Int
+    let userProfileImage: String
+    let userComment: String
+    let title: String
+    let content: String
+    let userName: String
+    let elapsedTime: String
+    let imageUrls: [String]
+    let myPost: Bool
+}
 struct VintageStyleDTO: Decodable, Hashable {
     let id: Int
     let vintageStyleName: String
