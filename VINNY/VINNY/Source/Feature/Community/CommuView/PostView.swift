@@ -180,8 +180,8 @@ struct PostView: View {
             ForEach(d.styles, id: \.self) { st in
                 TagComponent(tag: "#\(st.styleName)")
             }
-            if let brand = d.brand {
-                TagComponent(tag: "#\(brand.brandName)")
+            ForEach(d.brands, id: \.self) { br in
+                TagComponent(tag: "#\(br.brandName)")
             }
         }
         .padding(.horizontal, 16)

@@ -689,9 +689,9 @@ private extension PostUploadView {
             let dto = CreatePostRequestDTO(
                 title: trimmedTitle,
                 content: trimmedContent,
-                shopId: nil, // TODO: Map shoptag to ID
-                styleId: nil, // TODO: Map selectedStyles to IDs
-                brandId: nil // TODO: Map brands to IDs
+                brandNames: brands.map { $0.name },
+                styleNames: Array(selectedStyles),
+                shopName: taggedShop?.name ?? ""
             )
 
             do {
