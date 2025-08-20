@@ -90,19 +90,13 @@ struct PostDetailDTO: Decodable, Hashable {
     let bookmarkedByMe: Bool
     let shop: PostShopMiniDTO?
     let styles: [PostStyleMiniDTO]
-    let brand: PostBrandMiniDTO?
+    let brands: [PostBrandMiniDTO]
     let likedByMe: Bool
 }
 
 
 // MARK: - POST /api/post (Create)
-struct CreatePostRequestDTO: Encodable {
-    let title: String
-    let content: String
-    let shopId: Int?
-    let styleId: Int?
-    let brandId: Int?
-}
+
 
 struct CreatePostResponseDTO: Decodable {
     let isSuccess: Bool

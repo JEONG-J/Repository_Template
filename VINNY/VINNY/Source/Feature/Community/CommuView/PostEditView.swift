@@ -82,8 +82,6 @@ struct PostEditView: View {
                     do {
                         let targetId = postId ?? container.editingPostId
                         if let id = targetId {
-                            print("[PostEdit] Update mode — id: \(id)")
-                            // UPDATE (PUT /api/post/{postId})
                             let body = UpdatePostRequestDTO(
                                 title: trimmedTitle,
                                 content: trimmedContent,
@@ -93,20 +91,6 @@ struct PostEditView: View {
                             )
                             _ = try await PostAPITarget.submitPostUpdate(postId: id, body: body)
                             print("[PostEdit] Update success — pop")
-                        } else {
-                            print("[PostEdit] Create mode — no id")
-                            // CREATE (POST /api/post)
-                            let dto = CreatePostRequestDTO(
-                                title: trimmedTitle,
-                                content: trimmedContent,
-                                shopId: nil,
-                                styleId: nil,
-                                brandId: nil
-                            )
-                            let imageDatas: [Data] = viewModel.postImages.compactMap { $0.jpegData(compressionQuality: 0.85) }
-                            print("[PostEdit] Preparing request — title: \(trimmedTitle), images: \(imageDatas.count)")
-                            _ = try await PostAPITarget.submitPost(dto: dto, images: imageDatas)
-                            print("[PostEdit] Create success — pop")
                         }
                         container.navigationRouter.pop()
                     } catch {
