@@ -39,3 +39,35 @@ struct yourPostResponse: Codable {
 //    let imageUrl: String
 //    let createdAt: String
 //}
+
+struct ResetVintageStyleResponseDTO: Decodable {
+    let isSuccess: Bool
+    let code: String
+    let message: String
+    let result: String
+    let timestamp: String
+}
+
+struct ResetVintageItemResponseDTO: Decodable {
+    let isSuccess: Bool
+    let code: String
+    let message: String
+    let result: String
+    let timestamp: String
+}
+
+struct ResetRegionResponseDTO: Decodable {
+    let isSuccess: Bool
+    let code: String
+    let message: String
+    let result: String
+    let timestamp: String
+}
+
+struct ResetBrandResponseDTO: Decodable {
+    let isSuccess: Bool
+    let code: String
+    let message: String
+    let result: String
+    let timestamp: String
+}

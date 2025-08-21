@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Foundation
 
 struct LocationResetView: View {
     @EnvironmentObject var container: DIContainer
@@ -13,9 +14,17 @@ struct LocationResetView: View {
         
     }
     @State private var selectedCategories: Set<String> = []
+    @State private var isSaving: Bool = false
+    @State private var showErrorAlert: Bool = false
+    @State private var errorMessage: String? = nil
     let maxSelectionCount = 3
     let categories = [
         "홍대", "성수", "강남", "이태원", "동묘", "합정", "망원", "명동"
+    ]
+    // TODO: 실제 서버 regionId로 교체 필요
+    private let regionNameToId: [String: Int] = [
+        "홍대": 1, "성수": 2, "강남": 3, "이태원": 4,
+        "동묘": 5, "합정": 6, "망원": 7, "명동": 8
     ]
     
     let columns = [
@@ -71,7 +80,7 @@ struct LocationResetView: View {
                         title: "저장하기",
                         isEnabled: !selectedCategories.isEmpty,
                         action: {
-                            container.navigationRouter.push(to: .VinnyTabView)
+                            submitResetRegion()
                         }
                     )
                     .frame(height: 76)
@@ -79,6 +88,14 @@ struct LocationResetView: View {
                 }
             }
             .navigationBarBackButtonHidden()
+            .overlay(alignment: .center) {
+                if isSaving { ProgressView().controlSize(.large) }
+            }
+            .alert("저장 실패", isPresented: $showErrorAlert) {
+                Button("확인") { errorMessage = nil }
+            } message: {
+                Text(errorMessage ?? "알 수 없는 오류")
+            }
         }
 
         private func toggleSelection(for category: String) {
@@ -88,7 +105,39 @@ struct LocationResetView: View {
                 selectedCategories.insert(category)
             }
         }
+    
+    private func submitResetRegion() {
+        let selected = Array(selectedCategories)
+        print("[ResetRegion] selectedCategories:", selected)
+
+        let ids = selected.compactMap { regionNameToId[$0] }
+        print("[ResetRegion] resolved ids:", ids)
+
+        guard !ids.isEmpty else {
+            errorMessage = "선택된 지역이 없어요."
+            showErrorAlert = true
+            return
+        }
+
+        isSaving = true
+        Task {
+            defer { isSaving = false }
+            do {
+                // 디버깅용으로 실제 바디 JSON 출력
+                let debugBody = ResetRegionRequestDTO(regionIds: ids)
+                if let data = try? JSONEncoder().encode(debugBody),
+                   let json = String(data: data, encoding: .utf8) {
+                    print("[ResetRegion] request body JSON:\n\(json)")
+                }
+
+                let resp = try await UsersAPITarget.resetRegion(ids: ids)
+                print("[ResetRegion] response — isSuccess: \(resp.isSuccess), code: \(resp.code), message: \(resp.message)")
+                container.navigationRouter.push(to: .VinnyTabView)
+            } catch {
+                print("[ResetRegion] error:", error)
+                errorMessage = error.localizedDescription
+                showErrorAlert = true
+            }
+        }
     }
-
-
-
+}

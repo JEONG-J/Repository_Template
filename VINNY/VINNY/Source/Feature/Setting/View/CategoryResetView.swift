@@ -13,6 +13,25 @@ struct CategoryResetView: View {
         
     }
     @State private var selectedCategories: Set<String> = []
+    @State private var isSaving: Bool = false
+    @State private var errorMessage: String? = nil
+    @State private var showErrorAlert: Bool = false
+
+    
+    private let styleNameToId: [String: Int] = [
+        "🪖 밀리터리": 1,
+        "🇺🇸 아메카지": 2,
+        "🛹 스트릿": 3,
+        "🏔️ 아웃도어": 4,
+        "👕 캐주얼": 5,
+        "👖 데님": 6,
+        "💼 하이엔드": 7,
+        "🛠️ 워크웨어": 8,
+        "👞 레더": 9,
+        "🏃‍♂️ 스포티": 10,
+        "🐴 웨스턴": 11,
+        "👚 Y2K": 12
+    ]
     let maxSelectionCount = 3
     let categories = [
         "🪖 밀리터리", "🇺🇸 아메카지", "🛹 스트릿", "🏔️ 아웃도어", "👕 캐주얼", "👖 데님", "💼 하이엔드", "🛠️ 워크웨어", "👞 레더", "🏃‍♂️ 스포티", "🐴 웨스턴", "👚 Y2K"
@@ -71,13 +90,21 @@ struct CategoryResetView: View {
                     title: "저장하기",
                     isEnabled: !selectedCategories.isEmpty,
                     action: {
-                        container.navigationRouter.push(to: .VinnyTabView)
+                        save()
                     }
                 )
                 .frame(height: 76)
             }
         }
         .navigationBarBackButtonHidden()
+        .overlay(alignment: .center) {
+            if isSaving { ProgressView().controlSize(.large) }
+        }
+        .alert("저장 실패", isPresented: $showErrorAlert) {
+            Button("확인") { errorMessage = nil }
+        } message: {
+            Text(errorMessage ?? "알 수 없는 오류")
+        }
     }
 
     private func toggleSelection(for category: String) {
@@ -85,6 +112,38 @@ struct CategoryResetView: View {
             selectedCategories.remove(category)
         } else if selectedCategories.count < maxSelectionCount {
             selectedCategories.insert(category)
+        }
+    }
+    
+    private func save() {
+        // 선택된 카테고리명을 서버 ID로 매핑 (0은 무시)
+        let ids = selectedCategories.compactMap { styleNameToId[$0] }.filter { $0 > 0 }
+        guard !ids.isEmpty else {
+            errorMessage = "선택한 취향의 ID 매핑이 없습니다. styleNameToId를 채워주세요."
+            showErrorAlert = true
+            return
+        }
+
+        isSaving = true
+        Task {
+            do {
+                let res = try await UsersAPITarget.resetVintageStyle(ids: ids)
+                await MainActor.run {
+                    isSaving = false
+                    if res.isSuccess {
+                        container.navigationRouter.push(to: .VinnyTabView)
+                    } else {
+                        errorMessage = res.message
+                        showErrorAlert = true
+                    }
+                }
+            } catch {
+                await MainActor.run {
+                    isSaving = false
+                    errorMessage = error.localizedDescription
+                    showErrorAlert = true
+                }
+            }
         }
     }
 }
