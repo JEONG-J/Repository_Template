@@ -18,8 +18,8 @@ struct CreatePostRequestDTO: Encodable {
 struct UpdatePostRequestDTO: Encodable {
     let title: String
     let content: String
-    let styleIds: [Int]?
-    let brandIds: [Int]?
-    let shopId: Int?
+    let styleNames: [String]?
+    let brandNames: [String]?
+    let shopName: String?
 }
 

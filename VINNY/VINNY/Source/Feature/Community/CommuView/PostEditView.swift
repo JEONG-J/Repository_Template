@@ -7,11 +7,27 @@
 
 import SwiftUI
 import PhotosUI
+
+private struct TaggedBrand: Identifiable, Equatable {
+    let id = UUID()
+    let name: String
+    let imageUrl: String
+}
+
+private struct TaggedShop: Identifiable, Equatable {
+    let id = UUID()
+    let name: String
+    let imageUrl: String
+    let address: String
+}
 struct PostEditView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var container: DIContainer
     @StateObject var viewModel = PostUploadViewModel()
-    
+    @State private var brandSuggestions: [AutoCompleteBrandDTO] = []
+    @State private var shopSuggestions: [AutoCompleteShopDTO] = []
+    @State private var taggedShopCard: TaggedShop? = nil      // UI용(이미지/주소 포함)
+    @State private var brandThumbs: [String: String] = [:]     // 브랜드명 -> 이미지 URL
     /// 이미지 업로드 관련 상태
     @State private var showPhotosPicker = false // 포토 피커(이미지 선택 창) 표시 여부
     @State private var selectedItems: [PhotosPickerItem] = [] // 선택된 이미지 아이템들
@@ -20,6 +36,7 @@ struct PostEditView: View {
     @State private var isLoadingDetail: Bool = false
     @State private var didLoadOnce: Bool = false
     @State private var showErrorAlert: Bool = false
+    @State private var loadedDetail: PostDetailDTO?
     
     let columns = [
         GridItem(.flexible(), spacing: 8),
@@ -85,9 +102,13 @@ struct PostEditView: View {
                             let body = UpdatePostRequestDTO(
                                 title: trimmedTitle,
                                 content: trimmedContent,
-                                styleIds: nil,
-                                brandIds: nil,
-                                shopId: nil
+                                styleNames: selectedStyles.isEmpty ? nil : Array(selectedStyles),
+                                brandNames: viewModel.brands.isEmpty ? nil : viewModel.brands,
+                                shopName: {
+                                    if let name = viewModel.shoptag, !name.isEmpty { return name }
+                                    if let cardName = taggedShopCard?.name, !cardName.isEmpty { return cardName }
+                                    return nil
+                                }()
                             )
                             _ = try await PostAPITarget.submitPostUpdate(postId: id, body: body)
                             print("[PostEdit] Update success — pop")
@@ -397,9 +418,7 @@ struct PostEditView: View {
                 Text("브랜드 입력")
                     .font(.suit(.bold, size: 18))
                     .foregroundStyle(Color.contentBase)
-
                 Spacer()
-
                 Text("\(viewModel.brands.count)개/3개")
                     .font(.suit(.light, size: 14))
                     .foregroundStyle(Color.contentAssistive)
@@ -416,7 +435,8 @@ struct PostEditView: View {
                 .frame(height: 48)
                 .focused($focusedField, equals: .brand)
                 .padding(.vertical, 8)
-                .onChange(of: brandInput) { oldValue, newValue in
+                .onChange(of: brandInput) { _, newValue in
+                    // 엔터로 직접 추가
                     if newValue.contains("\n") {
                         let trimmed = newValue.trimmingCharacters(in: .whitespacesAndNewlines)
                         if !trimmed.isEmpty,
@@ -425,23 +445,77 @@ struct PostEditView: View {
                             viewModel.brands.append(trimmed)
                         }
                         brandInput = ""
+                        brandSuggestions = []
+                    } else {
+                        Task {
+                            guard !newValue.isEmpty else { brandSuggestions = []; return }
+                            do {
+                                let results = try await AutoCompleteAPITarget.fetchBrandAutoComplete(keyword: newValue)
+                                brandSuggestions = results
+                            } catch {
+                                brandSuggestions = []
+                            }
+                        }
                     }
                 }
 
-            Text("태그된 브랜드")
-                .font(.suit(.light, size: 14))
-                .foregroundStyle(Color.contentBase)
-                .padding(.top, 10)
-                .padding(.bottom, 6)
-
-            HStack(spacing: 8) {
-                ForEach(viewModel.brands, id: \.self) { tag in
-                    BrandTagComponent(tag: tag) {
-                        viewModel.brands.removeAll() { $0 == tag }
+            // 자동완성 리스트
+            if !brandSuggestions.isEmpty {
+                ScrollView {
+                    VStack(spacing: 8) {
+                        ForEach(brandSuggestions, id: \.keyword) { suggestion in
+                            BrandSuggestionRow(suggestion: suggestion) {
+                                if !viewModel.brands.contains(suggestion.keyword),
+                                   viewModel.brands.count < 3 {
+                                    viewModel.brands.append(suggestion.keyword)
+                                    brandThumbs[suggestion.keyword] = suggestion.imageUrl
+                                }
+                                brandInput = ""
+                                brandSuggestions = []
+                            }
+                        }
                     }
+                    .padding(.vertical, 8)
                 }
+                .frame(maxHeight: 200)
             }
-            .padding(.vertical, 10)
+
+            // 태그된 브랜드 (썸네일 + 이름 + 제거)
+            if !viewModel.brands.isEmpty {
+                Text("태그된 브랜드")
+                    .font(.suit(.light, size: 14))
+                    .foregroundStyle(Color.contentBase)
+                    .padding(.top, 10)
+                    .padding(.bottom, 6)
+
+                HStack(spacing: 8) {
+                    ForEach(viewModel.brands, id: \.self) { name in
+                        HStack(spacing: 6) {
+                            AsyncImage(url: URL(string: brandThumbs[name] ?? "")) { img in
+                                img.resizable()
+                            } placeholder: {
+                                Image("emptyBrand").resizable()
+                            }
+                            .frame(width: 24, height: 24)
+                            .clipShape(Circle())
+
+                            Text(name)
+                                .font(.suit(.medium, size: 14))
+                                .foregroundStyle(Color.contentAdditive)
+
+                            Button {
+                                viewModel.brands.removeAll { $0 == name }
+                                brandThumbs.removeValue(forKey: name)
+                            } label: {
+                                Image("close")
+                                    .resizable()
+                                    .frame(width: 20, height: 20)
+                            }
+                        }
+                    }
+                }
+                .padding(.vertical, 10)
+            }
         }
         .padding(.horizontal, 16)
     }
@@ -452,10 +526,8 @@ struct PostEditView: View {
                 Text("빈티지샵 태그")
                     .font(.suit(.bold, size: 18))
                     .foregroundStyle(Color.contentBase)
-
                 Spacer()
-
-                Text(viewModel.shoptag == nil ? "0개/1개" : "1개/1개")
+                Text((viewModel.shoptag == nil && taggedShopCard == nil) ? "0개/1개" : "1개/1개")
                     .font(.suit(.light, size: 14))
                     .foregroundStyle(Color.contentAssistive)
             }
@@ -466,19 +538,55 @@ struct PostEditView: View {
                 .customStyleEditor(
                     placeholder: "태그할 샵 이름을 입력해주세요",
                     userInput: $shopInput,
-                    maxLength: nil)
+                    maxLength: nil
+                )
                 .frame(height: 48)
                 .focused($focusedField, equals: .shop)
                 .padding(.vertical, 8)
-                .onChange(of: shopInput) { oldValue, newValue in
+                .onChange(of: shopInput) { _, newValue in
                     if newValue.contains("\n") {
                         let trimmed = newValue.trimmingCharacters(in: .whitespacesAndNewlines)
                         if !trimmed.isEmpty {
+                            // 이름만 들어온 경우(직접 엔터), UI 카드만 임시 생성
                             viewModel.shoptag = trimmed
+                            taggedShopCard = TaggedShop(name: trimmed, imageUrl: "", address: "")
                         }
-                        shopInput = "" // 초기화
+                        shopInput = ""
+                        shopSuggestions = []
+                    } else {
+                        Task {
+                            guard !newValue.isEmpty else { shopSuggestions = []; return }
+                            do {
+                                let results = try await AutoCompleteAPITarget.fetchShopAutoComplete(keyword: newValue)
+                                shopSuggestions = results
+                            } catch {
+                                shopSuggestions = []
+                            }
+                        }
                     }
                 }
+
+            // 자동완성 리스트
+            if !shopSuggestions.isEmpty {
+                ScrollView {
+                    VStack(spacing: 8) {
+                        ForEach(shopSuggestions, id: \.name) { suggestion in
+                            ShopSuggestionRow(suggestion: suggestion) {
+                                viewModel.shoptag = suggestion.name
+                                taggedShopCard = TaggedShop(
+                                    name: suggestion.name,
+                                    imageUrl: suggestion.imageUrl,
+                                    address: suggestion.address
+                                )
+                                shopInput = ""
+                                shopSuggestions = []
+                            }
+                        }
+                    }
+                    .padding(.vertical, 8)
+                }
+                .frame(maxHeight: 200)
+            }
 
             Text("태그된 샵")
                 .font(.suit(.light, size: 14))
@@ -486,9 +594,44 @@ struct PostEditView: View {
                 .padding(.top, 10)
                 .padding(.bottom, 6)
 
-            if let tag = viewModel.shoptag {
-                ShopTagComponent(tag: tag)
-                    .padding(.vertical, 10)
+            if let tag = taggedShopCard ?? (viewModel.shoptag.map { TaggedShop(name: $0, imageUrl: "", address: "") }) {
+                HStack(spacing: 8) {
+                    AsyncImage(url: URL(string: tag.imageUrl)) { img in
+                        img.resizable()
+                    } placeholder: {
+                        Image("emptyImage").resizable()
+                    }
+                    .frame(width: 40, height: 40)
+                    .clipShape(Circle())
+
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(tag.name)
+                            .font(.suit(.medium, size: 18))
+                            .foregroundStyle(Color.contentBase)
+                        Text(tag.address)
+                            .font(.suit(.light, size: 12))
+                            .foregroundStyle(Color.contentAdditive)
+                    }
+                    Spacer()
+                    Button {
+                        taggedShopCard = nil
+                        viewModel.shoptag = nil
+                    } label: {
+                        HStack(spacing: 2) {
+                            Image("remove").resizable().frame(width: 20, height: 20)
+                            Text("삭제")
+                                .font(.suit(.medium, size: 14))
+                                .foregroundStyle(Color.contentAdditive)
+                                .padding(.vertical, 2)
+                        }
+                        .padding(10)
+                        .background(
+                            RoundedRectangle(cornerRadius: 4)
+                                .foregroundStyle(Color.backFillRegular)
+                        )
+                    }
+                }
+                .padding(.vertical, 10)
             }
         }
         .padding(.horizontal, 16)
@@ -556,13 +699,19 @@ struct PostEditView: View {
     private func loadForEdit(postId: Int) async {
         await MainActor.run { isLoadingDetail = true }
         defer { Task { await MainActor.run { isLoadingDetail = false } } }
+
         do {
-            let detail = try await PostAPITarget.fetchPostDetail(postId: postId)
+            let fetched = try await PostAPITarget.fetchPostDetail(postId: postId)
+
+            // 상태로 저장 (다른 곳에서 재사용 가능)
             await MainActor.run {
-                viewModel.title = detail.title
-                viewModel.content = detail.content
+                self.loadedDetail = fetched
+                self.viewModel.title = fetched.title
+                self.viewModel.content = fetched.content
             }
-            let urls = detail.images.prefix(5)
+
+            // 이미지 로드
+            let urls = fetched.images.prefix(5)
             if !urls.isEmpty {
                 var images: [UIImage] = []
                 for urlStr in urls {
@@ -575,15 +724,79 @@ struct PostEditView: View {
                     }
                 }
                 await MainActor.run {
-                    viewModel.postImages = images
-                    viewModel.currentIndex = 0
+                    self.viewModel.postImages = images
+                    self.viewModel.currentIndex = 0
                 }
             }
         } catch {
             await MainActor.run {
-                errorMessage = error.localizedDescription
-                showErrorAlert = true
+                self.errorMessage = error.localizedDescription
+                self.showErrorAlert = true
             }
+        }
+    
+    }
+}
+private struct BrandSuggestionRow: View {
+    let suggestion: AutoCompleteBrandDTO
+    let onSelect: ()->Void
+
+    var body: some View {
+        Button(action: onSelect) {
+            HStack(spacing: 12) {
+                AsyncImage(url: URL(string: suggestion.imageUrl)) { img in
+                    img.resizable()
+                } placeholder: {
+                    Image("emptyBrand").resizable()
+                }
+                .frame(width: 40, height: 40)
+                .clipShape(Circle())
+
+                Text(suggestion.keyword)
+                    .font(.suit(.medium, size: 16))
+                    .foregroundStyle(Color.contentBase)
+
+                Spacer()
+            }
+            .padding(10)
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .foregroundStyle(Color.backFillRegular)
+            )
+        }
+    }
+}
+
+private struct ShopSuggestionRow: View {
+    let suggestion: AutoCompleteShopDTO
+    let onSelect: () -> Void
+
+    var body: some View {
+        Button(action: onSelect) {
+            HStack(alignment: .top, spacing: 12) {
+                AsyncImage(url: URL(string: suggestion.imageUrl)) { img in
+                    img.resizable()
+                } placeholder: {
+                    Image("emptyImage").resizable()
+                }
+                .frame(width: 40, height: 40)
+                .clipShape(Circle())
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(suggestion.name)
+                        .font(.suit(.medium, size: 16))
+                        .foregroundStyle(Color.contentBase)
+                    Text(suggestion.address)
+                        .font(.suit(.light, size: 12))
+                        .foregroundStyle(Color.contentAdditive)
+                }
+                Spacer()
+            }
+            .padding(10)
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .foregroundStyle(Color.backFillRegular)
+            )
         }
     }
 }
