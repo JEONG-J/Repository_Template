@@ -1,43 +1,39 @@
-//
-//  YourSavedShopView.swift
-//  VINNY
-//
-//  Created by 한태빈 on 8/17/25.
-//
-
-//
-//  SavedShopView\.swift
-//  VINNY
-//
-//  Created by 한태빈 on 7/24/25.
-//
-
 import SwiftUI
+import Kingfisher
 
 struct YourSavedShopView: View {
-    private var shopData: [Shop] = Array(repeating: Shop(name: "샵 이름", address: "샵 주소", isLiked: true, categories: ["카테고리1", "카테고리2", "카테고리3"]), count: 9)
+    @EnvironmentObject var viewModel: YourpageViewModel
 
     var body: some View {
-        ScrollView {
-            LazyVStack(spacing: 0) {
-                ForEach(shopData.indices, id: \.self) { index in
-                    YourShopCardView(shop: shopData[index])
+        if viewModel.savedShops.isEmpty {
+            EmptyView()
+        } else {
+            ScrollView {
+                LazyVStack(spacing: 0) {
+                    ForEach(viewModel.savedShops, id: \.shopId) { shop in
+                        YourShopCardView(shop: shop)
+                    }
                 }
+                .padding(.top, 8)
+                .padding(.horizontal, 16)
             }
-            .padding(.top, 8)
-            .padding(.horizontal, 16)
+            .background(Color("BackRootRegular"))
         }
     }
 }
 
 struct YourShopCardView: View {
-    @State var shop: Shop
+    let shop: YourSavedShopResponse
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            // 상단: 이미지 + 이름/주소 + 하트 버튼
+            // 상단: 이미지 + 이름/주소 + 하트
             HStack(spacing: 8) {
-                Image("emptyImage")
+                KFImage(URL(string: shop.imageUrls.first ?? ""))
+                    .placeholder {
+                        Image("emptyImage")
+                            .resizable()
+                    }
                     .resizable()
                     .frame(width: 40, height: 40)
                     .clipShape(Circle())
@@ -53,22 +49,25 @@ struct YourShopCardView: View {
 
                 Spacer()
 
-                Button {
-                    shop.isLiked.toggle()
-                } label: {
-                    Image(shop.isLiked ? "likeFill" : "like")
-                        .resizable()
-                        .frame(width: 24, height: 24)
-                }
+                Image("likeFill") // 고정된 찜 이미지
+                    .resizable()
+                    .frame(width: 24, height: 24)
+//                Button(action: {
+//                    container.navigationRouter.push(to: .ShopView(id: shop.shopId))
+//                }) {
+//                    Image("chevron.right")
+//                        .resizable()
+//                        .frame(width: 16, height: 16)
+//                }
             }
 
-            // 중간: 태그들
+            // 지역 + 스타일 태그들
             HStack(spacing: 6) {
                 HStack(spacing: 4) {
                     Image("mapPin")
                         .resizable()
                         .frame(width: 16, height: 16)
-                    Text("지역")
+                    Text(shop.region)
                         .font(.suit(.medium, size: 12))
                         .foregroundStyle(Color.contentAdditive)
                 }
@@ -79,14 +78,18 @@ struct YourShopCardView: View {
                         .foregroundStyle(Color.backFillRegular)
                 )
 
-                ForEach(shop.categories, id: \.self) { category in
-                    TagComponent(tag: "#\(category)")
+                ForEach(shop.styles, id: \.self) { style in
+                    TagComponent(tag: "#\(style)")
                 }
             }
             .padding(.vertical, 8)
 
-            // 하단: 큰 썸네일
-            Image("emptyBigImage")
+            // 썸네일 이미지
+            KFImage(URL(string: shop.imageUrls.first ?? ""))
+                .placeholder {
+                    Image("emptyBigImage")
+                        .resizable()
+                }
                 .resizable()
                 .aspectRatio(contentMode: .fill)
                 .frame(height: 104)
@@ -99,12 +102,9 @@ struct YourShopCardView: View {
     }
 }
 
-// 예시 모델
-struct Shop {
-    var name: String
-    var address: String
-    var isLiked: Bool
-    var categories: [String]
+#Preview {
+    YourSavedShopView()
+        .environmentObject(YourpageViewModel(
+            useCase: DefaultNetworkManager<UsersAPITarget>()
+        ))
 }
-
-

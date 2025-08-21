@@ -1,17 +1,15 @@
 import Foundation
 import SwiftUI
 
-/// 타인 프로필 화면용 ViewModel
-/// - Handles: 사용자 프로필 조회, 게시글 조회, 찜한 샵 조회
-/// - Threading: async/await 기반 상태 업데이트
+@MainActor
 final class YourpageViewModel: ObservableObject {
     // MARK: - Dependencies
     private let useCase: DefaultNetworkManager<UsersAPITarget>
 
     // MARK: - 상태
     @Published var profile: yourProfileResponse?
-    @Published var posts: [YourPost] = []
-    @Published var savedShops: [YourSavedShop] = []
+    @Published var posts: [yourPostResponse] = []
+    @Published var savedShops: [YourSavedShopResponse] = []
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
 
@@ -32,10 +30,9 @@ final class YourpageViewModel: ObservableObject {
         isLoading = false
     }
 
-    @MainActor
     func fetchProfile(userId: Int) async {
         print("[OtherProfile] fetchProfile 호출됨")
-        await withCheckedContinuation { continuation in
+        let result = await withCheckedContinuation { continuation in
             useCase.requestUnwrap(
                 target: .getYourProfile(userId: userId),
                 envelope: ApiResponse<yourProfileResponse>.self,
@@ -43,67 +40,62 @@ final class YourpageViewModel: ObservableObject {
                 code: \.code,
                 message: \.message,
                 result: \.result
-            ) { [weak self] result in
-                DispatchQueue.main.async {
-                    switch result {
-                    case .success(let profile):
-                        self?.profile = profile
-                    case .failure(let error):
-                        self?.errorMessage = error.localizedDescription
-                    }
-                    continuation.resume()
-                }
+            ) { result in
+                continuation.resume(returning: result)
             }
+        }
+
+        switch result {
+        case .success(let profile):
+            self.profile = profile
+        case .failure(let error):
+            self.errorMessage = error.localizedDescription
         }
     }
 
-    @MainActor
     func fetchPosts(userId: Int) async {
         print("[OtherProfile] fetchPosts 호출됨")
-        await withCheckedContinuation { continuation in
+        let result = await withCheckedContinuation { continuation in
             useCase.requestUnwrap(
                 target: .getYourPost(userId: userId),
-                envelope: ApiResponse<yourPostResponse>.self,
+                envelope: ApiResponse<[yourPostResponse]>.self, // ✅ 배열 형태로 수정
                 isSuccess: \.isSuccess,
                 code: \.code,
                 message: \.message,
                 result: \.result
-            ) { [weak self] result in
-                DispatchQueue.main.async {
-                    switch result {
-                    case .success(let response):
-                        self?.posts = response.result
-                    case .failure(let error):
-                        self?.errorMessage = error.localizedDescription
-                    }
-                    continuation.resume()
-                }
+            ) { result in
+                continuation.resume(returning: result)
             }
+        }
+
+        switch result {
+        case .success(let posts):
+            self.posts = posts
+        case .failure(let error):
+            self.errorMessage = error.localizedDescription
         }
     }
 
-    @MainActor
     func fetchSavedShops(userId: Int) async {
         print("[OtherProfile] fetchSavedShops 호출됨")
-        await withCheckedContinuation { continuation in
+        let result = await withCheckedContinuation { continuation in
             useCase.requestUnwrap(
                 target: .getYourSavedShop(userId: userId),
-                envelope: ApiResponse<YourSavedShopResponse>.self,
+                envelope: ApiResponse<[YourSavedShopResponse]>.self, // ✅ 배열 형태로 수정
                 isSuccess: \.isSuccess,
                 code: \.code,
                 message: \.message,
                 result: \.result
-            ) { [weak self] result in
-                DispatchQueue.main.async {
-                    switch result {
-                    case .success(let response):
-                        self?.savedShops = response.result
-                    case .failure(let error):
-                        self?.errorMessage = error.localizedDescription
-                    }
-                    continuation.resume()
-                }
+            ) { result in
+                continuation.resume(returning: result)
             }
+        }
+
+        switch result {
+        case .success(let shops):
+            self.savedShops = shops
+        case .failure(let error):
+            self.errorMessage = error.localizedDescription
         }
     }
 }

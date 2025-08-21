@@ -20,7 +20,7 @@ struct SavedPostView: View {
             ScrollView {
                 LazyVGrid(columns: columns, spacing: 2) {
                     ForEach(viewModel.savedPosts, id: \.postId) { post in
-                        if let url = URL(string: post.imageUrl) {
+                        if let imageUrl = post.imageUrl, let url = URL(string: imageUrl) {
                             KFImage(url)
                                 .placeholder {
                                     ZStack {

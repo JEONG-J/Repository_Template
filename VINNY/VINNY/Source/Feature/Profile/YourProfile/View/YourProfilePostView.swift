@@ -1,10 +1,3 @@
-//
-//  YourProfilePostView.swift
-//  VINNY
-//
-//  Created by 한태빈 on 7/24/25.
-//
-
 import SwiftUI
 import Kingfisher
 
@@ -20,7 +13,8 @@ struct YourProfilePostView: View {
             ScrollView {
                 LazyVGrid(columns: columns, spacing: 2) {
                     ForEach(viewModel.posts, id: \.postId) { post in
-                        if let url = URL(string: post.imageUrl) {
+                        if let imageUrl = post.imageUrl,
+                           let url = URL(string: imageUrl) {
                             KFImage(url)
                                 .placeholder {
                                     ZStack {
@@ -32,11 +26,23 @@ struct YourProfilePostView: View {
                                 .resizable()
                                 .aspectRatio(1, contentMode: .fit)
                                 .clipped()
+                        } else {
+                            // imageUrl이 nil인 경우 대체 뷰
+                            ZStack {
+                                Rectangle()
+                                    .fill(Color.gray.opacity(0.1))
+                                    .aspectRatio(1, contentMode: .fit)
+
+                                Image("noneProfile")
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fit)
+                            }
                         }
                     }
                 }
                 .padding(.top, 1)
             }
+            .background(Color("BackRootRegular"))
         }
     }
 }

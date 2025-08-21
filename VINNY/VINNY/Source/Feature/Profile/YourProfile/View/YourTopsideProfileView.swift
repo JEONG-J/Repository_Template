@@ -7,7 +7,7 @@ struct YourTopsideProfileView: View {
 
     var body: some View {
         ZStack(alignment: .bottomLeading) {
-            KFImage(URL(string: viewModel.profile?.backgroundImageURL ?? ""))
+            KFImage(URL(string: viewModel.profile?.backgroundImageUrl ?? ""))
                 .placeholder {
                     ProgressView()
                 }
@@ -20,9 +20,33 @@ struct YourTopsideProfileView: View {
                 )
                 .clipped()
 
+            VStack {
+                HStack {
+                    Button (action: {
+                        container.navigationRouter.pop()                 }) {
+                        Image("arrowBack")
+                            .resizable()
+                            .frame(width: 24, height: 24)
+                            .padding(.leading, 16)
+
+                    }
+                    Spacer()
+
+                    Text(viewModel.profile?.nickname ?? "")
+                        .font(.suit(.bold, size: 18))
+                        .foregroundStyle(Color.contentBase)
+
+                    Spacer()
+                    Spacer().frame(width: 44) // 오른쪽 정렬 맞추기용
+                }
+                .padding(.top, 16)
+
+                Spacer()
+            }
+            
             // 하단 프로필 정보
             HStack(spacing: 8) {
-                KFImage(URL(string: viewModel.profile?.profileImageURL ?? ""))
+                KFImage(URL(string: viewModel.profile?.profileImageUrl ?? ""))
                     .placeholder {
                         ProgressView()
                     }

@@ -97,8 +97,10 @@ struct NavigationRoutingView: View {
                         container.navigationRouter.pop()
                     }
                 }
-        case .YourProfileView(let id):
-            YourProfileView(userId: id)
+        case .YourProfileView(let userId):
+            let viewModel = YourpageViewModel(useCase: container.useCaseProvider.userUseCase)
+            YourProfileView(userId: userId)
+                .environmentObject(viewModel)
                 .environmentObject(container)
         }
     }
