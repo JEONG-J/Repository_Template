@@ -11,8 +11,9 @@ import Moya
 enum UsersAPITarget {
     
     //코스 상세정보 API
-    case getSavedShop
-    
+    case getYourSavedShop(userId: Int)
+    case getYourProfile(userId: Int)
+    case getYourPost(userId: Int)
 }
 
 extension UsersAPITarget: TargetType {
@@ -28,21 +29,34 @@ extension UsersAPITarget: TargetType {
     
     var path: String {
         switch self {
-        case .getSavedShop:
-            return "/me/shops/favorite"
+        case .getYourSavedShop(let userId):
+            return "\(userId)/shops/favorites"
+        case .getYourProfile(let userId):
+            return "\(userId)/profile"
+        case .getYourPost(let userId):
+            return "\(userId)/posts"
+            
         }
     }
     
     var method: Moya.Method {
         switch self {
-        case .getSavedShop:
+        case .getYourSavedShop:
+            return .get
+        case .getYourProfile:
+            return .get
+        case .getYourPost:
             return .get
         }
     }
     
     var task: Task {
         switch self {
-        case .getSavedShop:
+        case .getYourSavedShop:
+            return .requestPlain
+        case .getYourProfile:
+            return .requestPlain
+        case .getYourPost:
             return .requestPlain
         }
     }

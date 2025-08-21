@@ -97,6 +97,9 @@ struct NavigationRoutingView: View {
                         container.navigationRouter.pop()
                     }
                 }
+        case .YourProfileView(let id):
+            YourProfileView(userId: id)
+                .environmentObject(container)
         }
     }
     
