@@ -23,24 +23,29 @@ struct PostCardView: View {
         VStack(alignment: .leading, spacing: 0) {
             VStack(alignment: .leading, spacing: 0) {
                 // Header: author
-                HStack(spacing: 8) {
-                    URLImageView(item.author.profileImageUrl ?? "")
-                        .frame(width: 40, height: 40)
-                        .clipShape(Circle())
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(item.author.nickname)
-                            .font(.suit(.medium, size: 16))
-                            .foregroundStyle(Color.contentBase)
-                        Text(item.author.comment ?? "")
-                            .font(.suit(.light, size: 12))
-                            .foregroundStyle(Color.contentAdditive)
+                Button {
+                    container.navigationRouter.push(to: .YourProfileView(userId: item.author.userId))
+                } label: {
+                    HStack(spacing: 8) {
+                        URLImageView(item.author.profileImageUrl ?? "")
+                            .frame(width: 40, height: 40)
+                            .clipShape(Circle())
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(item.author.nickname)
+                                .font(.suit(.medium, size: 16))
+                                .foregroundStyle(Color.contentBase)
+                            Text(item.author.comment ?? "")
+                                .font(.suit(.light, size: 12))
+                                .foregroundStyle(Color.contentAdditive)
+                        }
+                        .padding(.horizontal, 4)
+                        Spacer()
                     }
-                    .padding(.horizontal, 4)
-                    Spacer()
+                    .frame(maxWidth: .infinity)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 10)
                 }
-                .frame(maxWidth: .infinity)
-                .padding(.horizontal, 16)
-                .padding(.vertical, 10)
+                .buttonStyle(.plain) // 기본 버튼 효과 제거 (클릭 UI 안 바뀌게)
 
                 // Images: page style
                 VStack(spacing: 0) {

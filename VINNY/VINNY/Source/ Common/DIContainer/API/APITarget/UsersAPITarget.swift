@@ -11,15 +11,27 @@ import Moya
 enum UsersAPITarget {
     
     //코스 상세정보 API
-    case getSavedShop
-    
+    case getYourSavedShop(userId: Int)
+    case getYourProfile(userId: Int)
+    case getYourPost(userId: Int)
 }
 
 extension UsersAPITarget: TargetType {
     
     
     var headers: [String : String]? {
-        return ["Content-Type": "application/json"]
+        var h: [String: String] = [
+            "Accept": "application/json",
+            "Accept-Language": "ko-KR,ko;q=0.9"
+        ]
+
+        if let token = KeychainHelper.shared.get(forKey: "accessToken"), !token.isEmpty {
+            h["Authorization"] = "Bearer \(token)"
+        }
+
+        h["Content-Type"] = "application/json"
+
+        return h
     }
     
     var baseURL: URL{
@@ -28,21 +40,34 @@ extension UsersAPITarget: TargetType {
     
     var path: String {
         switch self {
-        case .getSavedShop:
-            return "/me/shops/favorite"
+        case .getYourSavedShop(let userId):
+            return "\(userId)/shops/favorites"
+        case .getYourProfile(let userId):
+            return "\(userId)/profile"
+        case .getYourPost(let userId):
+            return "\(userId)/posts"
+            
         }
     }
     
     var method: Moya.Method {
         switch self {
-        case .getSavedShop:
+        case .getYourSavedShop:
+            return .get
+        case .getYourProfile:
+            return .get
+        case .getYourPost:
             return .get
         }
     }
     
     var task: Task {
         switch self {
-        case .getSavedShop:
+        case .getYourSavedShop:
+            return .requestPlain
+        case .getYourProfile:
+            return .requestPlain
+        case .getYourPost:
             return .requestPlain
         }
     }
