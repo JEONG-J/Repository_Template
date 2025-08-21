@@ -36,3 +36,11 @@ struct AutoCompleteBrandDTO: Decodable {
     let keyword :String
     let imageUrl: String
 }
+// 파일 어디든(예: DTO 선언 파일 하단) 추가
+extension AutoCompleteShopDTO: Identifiable {
+    var id: String { "\(name)|\(address)" }   // 이름 중복 대비
+}
+
+extension AutoCompleteBrandDTO: Identifiable {
+    var id: String { keyword }
+}
