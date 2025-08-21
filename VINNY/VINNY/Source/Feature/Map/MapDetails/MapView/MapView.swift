@@ -37,9 +37,9 @@ struct MapView: View {
                     // 하단 유틸 버튼
                     HStack(spacing: 8) {
                         Button(action: {
-                            
+                            viewModel.toggleFavorites()
                         }) {
-                            Image("star")
+                            Image(viewModel.showingFavorites ? "selectedStar" : "star")
                                 .resizable()
                                 .frame(width: 20, height: 20)
                                 .padding(12)
@@ -76,67 +76,66 @@ struct MapView: View {
                     .padding(.bottom, viewModel.selectedMarker != nil ? 380 : 85)
                     
                     // 바텀시트
-                    if viewModel.selectedMarker != nil {
-                        let d = viewModel.selectedShopDetail
-                        
-                        // 대표 이미지 url 계산
-                        let mainURLString = d?.images.first(where: {$0.isMainImage})?.url ?? d?.images.first?.url
-                        let mainURL = mainURLString.flatMap(URL.init(string:))
-                        
-                        // 배경 탭으로 닫기
+                    if let d = viewModel.selectedShopDetail, viewModel.selectedMarker != nil {
+                        // 1) 로컬 상수로 쪼개서 타입 확정
+                        let urlStr: String? = d.images.first(where: { $0.isMainImage })?.url ?? d.images.first?.url
+                        let mainURL: URL?   = urlStr.flatMap(URL.init(string:))
+                        let shopId: Int     = d.id
+                        let shopName: String = d.name
+                        let shopAddress: String = d.address
+                        let shopIG: String      = d.instagram
+                        let shopTime: String    = "\(d.openTime) ~ \(d.closeTime)"
+                        let categories: [String] = d.styles.map { $0.vintageStyleName }
+                        let logoURL: URL? = d.logoImage.isEmpty ? nil : URL(string: d.logoImage)
+
+                        // 2) 바인딩한 d를 non-optional로 그대로 사용
                         Color.clear
                             .ignoresSafeArea()
                             .contentShape(Rectangle())
                             .simultaneousGesture(
-                                TapGesture()
-                                    .onEnded {
+                                TapGesture().onEnded {
+                                    if let marker = viewModel.selectedMarker {
+                                        NotificationCenter.default.post(name: .deselectMarkerAndRefresh, object: marker)
+                                    }
+                                    withAnimation { viewModel.selectedMarker = nil }
+                                }
+                            )
+
+                        ShopInfoSheet(
+                            shopId:       shopId,
+                            shopName:     shopName,
+                            shopAddress:  shopAddress,
+                            shopIG:       shopIG,
+                            shopTime:     shopTime,
+                            categories:   categories,
+                            logoImageURL: logoURL,
+                            imageURL:     mainURL
+                        )
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 380)
+                        .offset(y: dragOffset)
+                        .transition(.move(edge: .bottom))
+                        .animation(.easeInOut(duration: 0.3), value: viewModel.selectedMarker != nil)
+                        .gesture(
+                            DragGesture()
+                                .onChanged { value in
+                                    if value.translation.height > 0 { dragOffset = value.translation.height }
+                                }
+                                .onEnded { value in
+                                    if value.translation.height > 120 {
                                         if let marker = viewModel.selectedMarker {
                                             NotificationCenter.default.post(name: .deselectMarkerAndRefresh, object: marker)
                                         }
                                         withAnimation {
                                             viewModel.selectedMarker = nil
-                                            // TODO: 닫힐 때 상세 캐시 정책 결정(유지/초기화)
+                                            viewModel.selectedShopDetail = nil
+                                            dragOffset = 0
                                         }
+                                    } else {
+                                        withAnimation { dragOffset = 0 }
                                     }
-                            )
-                        
-                        ShopInfoSheet(
-                            shopName:     d?.name ?? "",
-                            shopAddress:  d?.address ?? "정보 없음",
-                            shopIG:       d?.instagram ?? "",
-                            shopTime:     d.map { "\($0.openTime) ~ \($0.closeTime)" } ?? "정보 없음",
-                            categories:   d?.styles.map { $0.vintageStyleName } ?? [],
-                            imageURL: mainURL
+                                }
                         )
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 380)
-                            .offset(y: dragOffset)
-                            .transition(.move(edge: .bottom))
-                            .animation(.easeInOut(duration: 0.3), value: viewModel.selectedMarker)
-                            .gesture(
-                                DragGesture()
-                                    .onChanged { value in
-                                        if value.translation.height > 0 {
-                                            dragOffset = value.translation.height
-                                        }
-                                    }
-                                    .onEnded { value in
-                                        if value.translation.height > 120 {
-                                            if let marker = viewModel.selectedMarker {
-                                                NotificationCenter.default.post(name: .deselectMarkerAndRefresh, object: marker)
-                                            }
-                                            withAnimation {
-                                                viewModel.selectedMarker = nil
-                                                viewModel.selectedShopDetail = nil
-                                                dragOffset = 0
-                                            }
-                                        } else {
-                                            withAnimation {
-                                                dragOffset = 0
-                                            }
-                                        }
-                                    }
-                            )
                     }
                 }
             }
@@ -144,6 +143,17 @@ struct MapView: View {
             MapTopView()
         }
         // MARK: Lifecycle
+        .onAppear {
+            if viewModel.showingFavorites {
+                viewModel.showingFavorites = false
+            }
+            viewModel.fetchShops()
+        }
+        .onDisappear {
+            viewModel.showingFavorites = false
+            viewModel.selectedMarker = nil
+            viewModel.selectedShopDetail = nil
+        }
         .task {
             // 최초 1회 카메라 이동
             if !viewModel.hasSetInitialRegion,
@@ -155,12 +165,10 @@ struct MapView: View {
             viewModel.fetchShops()
         }
         // 위치 바뀔 때 최초 1회 자동 이동 (중복 방지)
-        .onChange(of: locationManager.currentLocation) {
-            if !viewModel.hasSetInitialRegion,
-               let location = locationManager.currentLocation {
-                viewModel.updateFromLocation(location)
-                viewModel.hasSetInitialRegion = true
-            }
+        .onChange(of: locationManager.currentLocation) { oldLocation, newLocation in
+            guard !viewModel.hasSetInitialRegion, let location = newLocation else { return }
+            viewModel.updateFromLocation(location)
+            viewModel.hasSetInitialRegion = true
         }
         // "현 위치에서 검색" 클릭 시 자동 이동 허용
         .onReceive(NotificationCenter.default.publisher(for: .setMapTrackingEnabled)) { notification in

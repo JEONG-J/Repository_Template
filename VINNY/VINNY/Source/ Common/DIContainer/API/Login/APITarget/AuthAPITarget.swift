@@ -12,11 +12,11 @@ import Foundation
 
 enum AuthAPITarget {
     case login(dto: LoginRequestDTO)
+    case appleLogin(dto: AppleLoginRequestDTO)
     case reissueToken(dto: ReissueTokenRequestDTO)
     case fetchMe
     case session
     case logout
-    
 }
 
 extension AuthAPITarget: TargetType {
@@ -28,6 +28,8 @@ extension AuthAPITarget: TargetType {
         switch self {
         case .login:
             return "api/auth/login/kakao"
+        case .appleLogin:
+            return "api/auth/login/apple"
         case .reissueToken:
             return "api/auth/reissue"
         case .fetchMe:
@@ -41,7 +43,7 @@ extension AuthAPITarget: TargetType {
 
     var method: Moya.Method {
         switch self {
-        case .login, .reissueToken, .logout:
+        case .login, .appleLogin, .reissueToken, .logout:
             return .post
         case .session, .fetchMe:
             return .get
@@ -51,6 +53,8 @@ extension AuthAPITarget: TargetType {
     var task: Task {
         switch self {
         case .login(let dto):
+            return .requestJSONEncodable(dto)
+        case .appleLogin(let dto):
             return .requestJSONEncodable(dto)
         case .reissueToken(let dto):
             return .requestJSONEncodable(dto)
@@ -63,22 +67,34 @@ extension AuthAPITarget: TargetType {
         }
     }
 
-    var headers: [String : String]? {
-            return [
-                "Content-Type": "application/json",
-                "Accept": "*/*",
-                "Accept-Language": "ko-KR,ko;q=0.9"
-            ]
+    var headers: [String: String]? {
+        var h: [String: String] = [
+            "Accept": "application/json",
+            "Accept-Language": "ko-KR,ko;q=0.9"
+        ]
+        if let token = KeychainHelper.shared.get(forKey: "accessToken"), !token.isEmpty {
+            h["Authorization"] = "Bearer \(token)"
         }
-
+        h["Content-Type"] = "application/json"
+        return h
+    }
     var sampleData: Data {
         return Data()
+    }
+}
+private let authProvider = MoyaProvider<AuthAPITarget>(plugins: [NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
+
+extension AuthAPITarget {
+    @discardableResult
+    static func performLogout() async throws -> Int {
+        let res = try await authProvider.request(.logout)
+        return res.statusCode
     }
 }
 extension AuthAPITarget: AccessTokenAuthorizable {
     var authorizationType: AuthorizationType? {
         switch self {
-        case .login, .reissueToken:
+        case .login, .appleLogin, .reissueToken:
             return .none
         case .fetchMe, .session, .logout:
             return .bearer

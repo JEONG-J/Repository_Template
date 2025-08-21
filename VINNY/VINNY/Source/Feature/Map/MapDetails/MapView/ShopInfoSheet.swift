@@ -14,11 +14,13 @@ struct ShopInfoSheet: View {
     @EnvironmentObject var container: DIContainer
     
     // MARK: - Display Model
+    var shopId: Int
     var shopName: String
     var shopAddress: String
     var shopIG: String
     var shopTime: String
     var categories: [String]
+    var logoImageURL: URL? = nil
     var imageURL: URL? = nil
     
     var body: some View {
@@ -27,7 +29,7 @@ struct ShopInfoSheet: View {
                 HStack(spacing: 8) {
                     // NOTE: 이미지 로딩/실패/없음 모두 동일 프레임 유지
                     ZStack {
-                        if let url = imageURL {
+                        if let url = logoImageURL {
                             KFImage(url)
                                 .placeholder {
                                     // 로딩 중 동그란 스켈레톤
@@ -59,7 +61,8 @@ struct ShopInfoSheet: View {
                     }
                     Spacer()
                     Button(action: {
-                        container.navigationRouter.push(to: .ShopView(id: 0)) // TODO: 실제 shopId로 교체
+                        print("\(shopId)")
+                        container.navigationRouter.push(to: .ShopView(id: shopId))
                     }) {
                         Image("chevron.right")
                             .resizable()

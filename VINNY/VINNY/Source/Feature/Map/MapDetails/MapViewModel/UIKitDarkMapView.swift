@@ -153,10 +153,13 @@ struct UIKitDarkMapView: UIViewRepresentable {
                 let matched = viewModel.makers.first(where: { $0.shopId == shopAnno.shopId })
             else { return nil }
 
-            // TODO: 재사용성 개선을 위해 스냅샷 이미지를 캐싱 (사이즈 동일하니 키는 shopId + isSelected)
             let isSelected = viewModel.selectedMarker?.id == matched.id
             let hosting = UIHostingController(
-                rootView: LocationMapAnnotationView(category: matched.category, isSelected: isSelected)
+                rootView: LocationMapAnnotationView(
+                    category: matched.category,
+                    isSelected: isSelected,
+                    isFavoritesMode: viewModel.showingFavorites
+                )
             )
             hosting.view.backgroundColor = .clear
 

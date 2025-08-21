@@ -34,6 +34,9 @@ struct PostEditView: View {
     @State private var brandInput: String = "" // 브랜드 태그 입력창
     @State private var shopInput: String = "" // 샵 태그 입력창
 
+    @FocusState private var focusedField: Field?
+    private enum Field { case title, content, brand, shop }
+    
     // 편집(수정) 모드 식별용
     var postId: Int? = nil
     
@@ -51,6 +54,8 @@ struct PostEditView: View {
                     styleSelectionView
                     brandInputView
                     shopTagView
+                    
+                    Spacer().frame(height: 280)
                 }
                 
             }
@@ -77,8 +82,6 @@ struct PostEditView: View {
                     do {
                         let targetId = postId ?? container.editingPostId
                         if let id = targetId {
-                            print("[PostEdit] Update mode — id: \(id)")
-                            // UPDATE (PUT /api/post/{postId})
                             let body = UpdatePostRequestDTO(
                                 title: trimmedTitle,
                                 content: trimmedContent,
@@ -88,20 +91,6 @@ struct PostEditView: View {
                             )
                             _ = try await PostAPITarget.submitPostUpdate(postId: id, body: body)
                             print("[PostEdit] Update success — pop")
-                        } else {
-                            print("[PostEdit] Create mode — no id")
-                            // CREATE (POST /api/post)
-                            let dto = CreatePostRequestDTO(
-                                title: trimmedTitle,
-                                content: trimmedContent,
-                                shopId: nil,
-                                styleId: nil,
-                                brandId: nil
-                            )
-                            let imageDatas: [Data] = viewModel.postImages.compactMap { $0.jpegData(compressionQuality: 0.85) }
-                            print("[PostEdit] Preparing request — title: \(trimmedTitle), images: \(imageDatas.count)")
-                            _ = try await PostAPITarget.submitPost(dto: dto, images: imageDatas)
-                            print("[PostEdit] Create success — pop")
                         }
                         container.navigationRouter.pop()
                     } catch {
@@ -158,7 +147,10 @@ struct PostEditView: View {
             Text(errorMessage ?? "알 수 없는 오류")
         }
         .background(Color.backFillStatic)
-        .ignoresSafeArea()
+        .simultaneousGesture(TapGesture().onEnded {
+            focusedField = nil
+        })
+        .ignoresSafeArea(.keyboard, edges: .bottom)
     }
 
     // MARK: - Extracted Views
@@ -180,7 +172,6 @@ struct PostEditView: View {
                 .foregroundStyle(Color.contentBase)
         }
         .padding(16)
-        .background(Color.backFillStatic)
     }
 
     private var imagePageView: some View {
@@ -205,12 +196,9 @@ struct PostEditView: View {
             .frame(height: 320)
             .tabViewStyle(.page(indexDisplayMode: .never))
             .background(Color.backFillRegular)
-            .onChange(of: viewModel.postImages.count) { newCount in
-                if newCount <= 0 {
-                    viewModel.currentIndex = 0
-                } else if viewModel.currentIndex >= newCount {
-                    viewModel.currentIndex = max(0, newCount - 1)
-                }
+            .onChange(of: viewModel.postImages.count) {
+                let newCount = viewModel.postImages.count
+                viewModel.currentIndex = (newCount == 0) ? 0 : min(viewModel.currentIndex, max(0, newCount - 1))
             }
 
             HStack(spacing: 4) {
@@ -241,17 +229,30 @@ struct PostEditView: View {
 
             ScrollView(.horizontal, showsIndicators: false) {
                 LazyHStack(spacing: 8) {
-                    ForEach(0..<viewModel.postImages.count, id: \.self) { index in
-                        Image(uiImage: viewModel.postImages[index])
-                            .resizable()
-                            .frame(width: 80, height: 80)
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                    ForEach(Array(viewModel.postImages.enumerated()), id: \.offset) { index, img in
+                        ImageThumb(index: index, image: img) { i in
+                            // 이미지 배열에서 제거
+                            if i < viewModel.postImages.count {
+                                viewModel.postImages.remove(at: i)
+                            }
+                            // PhotosPicker 선택 목록에서도 제거
+                            if i < selectedItems.count {
+                                selectedItems.remove(at: i)
+                            }
+                            // 현재 페이지 인덱스 보정
+                            let newCount = viewModel.postImages.count
+                            if newCount == 0 {
+                                viewModel.currentIndex = 0
+                            } else if viewModel.currentIndex >= newCount {
+                                viewModel.currentIndex = max(0, newCount - 1)
+                            }
+                        }
                     }
 
                     Button(action: {
                         showPhotosPicker = true
                     }) {
-                        Image("emptyBigImage")
+                        Image("imagePicker")
                             .resizable()
                             .frame(width: 80, height: 80)
                             .clipShape(RoundedRectangle(cornerRadius: 12))
@@ -261,17 +262,33 @@ struct PostEditView: View {
                                   maxSelectionCount: 5, matching: .images,
                                   photoLibrary: .shared()
                     )
-                    .onChange(of: selectedItems) { newItems in
+                    .onChange(of: selectedItems) { oldItems, newItems in
                         Task {
-                            viewModel.postImages = []
+                            var newlyLoaded: [UIImage] = []
                             for item in newItems {
                                 if let data = try? await item.loadTransferable(type: Data.self),
                                    let image = UIImage(data: data) {
-                                    viewModel.postImages.append(image)
+                                    newlyLoaded.append(image)
                                 }
                             }
                             await MainActor.run {
-                                viewModel.currentIndex = 0
+                                // 남은 수용량 계산(이미 있던 것 + 새것 <= 5)
+                                let remaining = max(0, 5 - viewModel.postImages.count)
+                                if remaining > 0 {
+                                    let slice = newlyLoaded.prefix(remaining)
+                                    viewModel.postImages.append(contentsOf: slice)
+                                }
+                                // 페이지 인덱스 보정
+                                if !viewModel.postImages.isEmpty {
+                                    viewModel.currentIndex = min(viewModel.currentIndex, viewModel.postImages.count - 1)
+                                } else {
+                                    viewModel.currentIndex = 0
+                                }
+
+                                // 선택 목록도 5장 제한에 맞춰 정리(선택지가 너무 많을 때 잘라냄)
+                                if selectedItems.count > 5 {
+                                    selectedItems = Array(selectedItems.prefix(5))
+                                }
                             }
                         }
                     }
@@ -280,11 +297,6 @@ struct PostEditView: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 10)
-        .background(
-            RoundedRectangle(cornerRadius: 12)
-                .foregroundStyle(Color.backFillRegular)
-        )
-        .padding(.horizontal, 16)
     }
 
     private var contentInputView: some View {
@@ -310,8 +322,7 @@ struct PostEditView: View {
                     TextEditor(text: $viewModel.title)
                         .customStyleEditor(placeholder: "제목은 최대 15자까지 가능해요", userInput: $viewModel.title, maxLength: 15)
                         .frame(height: 48)
-                        .background(Color.backFillRegular)
-                        .tint(Color.contentInverted)
+                        .focused($focusedField, equals: .title)
                 }
 
                 VStack(alignment: .leading, spacing: 8) {
@@ -324,15 +335,10 @@ struct PostEditView: View {
                     TextEditor(text: $viewModel.content)
                         .customStyleEditor(placeholder: "나만의 멋진 내용을 적어주세요!", userInput: $viewModel.content, maxLength: 100)
                         .frame(height: 156)
-                        .background(Color.backFillRegular)
-                        .tint(Color.contentInverted)
+                        .focused($focusedField, equals: .content)
                 }
                 .padding(.vertical, 8)
             }
-            .background(
-                RoundedRectangle(cornerRadius: 12)
-                    .foregroundStyle(Color.backFillRegular)
-            )
             .padding(.horizontal, 16)
 
             Rectangle()
@@ -383,11 +389,6 @@ struct PostEditView: View {
             .padding(.vertical, 10)
         }
         .padding(.horizontal, 16)
-        .background(
-            RoundedRectangle(cornerRadius: 12)
-                .foregroundStyle(Color.backFillRegular)
-        )
-        .padding(.horizontal, 16)
     }
 
     private var brandInputView: some View {
@@ -413,10 +414,9 @@ struct PostEditView: View {
                     maxLength: nil
                 )
                 .frame(height: 48)
-                .background(Color.backFillRegular)
-                .tint(Color.contentInverted)
+                .focused($focusedField, equals: .brand)
                 .padding(.vertical, 8)
-                .onChange(of: brandInput) { newValue in
+                .onChange(of: brandInput) { oldValue, newValue in
                     if newValue.contains("\n") {
                         let trimmed = newValue.trimmingCharacters(in: .whitespacesAndNewlines)
                         if !trimmed.isEmpty,
@@ -444,11 +444,6 @@ struct PostEditView: View {
             .padding(.vertical, 10)
         }
         .padding(.horizontal, 16)
-        .background(
-            RoundedRectangle(cornerRadius: 12)
-                .foregroundStyle(Color.backFillRegular)
-        )
-        .padding(.horizontal, 16)
     }
 
     private var shopTagView: some View {
@@ -473,10 +468,9 @@ struct PostEditView: View {
                     userInput: $shopInput,
                     maxLength: nil)
                 .frame(height: 48)
-                .background(Color.backFillRegular)
-                .tint(Color.contentInverted)
+                .focused($focusedField, equals: .shop)
                 .padding(.vertical, 8)
-                .onChange(of: shopInput) { newValue in
+                .onChange(of: shopInput) { oldValue, newValue in
                     if newValue.contains("\n") {
                         let trimmed = newValue.trimmingCharacters(in: .whitespacesAndNewlines)
                         if !trimmed.isEmpty {
@@ -497,11 +491,6 @@ struct PostEditView: View {
                     .padding(.vertical, 10)
             }
         }
-        .padding(.horizontal, 16)
-        .background(
-            RoundedRectangle(cornerRadius: 12)
-                .foregroundStyle(Color.backFillRegular)
-        )
         .padding(.horizontal, 16)
     }
     
@@ -600,7 +589,7 @@ struct PostEditView: View {
 }
 
 #Preview {
-    NavigationStack {
-        PostEditView()
-    }
+    let container = DIContainer()
+    PostEditView()
+        .environmentObject(container)
 }

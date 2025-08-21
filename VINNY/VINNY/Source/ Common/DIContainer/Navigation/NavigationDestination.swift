@@ -27,7 +27,7 @@ enum NavigationDestination: Hashable {
     case TopsideProfileView
     case MyProfileView
     case LastSignUpView
-    case UploadReviewView
+    case UploadReviewView(shopId: Int)
     case ShopView(id:Int)
     case RecommendView
     case NotificationView

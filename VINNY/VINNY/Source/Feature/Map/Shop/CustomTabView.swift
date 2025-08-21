@@ -9,10 +9,25 @@ import SwiftUI
 import SwiftData
 
 struct CustomTabView: View {
+    let shopId: Int
+    @ObservedObject var reviewsVM: ReviewsViewModel 
+    var onTapDelete: (ShopReview) -> Void = { _ in }
+
+    var photos: [String]
+
+    init(
+        shopId: Int,
+        reviewsVM: ReviewsViewModel,
+        photos: [String] = [],
+        onTapDelete: @escaping (ShopReview) -> Void = { _ in }
+    ) {
+        self.shopId = shopId
+        self.reviewsVM = reviewsVM
+        self.photos = photos
+        self.onTapDelete = onTapDelete
+    }
     @State var selectedFilter: Int = 0
     let filters: [String] = ["사진", "후기"]
-    private var isReview: Bool = false
-    private var reviewCount: Int = 59
     
     var body: some View {
         VStack(spacing: 0) {
@@ -32,7 +47,7 @@ struct CustomTabView: View {
                                         .font(selectedFilter == index ? .suit(.bold, size: 16) : .suit(.light, size: 16))
                                         .foregroundStyle(selectedFilter == index ? Color.contentBase : Color.contentDisabled)
                                     if filters[index] == "후기" {
-                                        Text("\(reviewCount)개")
+                                        Text("\(reviewsVM.reviews.count)개")
                                             .foregroundStyle(Color.contentAdditive)
                                             .font(.suit(.medium, size: 12))
                                             .padding(.horizontal, 6)
@@ -67,17 +82,39 @@ struct CustomTabView: View {
             
             
             if selectedFilter == 0 {
-                PhotosView()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                ScrollView {
+                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+                        ForEach(photos, id: \.self) { url in
+                            AsyncImage(url: URL(string: url)) { image in
+                                image.resizable()
+                                    .scaledToFill()
+                            } placeholder: {
+                                Color.gray.opacity(0.2)
+                            }
+                            .frame(width: UIScreen.main.bounds.width / 2 - 24, height: UIScreen.main.bounds.width / 2 - 24)
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                        }
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 10)
+                }
+            } else if selectedFilter == 1 {
+                ReviewsView(viewModel: reviewsVM, onTapDelete: onTapDelete)
+                    .padding(.top, 16)
+                    .frame(maxWidth: .infinity)
             } else {
-                ReviewsView()
+                EmptyView()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
         .background(Color.backFillStatic)
+        .task(id: shopId) {
+            await reviewsVM.load(shopId: shopId)
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .didUploadReview)) { note in
+            guard (note.object as? Int) == shopId else { return }
+            Task { await reviewsVM.load(shopId: shopId) }
+        }
     }
 }
 
-#Preview {
-    CustomTabView()
-}

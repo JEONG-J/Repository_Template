@@ -12,17 +12,22 @@ struct ShopItem: Decodable {
     let latitude: Double
     let longitude: Double
     let vintageStyleList: [StyleItem]
+    let mainVintageStyle: StyleItem?
 }
-struct StyleItem: Decodable {
+
+struct StyleItem: Decodable, Hashable {
     let id: Int
     let vintageStyleName: String
 }
 
-struct GetSavedShopDTO: Codable {
+struct GetSavedShopDTO: Decodable {
     let id: Int
     let latitude: Double
     let longitude: Double
-    let style: [String]
+    let vintageStyleList: [VintageStyleDTO]
+    let mainVintageStyle: VintageStyleDTO?
+    
+    var style: [String] { vintageStyleList.map(\.vintageStyleName) }
 }
 
 struct GetShopOnMapDTO: Decodable {
@@ -35,11 +40,12 @@ struct GetShopOnMapDTO: Decodable {
     let latitude: Double
     let longitude: Double
     let region: String
+    let logoImage: String
     let images: [ShopImage] //수정 가능성 있음
     let styles: [StyleItem]
     
     private enum CodingKeys: String, CodingKey {
-        case id, name, openTime, closeTime, instagram, address, latitude, longitude, region, images
+        case id, name, openTime, closeTime, instagram, address, latitude, longitude, region, logoImage, images
         case styles = "shopVintageStyleList"
     }
 }

@@ -90,19 +90,13 @@ struct PostDetailDTO: Decodable, Hashable {
     let bookmarkedByMe: Bool
     let shop: PostShopMiniDTO?
     let styles: [PostStyleMiniDTO]
-    let brand: PostBrandMiniDTO?
+    let brands: [PostBrandMiniDTO]
     let likedByMe: Bool
 }
 
 
 // MARK: - POST /api/post (Create)
-struct CreatePostRequestDTO: Encodable {
-    let title: String
-    let content: String
-    let shopId: Int?
-    let styleId: Int?
-    let brandId: Int?
-}
+
 
 struct CreatePostResponseDTO: Decodable {
     let isSuccess: Bool
@@ -125,4 +119,35 @@ struct UpdatePostResponseDTO: Decodable {
     let message: String
     let result: CreatePostResultDTO   // server returns { postId }, same shape as create
     let timestamp: String
+}
+
+//게시글 좋아요 누르기
+struct PostLikeDTO: Decodable {
+    let isSuccess : Bool
+    let code : String
+    let message: String
+    let result : String
+    let timestamp :String
+}
+
+// 게시글 좋아요 취소
+struct PostLikeDelete: Decodable {
+    let isSuccess : Bool
+    let code : String
+    let message: String
+    let result : String
+    let timestamp :String
+    
+}
+
+
+//게시글 북마크 추가
+
+
+struct PostBookMarkDTO: Decodable {
+    let isSuccess : Bool
+    let code : String
+    let message: String
+    let result : String
+    let timestamp :String
 }

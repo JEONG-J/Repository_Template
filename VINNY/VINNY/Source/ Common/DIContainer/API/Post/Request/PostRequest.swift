@@ -7,10 +7,19 @@
 
 import Foundation
 
+struct CreatePostRequestDTO: Encodable {
+    let title: String
+    let content: String
+    let brandNames: [String]
+    let styleNames: [String]
+    let shopName: String
+}
+
 struct UpdatePostRequestDTO: Encodable {
     let title: String
     let content: String
-    let styleIds: [Int]?    // optional so we can omit when unchanged
-    let brandIds: [Int]?    // optional so we can omit when unchanged
+    let styleIds: [Int]?
+    let brandIds: [Int]?
     let shopId: Int?
 }
+

@@ -51,7 +51,10 @@ struct LoginView: View {
         VStack(spacing: 8) {
             // Apple 로그인 버튼
             Button(action: {
-                container.navigationRouter.push(to: .CategoryView)
+//                container.navigationRouter.push(to: .CategoryView)
+                Task {
+                    _ = await viewModel.loginWithApple()
+                }
             }) {
                 Image("applelogin")
                     .resizable()
@@ -63,16 +66,16 @@ struct LoginView: View {
             .padding(.top, 10)
             // 카카오 로그인 버튼
             Button(action: {
-                        Task {
-                            await viewModel.loginWithKakao()
-                        }
-                    }) {
-                        Image("kakaologin")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(height: 56)
-                            .cornerRadius(12)
-                            .padding(.horizontal, 16)
+                Task {
+                    await viewModel.loginWithKakao()
+                }
+            }) {
+                Image("kakaologin")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(height: 56)
+                    .cornerRadius(12)
+                    .padding(.horizontal, 16)
 
             }
             .padding(.bottom, 10)

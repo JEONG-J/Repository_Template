@@ -29,6 +29,9 @@ final class MapViewModel: ObservableObject {
     @Published var hasSetInitialRegion: Bool = false // 최초 진입 시 한 번만 자동 위치 설정 여부
     @Published var shouldTrackUserLocation: Bool = true // 사용자가 지도를 직접 조작했는지 여부 → true일 경우에만 카메라 이동 허용
     
+    // MARK: - Saved Shops
+    @Published var showingFavorites: Bool = false
+    
     // MARK: - Location
     /// func updateFromLocation(_ location: CLLocation?) : CLLocation 객체가 전달되었을 때, 안전하게 좌표를 추출해서 카메라 위치를 업데이트 함
     /// 위치를 받아 지도 카메라와 중심 좌표를 설정
@@ -77,12 +80,12 @@ final class MapViewModel: ObservableObject {
                     let decoded = try JSONDecoder().decode(MapAllResponseDTO.self, from: response.data)
 
                     let markers = decoded.result.map { item in
-                        let styleName = item.vintageStyleList.first?.vintageStyleName
+                        let primaryName = item.mainVintageStyle?.vintageStyleName ?? item.vintageStyleList.first?.vintageStyleName
                         return Marker(
                             shopId: item.id,
                             coordinate: .init(latitude: item.latitude, longitude: item.longitude),
                             title: "Shop #\(item.id)",
-                            category: Category.fromAPI(styleName)
+                            category: Category.fromAPI(primaryName)
                         )
                     }
                     
@@ -129,5 +132,56 @@ final class MapViewModel: ObservableObject {
             }
         }
     }
-    // TODO: makers를 기반으로 화면에 맞는 영역을 계산해 초기 fit 적용 (fitRegionToMarkers)
+    
+    func fetchSavedShops() {
+        mapProvider.request(.getSavedShopOnMap) { (result: Result<Response, MoyaError>) in
+            switch result {
+            case .success(let response):
+                guard (200...299).contains(response.statusCode) else {
+                    print("❌ HTTP \(response.statusCode) for favorites")
+                    print("↳ body:", String(data: response.data, encoding: .utf8) ?? "no body")
+                    return
+                }
+                do {
+                    // 서버 스펙: envelope 안에 [GetSavedShopDTO]
+                    let saved = try JSONDecoder()
+                        .decode(MapEnvelope<[GetSavedShopDTO]>.self, from: response.data)
+                        .result
+
+                    let markers = saved.map { item in
+                        let primaryName = item.mainVintageStyle?.vintageStyleName ?? item.vintageStyleList.first?.vintageStyleName
+                        return Marker(
+                            shopId: item.id,
+                            coordinate: .init(latitude: item.latitude, longitude: item.longitude),
+                            title: "Shop #\(item.id)",
+                            category: Category.fromAPI(primaryName)
+                        )
+                    }
+
+                    DispatchQueue.main.async {
+                        self.makers = markers
+                    }
+                } catch {
+                    print("❌ Decode favorites error:", error)
+                    print("↳ raw:", String(data: response.data, encoding: .utf8) ?? "binary")
+                    // 실패 시 전부 즐겨찾기로 보이지 않도록 기존 makers 유지 or 비우는 쪽 택1
+                    // self.makers = []
+                }
+
+            case .failure(let err):
+                print("❌ API error (favorites):", err)
+            }
+        }
+    }
+
+    
+    // ★ 버튼 토글 시 호출
+    func toggleFavorites() {
+        showingFavorites.toggle()
+        if showingFavorites {
+            fetchSavedShops()
+        } else {
+            fetchShops() // 전체 목록으로 복귀
+        }
+    }
 }
