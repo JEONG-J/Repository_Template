@@ -4,8 +4,9 @@
 
 > 간단한 한 줄 소개 – 프로젝트의 핵심 가치 또는 기능
 
-[![Swift](https://img.shields.io/badge/Swift-6.0-orange.svg)]()
-[![Xcode](https://img.shields.io/badge/Xcode-16.0-blue.svg)]()
+[![Swift](https://img.shields.io/badge/Swift-6.2-orange.svg)]()
+[![Xcode](https://img.shields.io/badge/Xcode-16.4-blue.svg)]()
+[![Vapor](https://img.shields.io/badge/Vapor-19.2-purple.svg)]()
 [![License](https://img.shields.io/badge/license-MIT-green.svg)]()
 
 ---
@@ -37,9 +38,9 @@
 ## 🤔 요구사항
 For building and running the application you need:
 
-iOS 18.2 <br>
-Xcode 16.2 <br>
-Swift 6.0
+iOS 20.0 <br>
+Xcode 16.4 <br>
+Swift 6.2
 
 <br>
 

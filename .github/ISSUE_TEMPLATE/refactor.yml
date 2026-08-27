@@ -20,6 +20,18 @@ body:
       required: true
 
   - type: textarea
+    id: tasks
+    attributes:
+      label: ✅ 완료 조건
+      value: |
+        - [ ]
+      placeholder: |
+        - [ ] 기존 로직 분리
+        - [ ] 테스트 통과 확인
+    validations:
+      required: true
+
+  - type: textarea
     id: effect
     attributes:
       label: 💥 기대 효과

@@ -1,0 +1,120 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+> **구조 안내**: 이 파일은 **핵심 요약 + 절대 규칙 + 레퍼런스 인덱스**만 담는 허브입니다.
+> 주제별 상세 내용은 `docs/claude/` 로 분리되어 있으며, **필요할 때 해당 파일을 `Read` 로 열어** 참고합니다.
+> (컨텍스트 절약을 위해 `@import` 로 전체를 인라인하지 않습니다.)
+>
+> **새 프로젝트 시작 시**: 아래 `{{ }}` 자리와 `AppName`/`com.example.appname` 플레이스홀더를
+> 실제 값으로 치환하고, 이 안내 블록은 지웁니다. 치환 대상 전체 목록은 `TEMPLATE_SETUP.md` 참고.
+
+## Project Overview
+
+**{{프로젝트 이름}}** — SwiftUI + iOS {{최소 지원 버전}}+
+
+- **App Statement**: "{{한 줄 슬로건}}"
+- **목적**: {{해결하려는 문제}}
+- **주요 모듈**: {{인증/홈/…}}
+- **현재 버전**: {{x.y.z}}
+
+## 아키텍처 한눈에
+
+**Feature-Based Modular + Clean Architecture + Observation**
+
+```
+View ←→ ViewModel(@Observable) → UseCase(Protocol) → Repository → DataSource
+                                    ↑  DIContainer가 Protocol 구현체 주입
+```
+
+- **Presentation → Domain → Data** 단방향. 상위는 하위의 Protocol에만 의존 (DIP)
+- **Router**: AppRouter(모듈 간/딥링크) + Feature Router(내부 화면). Tab별 독립 `NavigationStack`
+- 상세: `docs/claude/architecture.md`
+
+## 절대 규칙 (항상 적용)
+
+이 항목들은 위반 시 컴파일 에러·런타임 크래시·리뷰 반려로 이어지므로 **예외 없이 지킵니다.**
+
+1. **상태 관리는 `@Observable` 매크로만** — `@StateObject`/`@ObservedObject`/`@Published` 금지.
+   예외: 앱 생명주기 전역 관리자(`AppFlowViewModel`). View는 `@State private var viewModel` 패턴.
+2. **서버 응답 정수는 전 레이어 `String` 통일** — 서버가 모든 정수를 String으로 직렬화하는 경우.
+   Response DTO·Domain Model·Repository Protocol 파라미터까지 `String`. Int 변환은 연산 시점에만.
+   (서버가 정수를 정수로 내려주는 프로젝트라면 이 규칙은 삭제한다.)
+3. **Response DTO는 synthesized Codable 금지** — custom `init(from:)` + `encode(to:)` 필수.
+   정수 필드는 `decode(Int.self)` 직접 호출 금지 → `decodeIntFlexibleIfPresent` 헬퍼 사용.
+   (Request/Encodable DTO는 제외 — Int 그대로 OK)
+4. **모듈 간 노출 타입은 `public`** — Domain Model의 프로퍼티/이니셜라이저에 `public` 필수.
+5. **Mock 데이터는 `#if DEBUG` 가드** — 릴리스 빌드 미포함.
+6. **Network Router에 인라인 딕셔너리 금지** — 파라미터는 Query/Body DTO로 캡슐화.
+7. **식별자에 의미 없는 숫자 접미사 금지** — `text1`/`btn2Color` 등 금지, 역할이 드러나는 이름 부여.
+8. **커밋·PR·이슈에 AI 작성 흔적(attribution) 절대 금지** — 커밋 메시지의 `Co-Authored-By` 라인,
+   PR·이슈 제목/본문의 `🤖 Generated with [Claude Code](...)` 푸터 등 AI가 작성했음을 드러내는 문구 일체 추가 금지.
+9. **작업 브랜치명은 `{타입}/{이슈번호}` — 이슈를 먼저 만들고 그 번호를 쓴다.**
+   타입은 이슈 템플릿과 1:1로 맞춘다: `feat` · `bug` · `design` · `refac` · `docs` · `chore`.
+   (예: `docs/1203`, `feat/1195`) 설명형 브랜치명(`docs/repo-rename-links` 등) 금지.
+   - 대응 이슈가 없으면 **브랜치를 만들기 전에 이슈부터 생성**한다 (제목 접두사·라벨·Type·Priority/Effort까지 채워서 — 상세: `docs/claude/git-workflow.md`).
+   - **PR 제목은 `{이모지} [Type] {작업 내용} (#이슈번호)`** — 분류는 반드시 `[대괄호]`, 끝에 이슈번호.
+     (예: `✨ [Feat] 명함 도메인 계층 — MyCard · 명함첩 · 교환 세션 UseCase (#1194)`)
+     **이슈 제목 형식(`📄 Docs: …` — 콜론)을 PR 제목에 쓰지 않는다.** `[Docs]:`처럼 대괄호 뒤 콜론도 금지.
+     본문에는 `Closes #이슈번호`를 넣어 이슈와 연결한다. (이모지·Type 매핑표: `docs/claude/git-workflow.md`)
+   - 이미 푸시한 브랜치명을 고쳐야 하면 GitHub 브랜치 rename API는 **열려 있던 PR을 닫아버리므로**, rename 후 새 PR을 만들고 닫힌 PR에 후속 PR 번호를 코멘트로 남긴다.
+   - 배포 브랜치는 예외: `testFlight/{번호}` · `release/{번호}` (순차 번호, 이슈번호 아님).
+
+## 코딩 스타일 (요약)
+
+- 들여쓰기 4 spaces(탭 금지) · 줄 길이 최대 99자 · 외부 불필요 상태는 `private`
+- View 내부 전용 상수는 `fileprivate enum Constants`
+- 약어 금지(`id`/`URL`/`API` 등 도메인 표준만 허용) · 타입명을 이름에 박지 않기
+- MARK: `// MARK: - Property` / `// MARK: - Body` / `// MARK: - Function`
+- 상세 + 안티패턴 예시: `docs/claude/coding-style.md`
+
+## 에러 처리 (요약)
+
+- **Loadable** (`.idle/.loading/.loaded/.failed`): 화면 내 인라인 상태 (리스트 로딩, 도메인 에러, 검증 실패)
+- **ErrorHandler**: 흐름 중단형 전역 Alert (세션 만료, 권한, 네트워크 오류)
+- **AlertPrompt**: 확인/취소 다이얼로그 (파괴적 작업, 분기점) — `.alertPrompt(item:)`
+- 상세: `docs/claude/architecture.md`
+
+## 빌드 명령 (요약)
+
+```bash
+# Tuist — 표준 진입점은 Makefile
+cd AppName && make bootstrap  # 최초 1회: mise + tuist 설치
+cd AppName && make open       # generate + Xcode 열기
+cd AppName && make test       # 테스트
+cd AppName && make doctor     # 환경 진단
+```
+
+- Tuist 버전은 `AppName/mise.toml` 로 고정
+- 상세: `docs/claude/build-and-modules.md`, `AppName/MAKEFILE_GUIDE.md`
+
+## 상세 레퍼런스 (필요 시 Read)
+
+프로젝트 규약 — 해당 작업을 할 때 먼저 열어본다:
+
+| 주제 | 문서 | 언제 읽나 |
+|------|------|----------|
+| 빌드 & Tuist 모듈 구조 | `docs/claude/build-and-modules.md` | 모듈 추가, 빌드 설정, 의존성 |
+| 아키텍처 / Observation / 에러 | `docs/claude/architecture.md` | ViewModel·UseCase·에러 처리 작업 |
+| Network Router (Moya) | `docs/claude/network-router.md` | API 엔드포인트/DTO 추가 |
+| Response DTO 디코딩 | `docs/claude/response-dto-decoding.md` | Response DTO 작성/수정 |
+| 디자인 시스템 & 성능 | `docs/claude/design-system.md` | UI/토큰/Glass/렌더링 최적화 |
+| 코딩 스타일 & 네이밍 | `docs/claude/coding-style.md` | 네이밍 판단이 필요할 때 |
+| Git Workflow | `docs/claude/git-workflow.md` | 브랜치/커밋/PR/이슈(템플릿·Type·Priority)/배포 |
+| PR 리뷰 규칙 & 체크리스트 | `docs/claude/pr-review.md` | PR 리뷰 작성 시 |
+
+iOS 26 프레임워크 API — 신규 Apple API를 다룰 때:
+
+| 모음 | 인덱스 | 언제 읽나 |
+|------|--------|----------|
+| iOS 26 프레임워크 가이드(20종) | `docs/claude/ios26-frameworks/INDEX.md` | Liquid Glass, FoundationModels, SwiftData 상속, 신규 SwiftUI/Concurrency API 등 |
+
+백엔드(서버) — API 연동·서버 상태 확인이 필요할 때:
+
+| 대상 | 위치 | 언제 참고하나 |
+|------|------|--------------|
+| 서버 레포 | {{서버 레포 URL}} | API 엔드포인트·요청/응답 스펙 확인, 서버 구현/배포 상태 점검, iOS DTO와 실제 응답이 어긋날 때 원인 추적 |
+
+- 조회 수단: `gh` CLI(`gh api repos/YOUR-ORG/{{서버레포}}/contents/...`) 또는 `WebFetch`.
+- **읽기 전용으로만 사용** — 서버 레포에 커밋·PR·이슈를 만들지 않는다(메인테이너가 명시적으로 지시한 경우 제외).
+- 스펙 추측 금지: 필드명·타입·nullable 여부는 서버의 컨트롤러/DTO 실제 코드로 확인한 뒤 iOS Response DTO에 반영한다.
