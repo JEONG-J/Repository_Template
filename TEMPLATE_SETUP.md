@@ -19,9 +19,14 @@ mv AppName Growly
 
 딥링크 URL 스킴(`appname://`)과 Bonjour 서비스명(`_appname-card._tcp`)도 같이 바꾼다.
 
-## 2. `CLAUDE.md` 채우기
+## 2. `CLAUDE.md` · `README.md` 채우기
 
-`{{ }}` 자리(프로젝트 이름·슬로건·목적·모듈 목록·버전·서버 레포 URL)를 채우고, 맨 위 안내 블록을 지운다.
+두 파일 모두 `{{ }}` 자리를 채운다. `grep -rn '{{' CLAUDE.md README.md` 로 남은 곳을 확인한다.
+
+- `CLAUDE.md` — 프로젝트 이름·슬로건·목적·모듈 목록·버전·서버 레포 URL. 맨 위 안내 블록은 지운다.
+- `README.md` — 슬로건·소개·Killer Features 3개·기술스택 이미지·조직도 이미지·팀 이름.
+  `YOUR-ORG/YOUR-REPO` 는 1번 치환에서 이미 바뀐다.
+
 서버가 정수를 정수로 내려주는 프로젝트면 **절대 규칙 #2·#3(String 통일 / custom Codable)은 삭제**한다.
 
 ## 3. Tuist 스캐폴딩
@@ -49,8 +54,8 @@ make open
 복사 시 프로젝트 고유 내용이 남아 있는 곳:
 
 - `docs/claude/build-and-modules.md` — 모듈 경계 정책이 이전 프로젝트 Feature 기준. 모듈 목록 갱신 필요
-- `docs/claude/git-workflow.md` — PR 제목 예시의 이슈 번호는 예시일 뿐
-- `README.md` — 기존 템플릿 README. 팀원·기간·스택 채우기
+- `docs/claude/git-workflow.md` — PR 제목 예시의 이슈 번호는 예시일 뿐.
+  브랜치·커밋·PR·이슈 컨벤션이 전부 여기 있다 (README 에 중복 서술하지 않는다)
 
 ## 5. GitHub 설정
 
