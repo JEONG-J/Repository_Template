@@ -2,6 +2,8 @@
 
 이 문서는 `openapi.json`(Swagger/OpenAPI 스펙)을 기반으로 iOS API 연결 뼈대를 빠르게 만드는 방법을 설명합니다.
 
+- 작성자: 제옹(euijjang97)
+
 ## 포함된 구성
 
 - `tools/openapi/generate_endpoint_scaffold.sh`

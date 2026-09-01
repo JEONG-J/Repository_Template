@@ -5,7 +5,9 @@
 
 API Router는 **엔드포인트 메타데이터(Path / Method / Encoding)만** 책임집니다.
 **파라미터 키 이름과 직렬화 규칙은 Request/Query DTO가 캡슐화**합니다.
-`AppName/Features/*/Data/Router/` 와 `AppName/Features/*/Data/Router/` 양쪽 동일하게 적용합니다.
+`AppName/Features/*/Data/Router/` 에 동일하게 적용합니다.
+
+- 작성자: 제옹(euijjang97)
 
 ## 원칙
 

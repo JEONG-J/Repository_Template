@@ -71,7 +71,7 @@ Shared.xcconfig (+ Secrets.xcconfig 오버라이드)
 
 CI 는 Debug 구성으로 빌드하므로 위 가드는 경고만 남깁니다. **Release 아카이브를 만드는 파이프라인
 (Xcode Cloud `ci_post_clone` 등)에서는 실제 값을 주입해야 빌드가 통과합니다.** 레거시 스크립트
-`AppProduct/ci_scripts/ci_post_clone.sh` 가 환경 변수 → xcconfig/plist 생성 로직의 참고 구현입니다
+Xcode Cloud 의 `ci_scripts/ci_post_clone.sh` 가 환경 변수 → xcconfig/plist 생성 로직의 참고 구현입니다
 (경로만 `AppName/Secrets/`, `AppName/AppName/Resources/` 로 바꾸면 됩니다).
 
 > xcconfig 에서 `//` 는 주석이므로 URL 은 `https:/$()/...` 형태로 escape 합니다.

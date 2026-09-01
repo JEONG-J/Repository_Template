@@ -53,9 +53,13 @@ make open
 
 복사 시 프로젝트 고유 내용이 남아 있는 곳:
 
-- `docs/claude/build-and-modules.md` — 모듈 경계 정책이 이전 프로젝트 Feature 기준. 모듈 목록 갱신 필요
+- `docs/claude/build-and-modules.md` — Core/Features 트리와 외부 의존성 표가 예시다.
+  실제 모듈 목록으로 갈아끼우고, 「모듈 경계 정책」 절은 프로젝트에서 확정될 때마다 채운다.
+  watchOS 를 안 쓰면 「플랫폼(destination) 정책」·「공유 Keychain Access Group」 절은 삭제한다.
 - `docs/claude/git-workflow.md` — PR 제목 예시의 이슈 번호는 예시일 뿐.
   브랜치·커밋·PR·이슈 컨벤션이 전부 여기 있다 (README 에 중복 서술하지 않는다)
+- 문서 상단 `- 작성자: 제옹(euijjang97)` 줄 — 다른 사람이 쓰면 본인 표기로 바꾼다.
+  소스 헤더(`//  Created by ...`)·스크립트 헤더도 같다 (`CLAUDE.md` 코딩 스타일 절).
 
 ## 5. GitHub 설정
 
@@ -70,7 +74,7 @@ make open
 |------|------|
 | `CLAUDE.md` | 규약 허브 (절대 규칙 + 레퍼런스 인덱스) |
 | `docs/claude/` | 아키텍처·코딩스타일·디자인시스템·네트워크·DTO·Git워크플로·PR리뷰 |
-| `docs/claude/ios26-frameworks/` | iOS 26 프레임워크 가이드 20종 (Liquid Glass, FoundationModels 등) |
+| `docs/claude/apple-frameworks/` | Apple 프레임워크 가이드 20종 (Liquid Glass, FoundationModels 등) + Apple 스킬팩 9종(reference 66종) |
 | `.claude/agents/`, `.claude/skills/`, `.agents/skills/` | Claude Code 에이전트·스킬 (심볼릭 링크 유지) |
 | `.github/` | 이슈 템플릿 6종 · PR 템플릿 · 배포 PR 템플릿 · Tuist CI |
 | `tools/openapi/` | OpenAPI → Swift 엔드포인트 스캐폴딩 스크립트 + 템플릿 |

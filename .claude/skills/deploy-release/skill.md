@@ -68,8 +68,8 @@ grep -m1 '"MARKETING_VERSION":' AppName/Tuist/ProjectDescriptionHelpers/Settings
   | grep -oE '[0-9]+\.[0-9]+(\.[0-9]+)?'
 ```
 
-> 레거시 `AppName/AppName.xcodeproj/project.pbxproj` 는 v2.2.0 에 동결되어 있다.
-> 여기서 버전을 뽑으면 배포되지 않는 구버전이 PR 제목에 찍힌다 (이슈 #1128).
+> 레거시 xcodeproj 를 함께 두고 있다면 거기서 버전을 뽑지 않는다 —
+> 배포되지 않는 구버전이 PR 제목에 찍힌다. 버전 출처는 Tuist 매니페스트 하나로 고정한다.
 
 위 커밋 목록과 버전 정보를 활용하여 PR 생성:
 

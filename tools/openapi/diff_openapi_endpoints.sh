@@ -1,4 +1,11 @@
 #!/usr/bin/env bash
+#
+#  diff_openapi_endpoints.sh
+#  AppName
+#
+#  Created by euijjang97 on 2/13/26.
+#
+
 set -euo pipefail
 
 usage() {

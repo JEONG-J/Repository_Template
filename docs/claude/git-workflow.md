@@ -5,6 +5,8 @@
 
 Git Flow + **연속 브랜치 파생** 지원
 
+- 작성자: 제옹(euijjang97)
+
 ## 브랜치 전략
 
 - **브랜치명은 `{타입}/{이슈번호}`** — 타입은 이슈 템플릿과 1:1(`feat`/`bug`/`design`/`refac`/`docs`/`chore`),
@@ -69,8 +71,54 @@ Git Flow + **연속 브랜치 파생** 지원
 - 배포 PR은 위 형식 대신 배포 브랜치 규칙을 따르고 `🛫 TestFlight` / `🚀 Release` 라벨을 붙인다.
 - 여러 성격이 섞이면 변경 비중이 가장 큰 Type을 제목에 쓰고, 부수 라벨을 추가로 붙인다.
 
+## PR 본문 형식
+
+**PR 본문은 `.github/pull_request_template.md` 의 섹션 구조를 그대로 따른다.**
+자기만의 목차(`## 무엇을`, `## 검증`, `## 넘기는 것` 등)를 새로 만들지 않는다.
+
+| 섹션 | 내용 |
+|------|------|
+| `## 🔗 관련 이슈` | `Closes #이슈번호` 를 한 줄에 하나씩 |
+| `## ✨ PR 유형` | 변경 성격 한두 줄 (제목의 `[Type]` 과 일치) |
+| `## 📷 스크린샷 or 영상(UI 변경 시)` | UI 변경이면 필수. 아니면 `UI 변경 없음` 한 줄 |
+| `## 🛠️ 작업내용` | 실제 작업. 이슈가 여러 건이면 `### #이슈번호 — 제목` 으로 나눈다 |
+| `## 📋 추후 진행 상황` | 후속 작업·다음 PR로 넘기는 것·미완료 항목과 사유 |
+| `## 📌 리뷰 포인트` | 리뷰어가 집중해서 볼 지점. 빌드·테스트 검증 결과도 여기 |
+| `## ✅ Checklist` | 템플릿 항목을 그대로 두고 `[x]` 로 체크 |
+
+- 섹션은 **빠뜨리지 않는다.** 해당 없으면 지우지 말고 `해당 없음` 을 적는다.
+- 템플릿의 `<!-- 안내 주석 -->` 은 내용을 채우면서 지운다.
+- 배포 PR(`testFlight`/`release`)은 `.github/PULL_REQUEST_TEMPLATE/deploy.md` 를 쓴다.
+
+> ⚠️ **`gh pr create --body "..."` 는 템플릿을 자동으로 불러오지 않는다.**
+> 템플릿은 GitHub 웹 UI 에서만 자동 적용된다. CLI 로 PR 을 만들 때는 반드시 템플릿을 직접 채워야 한다:
+>
+> ```bash
+> # 템플릿을 복사해 채운 뒤 --body-file 로 넘긴다
+> cp .github/pull_request_template.md /tmp/pr-body.md
+> # ... /tmp/pr-body.md 편집 (섹션 유지, 주석 제거, 내용 작성) ...
+> gh pr create --base develop \
+>   --title "📄 [Docs] 작업 내용 (#1267)" \
+>   --assignee "@me" \
+>   --label ":page_facing_up: Docs" \
+>   --body-file /tmp/pr-body.md
+> ```
+>
+> `--assignee`·`--label` 은 **생략하지 않는다** (위 「PR 규칙」 첫 항목).
+>
+> 이미 만든 PR 의 본문을 고칠 때도 같다: `gh pr edit <번호> --body-file /tmp/pr-body.md`
+
 ## PR 규칙
 
+- **Assignee 와 라벨은 PR 생성 시점에 반드시 지정한다** — 나중에 붙이는 게 아니라 `gh pr create` 플래그로 같이 넘긴다.
+  라벨이 없으면 보드·라벨 필터에서 PR 이 새어나가고, Assignee 가 없으면 담당자 추적이 끊긴다.
+  - **Assignee**: 기본 `--assignee "@me"`(PR 작성자). 다른 사람이 이어받으면 `--assignee <github-login>`,
+    여러 명이면 콤마로 구분(`--assignee "alice,bob"`).
+  - **라벨**: 제목의 `[Type]` 에 대응하는 값 — 위 「PR 제목 형식」 표의 `라벨` 열을 그대로 쓴다.
+    여러 성격이 섞이면 `--label` 을 반복해 복수 지정한다.
+  - 라벨 이름은 `gh label list` 출력 문자열(`:page_facing_up: Docs` 처럼 이모지 코드 포함)과
+    **정확히 일치**해야 한다. 틀리면 `gh pr create` 자체가 실패한다.
+  - 이미 만든 PR 에 누락됐다면: `gh pr edit <번호> --add-assignee "@me" --add-label ":page_facing_up: Docs"`
 - 최소 1인 Approve 필수
 - main/develop 직접 푸시 금지
 - Squash and Merge 사용
@@ -98,7 +146,7 @@ Git Flow + **연속 브랜치 파생** 지원
 - **이슈 Type** (조직 레벨): 현재 `Task` / `Bug` / `Feature` 3종만 존재 → Bug/Feature 외 템플릿은 `Task`로 매핑.
   `gh issue create`엔 `--type` 플래그가 없으므로(gh 2.83.1) **생성 직후 REST로 설정**한다:
   ```bash
-  gh api --method PATCH repos/YOUR-ORG/Big-Dipper-iOS/issues/{번호} -f type=Feature
+  gh api --method PATCH repos/YOUR-ORG/YOUR-REPO/issues/{번호} -f type=Feature
   ```
 - **보드 #3 + `우선순위`(Projects v2)**: 생성 시 **기본으로 보드 추가 + 우선순위 설정**. 단 `project` 스코프 필요 —
   없을 때만 이 부분을 건너뛰고(Type/라벨은 적용) `gh auth refresh -s project` 후 재적용.

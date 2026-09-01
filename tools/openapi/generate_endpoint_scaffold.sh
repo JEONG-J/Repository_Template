@@ -1,4 +1,11 @@
 #!/usr/bin/env bash
+#
+#  generate_endpoint_scaffold.sh
+#  AppName
+#
+#  Created by euijjang97 on 2/13/26.
+#
+
 set -euo pipefail
 
 usage() {

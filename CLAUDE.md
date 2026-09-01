@@ -56,7 +56,14 @@ View ←→ ViewModel(@Observable) → UseCase(Protocol) → Repository → Data
    - **PR 제목은 `{이모지} [Type] {작업 내용} (#이슈번호)`** — 분류는 반드시 `[대괄호]`, 끝에 이슈번호.
      (예: `✨ [Feat] 명함 도메인 계층 — MyCard · 명함첩 · 교환 세션 UseCase (#1194)`)
      **이슈 제목 형식(`📄 Docs: …` — 콜론)을 PR 제목에 쓰지 않는다.** `[Docs]:`처럼 대괄호 뒤 콜론도 금지.
-     본문에는 `Closes #이슈번호`를 넣어 이슈와 연결한다. (이모지·Type 매핑표: `docs/claude/git-workflow.md`)
+     (이모지·Type 매핑표: `docs/claude/git-workflow.md`)
+   - **PR 생성 시 Assignee 와 라벨을 반드시 지정한다** — `gh pr create` 에 `--assignee "@me"` 와
+     `[Type]` 대응 라벨(`--label ":page_facing_up: Docs"` 등)을 같이 넘긴다. 나중에 붙이지 않는다.
+     (라벨명은 `gh label list` 출력과 정확히 일치해야 하며, 누락 시 `gh pr edit <번호> --add-assignee --add-label` 로 보정)
+   - **PR 본문은 `.github/pull_request_template.md` 섹션 구조를 그대로 따른다.**
+     임의 목차(`## 무엇을`·`## 검증` 등) 금지. `Closes #이슈번호`는 `## 🔗 관련 이슈` 섹션에 넣는다.
+     ⚠️ `gh pr create --body "..."`는 템플릿을 불러오지 않는다 — 템플릿을 복사해 채운 뒤
+     `--body-file`로 넘길 것. (섹션 표·예시: `docs/claude/git-workflow.md` "PR 본문 형식")
    - 이미 푸시한 브랜치명을 고쳐야 하면 GitHub 브랜치 rename API는 **열려 있던 PR을 닫아버리므로**, rename 후 새 PR을 만들고 닫힌 PR에 후속 PR 번호를 코멘트로 남긴다.
    - 배포 브랜치는 예외: `testFlight/{번호}` · `release/{번호}` (순차 번호, 이슈번호 아님).
 
@@ -66,6 +73,9 @@ View ←→ ViewModel(@Observable) → UseCase(Protocol) → Repository → Data
 - View 내부 전용 상수는 `fileprivate enum Constants`
 - 약어 금지(`id`/`URL`/`API` 등 도메인 표준만 허용) · 타입명을 이름에 박지 않기
 - MARK: `// MARK: - Property` / `// MARK: - Body` / `// MARK: - Function`
+- 작성자 표기는 `euijjang97` 로 통일 — 소스 파일 헤더는 `//  Created by euijjang97 on {날짜}.`,
+  스크립트(`.sh`/`.py`/`Makefile`/워크플로 `.yml`)는 같은 블록을 `#` 주석으로,
+  문서(`.md`)·위키의 작성자 필드는 `제옹(euijjang97)`
 - 상세 + 안티패턴 예시: `docs/claude/coding-style.md`
 
 ## 에러 처리 (요약)
@@ -103,11 +113,30 @@ cd AppName && make doctor     # 환경 진단
 | Git Workflow | `docs/claude/git-workflow.md` | 브랜치/커밋/PR/이슈(템플릿·Type·Priority)/배포 |
 | PR 리뷰 규칙 & 체크리스트 | `docs/claude/pr-review.md` | PR 리뷰 작성 시 |
 
-iOS 26 프레임워크 API — 신규 Apple API를 다룰 때:
+Apple 프레임워크 API — 신규 Apple API를 다룰 때:
 
 | 모음 | 인덱스 | 언제 읽나 |
 |------|--------|----------|
-| iOS 26 프레임워크 가이드(20종) | `docs/claude/ios26-frameworks/INDEX.md` | Liquid Glass, FoundationModels, SwiftData 상속, 신규 SwiftUI/Concurrency API 등 |
+| Apple 프레임워크 가이드(20종) | `docs/claude/apple-frameworks/INDEX.md` | `glassEffect`·`GlassEffectContainer`(Liquid Glass) · 툴바 신규 API · `AttributedString`/리치 텍스트 · FoundationModels(온디바이스 LLM) · SwiftData 상속 · `@MainActor`/actor/async 동시성 · Swift Charts 3D · WebKit·AlarmKit·MapKit·StoreKit 연동 |
+| Apple 스킬팩(9종 · reference 66종, Apple 원문) | `docs/claude/apple-frameworks/INDEX.md` §3 | **SwiftUI·App Intents 코드를 새로 쓰거나 리뷰할 때.** `@Observable`/`@State`/`@Binding` 소유권 · `@Environment`/`@Entry` 무효화 경고 · `ForEach`/`List` identity(`id: \.self` 안티패턴) · soft-deprecated API 확인(`NavigationView`, 구 `onChange`) · 조건부 `.if` 모디파이어 · 뷰 분해/init 비용 · `Animatable` · App Intents 스키마/`AppEnum` · UIKit 현대화 · Xcode 보안 빌드 설정 |
+
+기획·설계 문서 — **별도 레포로 분리한다**:
+
+| 대상 | 위치 | 언제 참고하나 |
+|------|------|--------------|
+| 기획 문서 레포 | {{기획 문서 레포 URL}} | 기능 설계 스펙·구현 계획·서버 전달용 명세를 읽거나 **새로 쓸 때** |
+
+- 폴더: `server/`(서버팀 전달용 API·푸시 명세) · `specs/`(기능 설계 스펙, PRD) · `plans/`(구현 계획)
+- 파일명: `{기능}_{제목}_{종류}.md` — 밑줄 3분할. (예: `푸시_푸시 딥링크_서버명세.md`)
+  맨 앞 기능 이름으로 정렬되므로 같은 기능의 문서가 한자리에 모인다.
+  종류는 `설계` · `PRD` · `구현계획` · `설계리뷰` · `서버명세` · `서버갭`.
+  **작성일은 파일명에 넣지 않는다** — 문서 본문 상단 `작성일:` 줄에 적는다.
+  고유명사·API 이름(`macOS`, `Command API`, `NavigationTitle`)은 원문 표기를 유지한다.
+- **새 기획·설계 문서는 이 레포에 쓴다** — 코드 레포(`docs/`)에 만들지 않는다.
+  코드 레포의 `docs/` 는 `.gitignore` 에 걸리기 쉬워 문서가 버전 관리 밖에 방치되는 사고가
+  잦다. 그래서 문서 축을 아예 분리한다.
+- 조회 수단: `gh api repos/YOUR-ORG/{{기획레포}}/contents/...` 또는 로컬 클론.
+- 코드 레벨 규약(아키텍처·코딩 스타일·빌드)은 분리 대상이 아니다 — `docs/claude/` 에 그대로 있다.
 
 백엔드(서버) — API 연동·서버 상태 확인이 필요할 때:
 
@@ -117,4 +146,4 @@ iOS 26 프레임워크 API — 신규 Apple API를 다룰 때:
 
 - 조회 수단: `gh` CLI(`gh api repos/YOUR-ORG/{{서버레포}}/contents/...`) 또는 `WebFetch`.
 - **읽기 전용으로만 사용** — 서버 레포에 커밋·PR·이슈를 만들지 않는다(메인테이너가 명시적으로 지시한 경우 제외).
-- 스펙 추측 금지: 필드명·타입·nullable 여부는 서버의 컨트롤러/DTO 실제 코드로 확인한 뒤 iOS Response DTO에 반영한다.
+- 스펙 추측 금지: 필드명·타입·nullable 여부는 서버의 컨트롤러/DTO 실제 코드로 확인한 뒤 iOS Response DTO에 반영한다(절대 규칙 #2·#3과 함께 적용).
